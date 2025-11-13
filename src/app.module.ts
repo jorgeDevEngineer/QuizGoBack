@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KahootModule } from './lib/kahoot/infrastructure/NestJs/kahoot.module';
 import { TypeOrmQuizEntity } from './lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
+import { MediaModule } from './lib/media/infrastructure/NestJs/media.module';
+import { TypeOrmMediaEntity } from './lib/media/infrastructure/TypeOrm/TypeOrmMediaEntity';
 
 @Module({
   imports: [
@@ -30,7 +32,7 @@ import { TypeOrmQuizEntity } from './lib/kahoot/infrastructure/TypeOrm/TypeOrmQu
           return {
             type: 'postgres',
             url: databaseUrl,
-            entities: [TypeOrmQuizEntity],
+            entities: [TypeOrmQuizEntity, TypeOrmMediaEntity],
             synchronize: !isProd,
             ssl: useSsl ? { rejectUnauthorized: false } : false,
           } as any;
@@ -43,7 +45,7 @@ import { TypeOrmQuizEntity } from './lib/kahoot/infrastructure/TypeOrm/TypeOrmQu
           username,
           password,
           database,
-          entities: [TypeOrmQuizEntity],
+          entities: [TypeOrmQuizEntity, TypeOrmMediaEntity],
           synchronize: !isProd,
           ssl: useSsl ? { rejectUnauthorized: false } : false,
         } as any;
@@ -51,6 +53,7 @@ import { TypeOrmQuizEntity } from './lib/kahoot/infrastructure/TypeOrm/TypeOrmQu
     }),
 
     KahootModule,
+    MediaModule,
   ],
 })
 export class AppModule {}
