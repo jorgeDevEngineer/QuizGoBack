@@ -12,7 +12,7 @@ Implementa la lógica de quizzes, gestión de preguntas, salas en tiempo real y 
 1. Clona el repositorio:  
     git clone <repo-url> ⬇️
 2. Copia el ejemplo de variables de entorno y ajústalo:  
-    cp .env.example .env ⚙️
+    .env ⚙️
 3. Instala dependencias:  
     npm install 🧩
 4. Levanta la app:  
