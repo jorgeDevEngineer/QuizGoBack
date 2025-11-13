@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
-// import { UserModule } from './lib/User/infrastructure/NestJs/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-// import { TypeOrmUserEntity } from './lib/User/infrastructure/TypeOrm/TypeOrmUserEntity';
-// import { KahootModule } from './lib/kahoot/infrastructure/NestJs/kahoot.module';
-// import { TypeOrmQuizEntity } from './lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
+import { KahootModule } from './lib/kahoot/infrastructure/NestJs/kahoot.module';
+import { TypeOrmQuizEntity } from './lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
 
 @Module({
   imports: [
@@ -32,7 +30,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           return {
             type: 'postgres',
             url: databaseUrl,
-            entities: [/*TypeOrmQuizEntity*/],
+            entities: [TypeOrmQuizEntity],
             synchronize: !isProd,
             ssl: useSsl ? { rejectUnauthorized: false } : false,
           } as any;
@@ -45,14 +43,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           username,
           password,
           database,
-          entities: [/*TypeOrmQuizEntity*/],
+          entities: [TypeOrmQuizEntity],
           synchronize: !isProd,
           ssl: useSsl ? { rejectUnauthorized: false } : false,
         } as any;
       },
     }),
 
-    // KahootModule,
+    KahootModule,
   ],
 })
 export class AppModule {}
