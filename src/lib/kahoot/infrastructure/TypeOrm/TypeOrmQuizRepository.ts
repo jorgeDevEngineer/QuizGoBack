@@ -21,6 +21,7 @@ import {
   TimeLimit,
   Points,
 } from '../../domain/valueObject/Question';
+import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import {
   AnswerId,
   AnswerText,
@@ -45,14 +46,14 @@ export class TypeOrmQuizRepository implements QuizRepository {
         }
         return Answer.createMediaAnswer(
           AnswerId.of(aData.id),
-          MediaUrl.of(aData.mediaUrl),
+          aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
           IsCorrect.fromBoolean(aData.isCorrect),
         );
       });
       return Question.create(
         QuestionId.of(qData.id),
         QuestionText.of(qData.text),
-        MediaUrl.of(qData.mediaUrl),
+        qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
         QuestionType.fromString(qData.type),
         TimeLimit.of(qData.timeLimit),
         Points.of(qData.points),
@@ -67,7 +68,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
       QuizDescription.of(q.description),
       Visibility.fromString(q.visibility),
       ThemeId.of(q.themeId),
-      MediaUrl.of(q.coverImage),
+      q.coverImageId ? MediaIdVO.of(q.coverImageId) : null,
       questions,
     );
     return quiz;
@@ -82,7 +83,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
       description: plainQuiz.description,
       visibility: plainQuiz.visibility,
       themeId: plainQuiz.themeId,
-      coverImage: plainQuiz.coverImage,
+      coverImageId: plainQuiz.coverImageId,
       questions: plainQuiz.questions,
     });
     await this.repository.save(entity);

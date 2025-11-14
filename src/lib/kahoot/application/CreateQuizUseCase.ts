@@ -6,24 +6,25 @@ import { Answer } from '../domain/entity/Answer';
 import { QuizId, UserId, QuizTitle, QuizDescription, Visibility, ThemeId, MediaUrl } from '../domain/valueObject/Quiz';
 import { QuestionId, QuestionText, QuestionType, TimeLimit, Points } from '../domain/valueObject/Question';
 import { AnswerId, IsCorrect, AnswerText } from '../domain/valueObject/Answer';
+import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 
 // Definimos la estructura de entrada (el JSON del Request)
 export interface CreateQuizDto {
-  authorId: string; // Añadido para recibir el ID del autor
+  authorId: string;
   title: string;
   description?: string;
-  coverImage?: string;
+  coverImageId?: string;
   visibility: 'public' | 'private';
   themeId?: string;
   questions: Array<{
     questionText: string;
-    mediaUrl?: string;
+    mediaId?: string;
     questionType: 'quiz' | 'true_false';
     timeLimit: number;
     points?: number;
     answers: Array<{
       answerText?: string;
-      answerImage?: string;
+      mediaId?: string;
       isCorrect: boolean;
     }>
   }>
@@ -48,7 +49,7 @@ export class CreateQuizUseCase {
         } else {
              return Answer.createMediaAnswer(
                 AnswerId.generate(),
-                MediaUrl.of(aData.answerImage!), // Asumimos que si no es texto, es imagen
+                aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
                 IsCorrect.fromBoolean(aData.isCorrect)
             );
         }
@@ -58,7 +59,7 @@ export class CreateQuizUseCase {
       return Question.create(
         QuestionId.generate(),
         QuestionText.of(qData.questionText),
-        MediaUrl.of(qData.mediaUrl || null),
+        qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
         QuestionType.fromString(qData.questionType),
         TimeLimit.of(qData.timeLimit),
         Points.of(qData.points || 1000), // Valor por defecto si no viene
@@ -74,7 +75,7 @@ export class CreateQuizUseCase {
       QuizDescription.of(request.description || ''),
       Visibility.fromString(request.visibility),
       request.themeId ? ThemeId.of(request.themeId) : ThemeId.generate(),
-      MediaUrl.of(request.coverImage || null),
+      request.coverImageId ? MediaIdVO.of(request.coverImageId) : null,
       questionsEntities
     );
 

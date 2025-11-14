@@ -55,4 +55,9 @@ export class TypeOrmMediaRepository implements MediaRepository {
   async delete(id: MediaId): Promise<void> {
     await this.ormRepo.delete(id.value);
   }
+
+  async findAll(): Promise<Media[]> {
+    const entities = await this.ormRepo.find();
+    return entities.map((e) => this.toDomain(e));
+  }
 }
