@@ -16,8 +16,8 @@ import {
   QuizDescription,
   Visibility,
   ThemeId,
-  MediaUrl,
 } from "../valueObject/Quiz";
+import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Question } from "../entity/Question";
 
 export class Quiz {
@@ -28,7 +28,7 @@ export class Quiz {
     private _description: QuizDescription,
     private _visibility: Visibility,
     private _themeId: ThemeId,
-    private _coverImage: MediaUrl,
+    private _coverImageId: MediaIdVO | null,
     private readonly _createdAt: Date,
     private _questions: Question[] = []
   ) {
@@ -48,7 +48,7 @@ export class Quiz {
     description: QuizDescription,
     visibility: Visibility,
     themeId: ThemeId,
-    coverImage: MediaUrl,
+    coverImageId: MediaIdVO | null,
     questions: Question[]
   ): Quiz {
     const createdAt = new Date();
@@ -59,7 +59,7 @@ export class Quiz {
       description,
       visibility,
       themeId,
-      coverImage,
+      coverImageId,
       createdAt,
       questions
     );
@@ -72,7 +72,7 @@ export class Quiz {
     description: QuizDescription,
     visibility: Visibility,
     themeId: ThemeId,
-    coverImage: MediaUrl,
+    coverImageId: MediaIdVO | null,
     createdAt: Date,
     questions: Question[]
   ): Quiz {
@@ -83,7 +83,7 @@ export class Quiz {
       description,
       visibility,
       themeId,
-      coverImage,
+      coverImageId,
       createdAt,
       questions
     );
@@ -94,13 +94,13 @@ export class Quiz {
     description: QuizDescription,
     visibility: Visibility,
     themeId: ThemeId,
-    coverImage: MediaUrl
+    coverImageId: MediaIdVO | null
   ): void {
     this._title = title;
     this._description = description;
     this._visibility = visibility;
     this._themeId = themeId;
-    this._coverImage = coverImage;
+    this._coverImageId = coverImageId;
   }
 
   public replaceQuestions(newQuestions: Question[]): void {
@@ -124,7 +124,7 @@ export class Quiz {
       id: this._id.value,
       title: this._title.value,
       description: this._description.value,
-      coverImage: this._coverImage.value,
+      coverImageId: this._coverImageId?.value,
       visibility: this._visibility.value,
       themeId: this._themeId.value,
       author: {
