@@ -33,5 +33,8 @@ Diego García
 José Gabriel Vilchez Porra  
 ✉️ jgvilchez.dev@gmail.com
 
+José Alejandro Briceño Luzardo
+✉️ josea2102@gmail.com 
+
 ## Licencia 📄
 MIT
