@@ -7,6 +7,7 @@ import { MediaRepository } from '../../domain/port/MediaRepository';
 import { UploadMedia } from '../../application/UploadMedia';
 import { GetMedia } from '../../application/GetMedia';
 import { DeleteMedia } from '../../application/DeleteMedia';
+import { ListMediaUseCase } from '../../application/ListMediaUseCase';
 import { LocalStorageProvider } from '../Storage/LocalStorageProvider';
 
 @Module({
@@ -39,6 +40,12 @@ import { LocalStorageProvider } from '../Storage/LocalStorageProvider';
         new DeleteMedia(repository, storageProvider),
       inject: ['MediaRepository', 'StorageProvider'],
     },
+    {
+      provide: 'ListMediaUseCase',
+      useFactory: (repository: MediaRepository) =>
+        new ListMediaUseCase(repository),
+      inject: ['MediaRepository'],
+    }
   ],
 })
 export class MediaModule {}

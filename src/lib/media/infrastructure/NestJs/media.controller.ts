@@ -15,6 +15,7 @@ import { Response } from 'express';
 import { UploadMedia, UploadMediaDTO } from '../../application/UploadMedia';
 import { GetMedia } from '../../application/GetMedia';
 import { DeleteMedia } from '../../application/DeleteMedia';
+import { ListMediaUseCase } from '../../application/ListMediaUseCase';
 
 // Typed shape for uploaded files (keeps code independent from global Multer types)
 interface UploadedFile {
@@ -33,6 +34,8 @@ export class MediaController {
     private readonly getMedia: GetMedia,
     @Inject('DeleteMedia')
     private readonly deleteMedia: DeleteMedia,
+    @Inject('ListMediaUseCase')
+    private readonly listMedia: ListMediaUseCase,
   ) {}
 
   @Post('upload')
@@ -51,6 +54,11 @@ export class MediaController {
     };
     const media = await this.uploadMedia.run(dto);
     return media;
+  }
+
+  @Get()
+  async getAll() {
+    return this.listMedia.execute();
   }
 
   @Get(':id')
