@@ -1,3 +1,4 @@
+
 import {
   Body,
   Controller,
@@ -7,9 +8,7 @@ import {
   NotFoundException,
   Param,
   Post,
-  Put,
-  Query,
-  Req,
+  Put
 } from '@nestjs/common';
 import { CreateQuizUseCase, CreateQuizDto } from '../../application/CreateQuizUseCase';
 import { GetQuizUseCase } from '../../application/GetQuizUseCase';
@@ -67,8 +66,15 @@ export class KahootController {
 
   @Put(':id')
   async edit(@Param() params: FindOneParams, @Body() body: CreateQuizDto) {
-    const quiz = await this.updateQuizUseCase.run(params.id, body);
-    return quiz.toPlainObject();
+    try {
+      const quiz = await this.updateQuizUseCase.run(params.id, body);
+      return quiz.toPlainObject();
+    } catch (error) {
+      if (error instanceof QuizNotFoundError) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 
   @Delete(':id')

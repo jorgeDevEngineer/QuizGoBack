@@ -9,7 +9,8 @@ import {
   QuizDescription,
   Visibility,
   ThemeId,
-  MediaUrl,
+  QuizStatus,
+  QuizCategory,
 } from '../../domain/valueObject/Quiz';
 import { TypeOrmQuizEntity } from './TypeOrmQuizEntity';
 import { Question } from '../../domain/entity/Question';
@@ -61,14 +62,18 @@ export class TypeOrmQuizRepository implements QuizRepository {
       );
     });
 
-    const quiz = Quiz.create(
+    const quiz = Quiz.fromDb(
       QuizId.of(q.id),
       UserId.of(q.userId),
       QuizTitle.of(q.title),
       QuizDescription.of(q.description),
       Visibility.fromString(q.visibility),
+      QuizStatus.fromString(q.status),
+      QuizCategory.of(q.category),
       ThemeId.of(q.themeId),
       q.coverImageId ? MediaIdVO.of(q.coverImageId) : null,
+      q.createdAt,
+      q.playCount,
       questions,
     );
     return quiz;
@@ -78,12 +83,16 @@ export class TypeOrmQuizRepository implements QuizRepository {
     const plainQuiz = quiz.toPlainObject();
     const entity = this.repository.create({
       id: plainQuiz.id,
-      userId: plainQuiz.author.authorId,
+      userId: plainQuiz.authorId,
       title: plainQuiz.title,
       description: plainQuiz.description,
       visibility: plainQuiz.visibility,
+      status: plainQuiz.status,
+      category: plainQuiz.category,
       themeId: plainQuiz.themeId,
       coverImageId: plainQuiz.coverImageId,
+      createdAt: plainQuiz.createdAt,
+      playCount: plainQuiz.playCount,
       questions: plainQuiz.questions,
     });
     await this.repository.save(entity);
