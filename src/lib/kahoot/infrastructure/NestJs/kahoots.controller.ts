@@ -8,9 +8,7 @@ import {
   NotFoundException,
   Param,
   Post,
-  Put,
-  Query,
-  Req,
+  Put
 } from '@nestjs/common';
 import { CreateQuizUseCase, CreateQuizDto } from '../../application/CreateQuizUseCase';
 import { GetQuizUseCase } from '../../application/GetQuizUseCase';

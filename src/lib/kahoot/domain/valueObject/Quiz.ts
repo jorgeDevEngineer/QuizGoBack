@@ -96,6 +96,28 @@ export class QuizDescription {
     }
 }
 
+export class QuizStatus {
+    private constructor(public readonly value: 'draft' | 'published') {}
+
+    public static fromString(value: string): QuizStatus {
+        if (value !== 'draft' && value !== 'published') {
+            throw new Error(`Invalid QuizStatus: ${value}`);
+        }
+        return new QuizStatus(value as 'draft' | 'published');
+    }
+}
+
+export class QuizCategory {
+    private constructor(public readonly value: string) {
+        if (value.length < 3 || value.length > 50) {
+            throw new Error("QuizCategory must be between 3 and 50 characters.");
+        }
+    }
+    public static of(value: string): QuizCategory {
+        return new QuizCategory(value);
+    }
+}
+
 /**
  * Encapsula una URL para un recurso multimedia, validando su formato.
  */

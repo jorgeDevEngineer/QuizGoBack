@@ -34,11 +34,23 @@ export class TypeOrmQuizEntity {
   @Column({ default: 'private' })
   visibility: 'public' | 'private';
 
+  @Column({ default: 'draft' })
+  status: 'draft' | 'published';
+
+  @Column()
+  category: string;
+
   @Column()
   themeId: string;
 
   @Column({ nullable: true })
   coverImageId: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ type: 'int', default: 0 })
+  playCount: number;
 
   @Column({ type: 'jsonb' })
   questions: QuestionEmbed[];

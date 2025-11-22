@@ -3,7 +3,7 @@ import { Quiz } from '../domain/entity/Quiz';
 import { Question } from '../domain/entity/Question';
 import { Answer } from '../domain/entity/Answer';
 // Importamos los VOs necesarios
-import { QuizId, UserId, QuizTitle, QuizDescription, Visibility, ThemeId, MediaUrl } from '../domain/valueObject/Quiz';
+import { QuizId, UserId, QuizTitle, QuizDescription, Visibility, ThemeId, QuizStatus, QuizCategory } from '../domain/valueObject/Quiz';
 import { QuestionId, QuestionText, QuestionType, TimeLimit, Points } from '../domain/valueObject/Question';
 import { AnswerId, IsCorrect, AnswerText } from '../domain/valueObject/Answer';
 import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
@@ -12,19 +12,21 @@ import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 export interface CreateQuizDto {
   authorId: string;
   title: string;
-  description?: string;
+  description: string;
   coverImageId?: string;
   visibility: 'public' | 'private';
-  themeId?: string;
+  status: 'draft' | 'published';
+  category: string;
+  themeId: string;
   questions: Array<{
     questionText: string;
     mediaId?: string;
     questionType: 'quiz' | 'true_false';
     timeLimit: number;
-    points?: number;
+    points: number;
     answers: Array<{
-      answerText?: string;
-      mediaId?: string;
+      answerText: string | null;
+      mediaId: string | null;
       isCorrect: boolean;
     }>
   }>
@@ -38,20 +40,28 @@ export class CreateQuizUseCase {
     // 1. Mapeo de Preguntas y Respuestas (De Primitivos a Entidades)
     const questionsEntities: Question[] = request.questions.map(qData => {
       
-      const answersEntities: Answer[] = qData.answers.map(aData => {
-        // Factory de Answer según si es Texto o Imagen
-        if (aData.answerText) {
+      const answersEntities: Answer[] = qData.answers.map((aData) => {
+        if ((!aData.answerText && !aData.mediaId) || (aData.answerText && aData.mediaId)) {
+          throw new Error('Cada respuesta debe tener answerText o mediaId, pero no ambos.');
+        }
+
+        try {
+          if (aData.answerText) {
             return Answer.createTextAnswer(
-                AnswerId.generate(),
-                AnswerText.of(aData.answerText),
-                IsCorrect.fromBoolean(aData.isCorrect)
+              AnswerId.generate(),
+              AnswerText.of(aData.answerText),
+              IsCorrect.fromBoolean(aData.isCorrect),
             );
-        } else {
-             return Answer.createMediaAnswer(
-                AnswerId.generate(),
-                aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
-                IsCorrect.fromBoolean(aData.isCorrect)
+          } else {
+            return Answer.createMediaAnswer(
+              AnswerId.generate(),
+              aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
+              IsCorrect.fromBoolean(aData.isCorrect),
             );
+          }
+        } catch (error) {
+          // Relanzamos el error con un mensaje más específico para la capa de aplicación/controlador
+          throw new Error(`Invalid answer data provided: ${error.message}`);
         }
       });
 
@@ -72,11 +82,14 @@ export class CreateQuizUseCase {
       QuizId.generate(),
       UserId.of(request.authorId), // Usamos el authorId del DTO
       QuizTitle.of(request.title),
-      QuizDescription.of(request.description || ''),
+      QuizDescription.of(request.description),
       Visibility.fromString(request.visibility),
-      request.themeId ? ThemeId.of(request.themeId) : ThemeId.generate(),
+      QuizStatus.fromString(request.status),
+      QuizCategory.of(request.category),
+      ThemeId.of(request.themeId),
       request.coverImageId ? MediaIdVO.of(request.coverImageId) : null,
-      questionsEntities
+      questionsEntities,
+      0 // playCount
     );
 
     // 3. Persistencia

@@ -17,13 +17,13 @@ export class Answer {
     // Esta es la lógica de negocio que discutimos.
     // El constructor privado asegura que una 'Answer' inválida no pueda ser creada.
 
-    // Regla 1: No puede tener ambos
-    if (_text && _mediaId) {
-      throw new Error("Answer cannot have both text and media content.");
-    } // Regla 2: Debe tener al menos uno
-    if (!_text && !_mediaId) {
-      throw new Error("Answer must have either text or media content.");
-    }
+    // // Regla 1: No puede tener ambos
+    // if (_text && _mediaId) {
+    //   throw new Error("Answer cannot have both text and media content.");
+    // } // Regla 2: Debe tener al menos uno
+    // if (!_text && !_mediaId) {
+    //   throw new Error("Answer must have either text or media content.");
+    // }
   }
 
   /**
@@ -71,8 +71,8 @@ export class Answer {
     return {
       id: this._id.value,
       questionId: this._question.value,
-      text: this._text?.value,
-      mediaId: this._mediaId?.value,
+      text: this._text ? this._text.value : null,
+      mediaId: this._mediaId ? this._mediaId.value : null,
       isCorrect: this._isCorrect.value,
     };
   }
