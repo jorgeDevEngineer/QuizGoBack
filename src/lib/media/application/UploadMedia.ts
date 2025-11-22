@@ -1,7 +1,7 @@
 import { Media } from '../domain/entity/Media';
 import { MediaRepository } from '../domain/port/MediaRepository';
+import { ImageOptimizer } from '../domain/port/ImageOptimizer';
 
-// DTO (Data Transfer Object) para no ensuciar con tipos de infraestructura
 export interface UploadMediaDTO {
   file: Buffer;
   fileName: string;
@@ -10,18 +10,35 @@ export interface UploadMediaDTO {
 }
 
 export class UploadMedia {
-  constructor(private readonly mediaRepository: MediaRepository) {}
+  constructor(
+    private readonly mediaRepository: MediaRepository,
+    private readonly imageOptimizer: ImageOptimizer,
+  ) {}
 
   async run(request: UploadMediaDTO): Promise<Media> {
-    // 1. Crear Entidad de Dominio
-    const media = Media.create(
+    let fileBuffer = request.file;
+    let fileSize = request.size;
+    let thumbnailBuffer: Buffer | null = null;
+
+    const optimizationResult = await this.imageOptimizer.optimize(
       request.file,
       request.mimeType,
-      request.size,
-      request.fileName
     );
 
-    // 2. Guardar en la Base de Datos
+    if (optimizationResult) {
+      fileBuffer = optimizationResult.buffer;
+      fileSize = optimizationResult.size;
+      thumbnailBuffer = optimizationResult.thumbnailBuffer;
+    }
+
+    const media = Media.create(
+      fileBuffer,
+      request.mimeType,
+      fileSize,
+      request.fileName,
+      thumbnailBuffer,
+    );
+
     await this.mediaRepository.save(media);
 
     return media;

@@ -8,6 +8,8 @@ import { UploadMedia } from '../../application/UploadMedia';
 import { GetMedia } from '../../application/GetMedia';
 import { DeleteMedia } from '../../application/DeleteMedia';
 import { ListMediaUseCase } from '../../application/ListMediaUseCase';
+import { IMAGE_OPTIMIZER } from '../../domain/port/ImageOptimizer';
+import { SharpImageOptimizer } from '../Sharp/SharpImageOptimizer';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity])],
@@ -18,10 +20,14 @@ import { ListMediaUseCase } from '../../application/ListMediaUseCase';
       useClass: TypeOrmMediaRepository,
     },
     {
+      provide: IMAGE_OPTIMIZER,
+      useClass: SharpImageOptimizer,
+    },
+    {
       provide: 'UploadMedia',
-      useFactory: (repository: MediaRepository) =>
-        new UploadMedia(repository),
-      inject: ['MediaRepository'],
+      useFactory: (repository: MediaRepository, imageOptimizer: SharpImageOptimizer) =>
+        new UploadMedia(repository, imageOptimizer),
+      inject: ['MediaRepository', IMAGE_OPTIMIZER],
     },
     {
       provide: 'GetMedia',

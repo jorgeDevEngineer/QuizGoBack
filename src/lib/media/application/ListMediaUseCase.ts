@@ -1,15 +1,22 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Media } from "../domain/entity/Media";
-import { MediaRepository } from "../domain/port/MediaRepository";
+import { MediaRepository } from '../domain/port/MediaRepository';
 
-@Injectable()
+// El DTO para la respuesta, que coincide con el nuevo método de la entidad
+export type ListMediaResponseDTO = {
+  id: string;
+  mimeType: string;
+  size: number;
+  originalName: string;
+  createdAt: Date;
+  thumbnail: string | null;
+}[];
+
 export class ListMediaUseCase {
-    constructor(
-        @Inject('MediaRepository')
-        private readonly mediaRepository: MediaRepository
-    ) {}
+  constructor(private readonly mediaRepository: MediaRepository) {}
 
-    async execute(): Promise<Media[]> {
-        return this.mediaRepository.findAll();
-    }
+  async run(): Promise<ListMediaResponseDTO> {
+    const mediaList = await this.mediaRepository.findAll();
+    
+    // Usamos el método `toListResponse` para transformar cada entidad
+    return mediaList.map(media => media.toListResponse());
+  }
 }

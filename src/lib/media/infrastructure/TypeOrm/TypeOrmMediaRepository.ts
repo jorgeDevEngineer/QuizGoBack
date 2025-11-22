@@ -24,8 +24,13 @@ export class TypeOrmMediaRepository implements MediaRepository {
   }
 
   async findAll(): Promise<Media[]> {
-    const entities = await this.mediaRepository.find();
-    return entities.map(Media.fromPrimitives);
+    // Excluimos la columna 'data' (imagen completa) para optimizar
+    const entities = await this.mediaRepository.find({
+      select: ['id', 'thumbnail', 'mimeType', 'size', 'originalName', 'createdAt'],
+    });
+    
+    // Mapeamos a la entidad de dominio. `data` será undefined.
+    return entities.map(entity => Media.fromPrimitives({ ...entity, data: Buffer.from([]) }));
   }
 
   async delete(id: MediaId): Promise<void> {

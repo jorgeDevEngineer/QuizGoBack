@@ -1,22 +1,25 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
 
-@Entity({ name: 'media' })
+@Entity('media')
 export class TypeOrmMediaEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
+  @PrimaryColumn()
+  id: string;
 
   @Column({ type: 'bytea' })
-  data!: Buffer;
+  data: Buffer;
+
+  @Column({ type: 'bytea', nullable: true }) // Columna para la miniatura
+  thumbnail: Buffer;
 
   @Column()
-  mimeType!: string;
-
-  @Column('int')
-  size!: number;
+  mimeType: string;
 
   @Column()
-  originalName!: string;
+  size: number;
 
-  @Column({ type: 'timestamp' })
-  createdAt!: Date;
+  @Column()
+  originalName: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
