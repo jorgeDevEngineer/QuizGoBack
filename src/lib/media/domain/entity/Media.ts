@@ -1,8 +1,8 @@
-import { MediaId, MimeType, FileSize, StoragePath } from '../valueObject/Media';
+import { MediaId, MimeType, FileSize } from '../valueObject/Media';
 
 export class Media {
   readonly id: MediaId;
-  readonly path: StoragePath;
+  readonly data: Buffer;
   readonly mimeType: MimeType;
   readonly size: FileSize;
   readonly originalName: string;
@@ -11,14 +11,14 @@ export class Media {
   // Constructor privado: obliga a usar el método estático 'create'
   private constructor(
     id: MediaId,
-    path: StoragePath,
+    data: Buffer,
     mimeType: MimeType,
     size: FileSize,
     originalName: string,
     createdAt: Date
   ) {
     this.id = id;
-    this.path = path;
+    this.data = data;
     this.mimeType = mimeType;
     this.size = size;
     this.originalName = originalName;
@@ -27,7 +27,7 @@ export class Media {
 
   // Factory Method: El único punto de entrada para crear una nueva entidad válida
   static create(
-    path: string,
+    data: Buffer,
     mimeType: string,
     size: number,
     originalName: string,
@@ -36,7 +36,7 @@ export class Media {
     const mediaId = id ? MediaId.of(id) : MediaId.generate();
     return new Media(
       mediaId,
-      new StoragePath(path),
+      data,
       new MimeType(mimeType),
       new FileSize(size),
       originalName,
@@ -45,24 +45,32 @@ export class Media {
   }
 
   // Reconstituye una entidad Media desde datos persistidos (preserva createdAt)
-  static reconstitute(
-    id: string,
-    path: string,
-    mimeType: string,
-    size: number,
-    originalName: string,
-    createdAt: Date
-  ): Media {
+  static fromPrimitives(primitives: {
+    id: string;
+    data: Buffer;
+    mimeType: string;
+    size: number;
+    originalName: string;
+    createdAt: Date;
+  }): Media {
     return new Media(
-      MediaId.of(id),
-      new StoragePath(path),
-      new MimeType(mimeType),
-      new FileSize(size),
-      originalName,
-      createdAt
+      MediaId.of(primitives.id),
+      primitives.data,
+      new MimeType(primitives.mimeType),
+      new FileSize(primitives.size),
+      primitives.originalName,
+      primitives.createdAt
     );
   }
 
-  // Ejemplo de comportamiento de dominio futuro:
-  // moveTo(newPath: string) { ... }
+  properties() {
+    return {
+      id: this.id.value,
+      data: this.data,
+      mimeType: this.mimeType.value,
+      size: this.size.value,
+      originalName: this.originalName,
+      createdAt: this.createdAt,
+    };
+  }
 }

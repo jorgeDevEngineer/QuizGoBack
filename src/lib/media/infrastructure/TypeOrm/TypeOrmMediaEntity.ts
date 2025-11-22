@@ -5,8 +5,8 @@ export class TypeOrmMediaEntity {
   @PrimaryColumn('uuid')
   id!: string;
 
-  @Column()
-  path!: string;
+  @Column({ type: 'bytea' })
+  data!: Buffer;
 
   @Column()
   mimeType!: string;

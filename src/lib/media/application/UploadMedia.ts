@@ -1,6 +1,5 @@
 import { Media } from '../domain/entity/Media';
 import { MediaRepository } from '../domain/port/MediaRepository';
-import { StorageProvider } from '../domain/port/StorageProvider';
 
 // DTO (Data Transfer Object) para no ensuciar con tipos de infraestructura
 export interface UploadMediaDTO {
@@ -11,28 +10,18 @@ export interface UploadMediaDTO {
 }
 
 export class UploadMedia {
-  constructor(
-    private readonly mediaRepository: MediaRepository,
-    private readonly storageProvider: StorageProvider
-  ) {}
+  constructor(private readonly mediaRepository: MediaRepository) {}
 
   async run(request: UploadMediaDTO): Promise<Media> {
-    // 1. Guardar Físicamente (Storage)
-    const storagePath = await this.storageProvider.upload(
-      request.file,
-      request.fileName,
-      request.mimeType
-    );
-
-    // 2. Crear Entidad de Dominio
+    // 1. Crear Entidad de Dominio
     const media = Media.create(
-      storagePath,
+      request.file,
       request.mimeType,
       request.size,
       request.fileName
     );
 
-    // 3. Guardar Metadatos (Base de Datos)
+    // 2. Guardar en la Base de Datos
     await this.mediaRepository.save(media);
 
     return media;

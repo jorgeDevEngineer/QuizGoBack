@@ -1,63 +1,34 @@
-import { Repository, DataSource } from 'typeorm';
-import { TypeOrmMediaEntity } from './TypeOrmMediaEntity';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Media } from '../../domain/entity/Media';
-import { MediaId } from '../../domain/valueObject/Media';
 import { MediaRepository } from '../../domain/port/MediaRepository';
+import { TypeOrmMediaEntity } from './TypeOrmMediaEntity';
+import { MediaId } from '../../domain/valueObject/Media';
 
+@Injectable()
 export class TypeOrmMediaRepository implements MediaRepository {
-  private ormRepo: Repository<TypeOrmMediaEntity>;
-
   constructor(
     @InjectRepository(TypeOrmMediaEntity)
-    ormRepo: Repository<TypeOrmMediaEntity>,
-  ) {
-    this.ormRepo = ormRepo;
-  }
-
-  static fromDataSource(dataSource: DataSource): TypeOrmMediaRepository {
-    return new TypeOrmMediaRepository(dataSource.getRepository(TypeOrmMediaEntity));
-  }
-
-  private toOrm(media: Media): TypeOrmMediaEntity {
-    const e = new TypeOrmMediaEntity();
-    e.id = media.id.value;
-    e.path = media.path.value;
-    e.mimeType = media.mimeType.value;
-    e.size = media.size.value;
-    e.originalName = media.originalName;
-    e.createdAt = media.createdAt;
-    return e;
-  }
-
-  private toDomain(e: TypeOrmMediaEntity): Media {
-    return Media.reconstitute(
-      e.id,
-      e.path,
-      e.mimeType,
-      e.size,
-      e.originalName,
-      e.createdAt
-    );
-  }
+    private readonly mediaRepository: Repository<TypeOrmMediaEntity>,
+  ) {}
 
   async save(media: Media): Promise<void> {
-    const e = this.toOrm(media);
-    await this.ormRepo.save(e);
+    const entity = this.mediaRepository.create(media.properties());
+    await this.mediaRepository.save(entity);
   }
 
   async findById(id: MediaId): Promise<Media | null> {
-    const e = await this.ormRepo.findOneBy({ id: id.value });
-    if (!e) return null;
-    return this.toDomain(e);
-  }
-
-  async delete(id: MediaId): Promise<void> {
-    await this.ormRepo.delete(id.value);
+    const entity = await this.mediaRepository.findOne({ where: { id: id.value } });
+    return entity ? Media.fromPrimitives(entity) : null;
   }
 
   async findAll(): Promise<Media[]> {
-    const entities = await this.ormRepo.find();
-    return entities.map((e) => this.toDomain(e));
+    const entities = await this.mediaRepository.find();
+    return entities.map(Media.fromPrimitives);
+  }
+
+  async delete(id: MediaId): Promise<void> {
+    await this.mediaRepository.delete(id.value);
   }
 }

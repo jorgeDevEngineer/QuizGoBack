@@ -8,7 +8,6 @@ import { UploadMedia } from '../../application/UploadMedia';
 import { GetMedia } from '../../application/GetMedia';
 import { DeleteMedia } from '../../application/DeleteMedia';
 import { ListMediaUseCase } from '../../application/ListMediaUseCase';
-import { LocalStorageProvider } from '../Storage/LocalStorageProvider';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity])],
@@ -19,26 +18,22 @@ import { LocalStorageProvider } from '../Storage/LocalStorageProvider';
       useClass: TypeOrmMediaRepository,
     },
     {
-      provide: 'StorageProvider',
-      useClass: LocalStorageProvider,
-    },
-    {
       provide: 'UploadMedia',
-      useFactory: (repository: MediaRepository, storageProvider: any) =>
-        new UploadMedia(repository, storageProvider),
-      inject: ['MediaRepository', 'StorageProvider'],
+      useFactory: (repository: MediaRepository) =>
+        new UploadMedia(repository),
+      inject: ['MediaRepository'],
     },
     {
       provide: 'GetMedia',
-      useFactory: (repository: MediaRepository, storageProvider: any) =>
-        new GetMedia(repository, storageProvider),
-      inject: ['MediaRepository', 'StorageProvider'],
+      useFactory: (repository: MediaRepository) =>
+        new GetMedia(repository),
+      inject: ['MediaRepository'],
     },
     {
       provide: 'DeleteMedia',
-      useFactory: (repository: MediaRepository, storageProvider: any) =>
-        new DeleteMedia(repository, storageProvider),
-      inject: ['MediaRepository', 'StorageProvider'],
+      useFactory: (repository: MediaRepository) =>
+        new DeleteMedia(repository),
+      inject: ['MediaRepository'],
     },
     {
       provide: 'ListMediaUseCase',
