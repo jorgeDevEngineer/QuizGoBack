@@ -3,14 +3,14 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 interface AnswerEmbed {
     id: string;
     text?: string;
-    mediaUrl?: string;
+    mediaId?: string;
     isCorrect: boolean;
 }
 
 interface QuestionEmbed {
     id: string;
     text: string;
-    mediaUrl?: string;
+    mediaId?: string;
     type: 'quiz' | 'true_false';
     timeLimit: number;
     points: number;
@@ -34,11 +34,23 @@ export class TypeOrmQuizEntity {
   @Column({ default: 'private' })
   visibility: 'public' | 'private';
 
+  @Column({ default: 'draft' })
+  status: 'draft' | 'published';
+
+  @Column()
+  category: string;
+
   @Column()
   themeId: string;
 
   @Column({ nullable: true })
-  coverImage: string;
+  coverImageId: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ type: 'int', default: 0 })
+  playCount: number;
 
   @Column({ type: 'jsonb' })
   questions: QuestionEmbed[];

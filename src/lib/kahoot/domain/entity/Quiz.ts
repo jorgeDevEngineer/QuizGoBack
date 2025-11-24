@@ -16,8 +16,10 @@ import {
   QuizDescription,
   Visibility,
   ThemeId,
-  MediaUrl,
+  QuizStatus,
+  QuizCategory,
 } from "../valueObject/Quiz";
+import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Question } from "../entity/Question";
 
 export class Quiz {
@@ -27,9 +29,12 @@ export class Quiz {
     private _title: QuizTitle,
     private _description: QuizDescription,
     private _visibility: Visibility,
+    private _status: QuizStatus,
+    private _category: QuizCategory,
     private _themeId: ThemeId,
-    private _coverImage: MediaUrl,
+    private _coverImageId: MediaIdVO | null,
     private readonly _createdAt: Date,
+    private _playCount: number,
     private _questions: Question[] = []
   ) {
     // Asignamos la referencia de este quiz (this) a cada una de sus preguntas.
@@ -47,9 +52,12 @@ export class Quiz {
     title: QuizTitle,
     description: QuizDescription,
     visibility: Visibility,
+    status: QuizStatus,
+    category: QuizCategory,
     themeId: ThemeId,
-    coverImage: MediaUrl,
-    questions: Question[]
+    coverImageId: MediaIdVO | null,
+    questions: Question[],
+    playCount: number = 0
   ): Quiz {
     const createdAt = new Date();
     return new Quiz(
@@ -58,9 +66,12 @@ export class Quiz {
       title,
       description,
       visibility,
+      status,
+      category,
       themeId,
-      coverImage,
+      coverImageId,
       createdAt,
+      playCount,
       questions
     );
   }
@@ -71,9 +82,12 @@ export class Quiz {
     title: QuizTitle,
     description: QuizDescription,
     visibility: Visibility,
+    status: QuizStatus,
+    category: QuizCategory,
     themeId: ThemeId,
-    coverImage: MediaUrl,
+    coverImageId: MediaIdVO | null,
     createdAt: Date,
+    playCount: number,
     questions: Question[]
   ): Quiz {
     return new Quiz(
@@ -82,9 +96,12 @@ export class Quiz {
       title,
       description,
       visibility,
+      status,
+      category,
       themeId,
-      coverImage,
+      coverImageId,
       createdAt,
+      playCount,
       questions
     );
   }
@@ -93,14 +110,18 @@ export class Quiz {
     title: QuizTitle,
     description: QuizDescription,
     visibility: Visibility,
+    status: QuizStatus,
+    category: QuizCategory,
     themeId: ThemeId,
-    coverImage: MediaUrl
+    coverImageId: MediaIdVO | null
   ): void {
     this._title = title;
     this._description = description;
     this._visibility = visibility;
+    this._status = status;
+    this._category = category;
     this._themeId = themeId;
-    this._coverImage = coverImage;
+    this._coverImageId = coverImageId;
   }
 
   public replaceQuestions(newQuestions: Question[]): void {
@@ -122,16 +143,16 @@ export class Quiz {
   public toPlainObject() {
     return {
       id: this._id.value,
+      authorId: this._authorId.value,
       title: this._title.value,
       description: this._description.value,
-      coverImage: this._coverImage.value,
       visibility: this._visibility.value,
+      status: this._status.value,
+      category: this._category.value,
       themeId: this._themeId.value,
-      author: {
-        authorId: this._authorId.value,
-        name: "Author Name Placeholder", // Placeholder
-      },
-      createdAt: this._createdAt.toISOString(),
+      coverImageId: this._coverImageId ? this._coverImageId.value : null,
+      createdAt: this._createdAt,
+      playCount: this._playCount,
       questions: this._questions.map((q) => q.toPlainObject()),
     };
   }

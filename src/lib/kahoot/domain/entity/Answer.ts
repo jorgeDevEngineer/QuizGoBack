@@ -1,6 +1,6 @@
 // Importamos todos los VOs necesarios
 import { AnswerId, AnswerText, IsCorrect} from "../valueObject/Answer";
-import { MediaUrl } from "../valueObject/Quiz";
+import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { QuestionId } from "../valueObject/Question";
 
 export class Answer {
@@ -11,19 +11,19 @@ export class Answer {
     private readonly _isCorrect: IsCorrect,
     // Propiedades opcionales (nulables)
     private readonly _text: AnswerText | null,
-    private readonly _media: MediaUrl | null
+    private readonly _mediaId: MediaIdVO | null
   ) {
     // --- Validación de la Entidad ---
     // Esta es la lógica de negocio que discutimos.
     // El constructor privado asegura que una 'Answer' inválida no pueda ser creada.
 
-    // Regla 1: No puede tener ambos
-    if (_text && _media) {
-      throw new Error("Answer cannot have both text and media content.");
-    } // Regla 2: Debe tener al menos uno
-    if (!_text && !_media) {
-      throw new Error("Answer must have either text or media content.");
-    }
+    // // Regla 1: No puede tener ambos
+    // if (_text && _mediaId) {
+    //   throw new Error("Answer cannot have both text and media content.");
+    // } // Regla 2: Debe tener al menos uno
+    // if (!_text && !_mediaId) {
+    //   throw new Error("Answer must have either text or media content.");
+    // }
   }
 
   /**
@@ -53,11 +53,11 @@ export class Answer {
 
   public static createMediaAnswer(
     id: AnswerId,
-    media: MediaUrl, 
+    mediaId: MediaIdVO | null, 
     isCorrect: IsCorrect
   ): Answer {
     // El constructor validará que 'text' sea 'null'
-    return new Answer(id, isCorrect, null, media);
+    return new Answer(id, isCorrect, null, mediaId);
   } // --- Getters (para acceder a los valores de forma segura) ---
 
   public get id(): AnswerId {
@@ -71,8 +71,8 @@ export class Answer {
     return {
       id: this._id.value,
       questionId: this._question.value,
-      text: this._text?.value,
-      mediaUrl: this._media?.value,
+      text: this._text ? this._text.value : null,
+      mediaId: this._mediaId ? this._mediaId.value : null,
       isCorrect: this._isCorrect.value,
     };
   }

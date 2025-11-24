@@ -15,8 +15,9 @@ import { Response } from 'express';
 import { UploadMedia, UploadMediaDTO } from '../../application/UploadMedia';
 import { GetMedia } from '../../application/GetMedia';
 import { DeleteMedia } from '../../application/DeleteMedia';
+import { ListMediaUseCase } from '../../application/ListMediaUseCase';
 
-// Typed shape for uploaded files (keeps code independent from global Multer types)
+// Typed shape for uploaded files
 interface UploadedFile {
   buffer: Buffer;
   originalname: string;
@@ -33,13 +34,14 @@ export class MediaController {
     private readonly getMedia: GetMedia,
     @Inject('DeleteMedia')
     private readonly deleteMedia: DeleteMedia,
+    @Inject('ListMediaUseCase')
+    private readonly listMedia: ListMediaUseCase,
   ) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async upload(@UploadedFile() file: UploadedFile) {
     if (!file) {
-      // Better runtime error for missing file (helps debug client requests)
       throw new Error('No file received. Ensure the request is multipart/form-data and the field name is "file".');
     }
 
@@ -50,7 +52,12 @@ export class MediaController {
       size: file.size,
     };
     const media = await this.uploadMedia.run(dto);
-    return media;
+    return media.properties(); // Devuelve las propiedades completas (incluido el thumbnail) al crear
+  }
+
+  @Get()
+  async getAll() {
+    return this.listMedia.run(); // Llama al caso de uso, que ya devuelve el DTO correcto
   }
 
   @Get(':id')

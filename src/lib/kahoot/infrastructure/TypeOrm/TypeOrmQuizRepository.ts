@@ -9,7 +9,8 @@ import {
   QuizDescription,
   Visibility,
   ThemeId,
-  MediaUrl,
+  QuizStatus,
+  QuizCategory,
 } from '../../domain/valueObject/Quiz';
 import { TypeOrmQuizEntity } from './TypeOrmQuizEntity';
 import { Question } from '../../domain/entity/Question';
@@ -21,6 +22,7 @@ import {
   TimeLimit,
   Points,
 } from '../../domain/valueObject/Question';
+import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import {
   AnswerId,
   AnswerText,
@@ -45,14 +47,14 @@ export class TypeOrmQuizRepository implements QuizRepository {
         }
         return Answer.createMediaAnswer(
           AnswerId.of(aData.id),
-          MediaUrl.of(aData.mediaUrl),
+          aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
           IsCorrect.fromBoolean(aData.isCorrect),
         );
       });
       return Question.create(
         QuestionId.of(qData.id),
         QuestionText.of(qData.text),
-        MediaUrl.of(qData.mediaUrl),
+        qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
         QuestionType.fromString(qData.type),
         TimeLimit.of(qData.timeLimit),
         Points.of(qData.points),
@@ -60,14 +62,18 @@ export class TypeOrmQuizRepository implements QuizRepository {
       );
     });
 
-    const quiz = Quiz.create(
+    const quiz = Quiz.fromDb(
       QuizId.of(q.id),
       UserId.of(q.userId),
       QuizTitle.of(q.title),
       QuizDescription.of(q.description),
       Visibility.fromString(q.visibility),
+      QuizStatus.fromString(q.status),
+      QuizCategory.of(q.category),
       ThemeId.of(q.themeId),
-      MediaUrl.of(q.coverImage),
+      q.coverImageId ? MediaIdVO.of(q.coverImageId) : null,
+      q.createdAt,
+      q.playCount,
       questions,
     );
     return quiz;
@@ -77,12 +83,16 @@ export class TypeOrmQuizRepository implements QuizRepository {
     const plainQuiz = quiz.toPlainObject();
     const entity = this.repository.create({
       id: plainQuiz.id,
-      userId: plainQuiz.author.authorId,
+      userId: plainQuiz.authorId,
       title: plainQuiz.title,
       description: plainQuiz.description,
       visibility: plainQuiz.visibility,
+      status: plainQuiz.status,
+      category: plainQuiz.category,
       themeId: plainQuiz.themeId,
-      coverImage: plainQuiz.coverImage,
+      coverImageId: plainQuiz.coverImageId,
+      createdAt: plainQuiz.createdAt,
+      playCount: plainQuiz.playCount,
       questions: plainQuiz.questions,
     });
     await this.repository.save(entity);

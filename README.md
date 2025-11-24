@@ -24,14 +24,17 @@ Implementa la lógica de quizzes, gestión de preguntas, salas en tiempo real y 
 
 ## Autores 👥
 
-Jorge Ignacio Ramírez Millán  
+Jorge Ignacio Ramírez Millán
 ✉️ jorge.dev.engineer@gmail.com
 
-Diego García 
+Diego García
 ✉️ diego.frnz.2004@gmail.com
 
-José Gabriel Vilchez Porra  
+José Gabriel Vilchez Porra
 ✉️ jgvilchez.dev@gmail.com
+
+José Alejandro Briceño Luzardo
+✉️ josea2102@gmail.com 
 
 ## Licencia 📄
 MIT

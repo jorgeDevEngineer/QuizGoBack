@@ -7,7 +7,9 @@ import { MediaRepository } from '../../domain/port/MediaRepository';
 import { UploadMedia } from '../../application/UploadMedia';
 import { GetMedia } from '../../application/GetMedia';
 import { DeleteMedia } from '../../application/DeleteMedia';
-import { LocalStorageProvider } from '../Storage/LocalStorageProvider';
+import { ListMediaUseCase } from '../../application/ListMediaUseCase';
+import { IMAGE_OPTIMIZER } from '../../domain/port/ImageOptimizer';
+import { SharpImageOptimizer } from '../Sharp/SharpImageOptimizer';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity])],
@@ -18,27 +20,33 @@ import { LocalStorageProvider } from '../Storage/LocalStorageProvider';
       useClass: TypeOrmMediaRepository,
     },
     {
-      provide: 'StorageProvider',
-      useClass: LocalStorageProvider,
+      provide: IMAGE_OPTIMIZER,
+      useClass: SharpImageOptimizer,
     },
     {
       provide: 'UploadMedia',
-      useFactory: (repository: MediaRepository, storageProvider: any) =>
-        new UploadMedia(repository, storageProvider),
-      inject: ['MediaRepository', 'StorageProvider'],
+      useFactory: (repository: MediaRepository, imageOptimizer: SharpImageOptimizer) =>
+        new UploadMedia(repository, imageOptimizer),
+      inject: ['MediaRepository', IMAGE_OPTIMIZER],
     },
     {
       provide: 'GetMedia',
-      useFactory: (repository: MediaRepository, storageProvider: any) =>
-        new GetMedia(repository, storageProvider),
-      inject: ['MediaRepository', 'StorageProvider'],
+      useFactory: (repository: MediaRepository) =>
+        new GetMedia(repository),
+      inject: ['MediaRepository'],
     },
     {
       provide: 'DeleteMedia',
-      useFactory: (repository: MediaRepository, storageProvider: any) =>
-        new DeleteMedia(repository, storageProvider),
-      inject: ['MediaRepository', 'StorageProvider'],
+      useFactory: (repository: MediaRepository) =>
+        new DeleteMedia(repository),
+      inject: ['MediaRepository'],
     },
+    {
+      provide: 'ListMediaUseCase',
+      useFactory: (repository: MediaRepository) =>
+        new ListMediaUseCase(repository),
+      inject: ['MediaRepository'],
+    }
   ],
 })
 export class MediaModule {}

@@ -5,7 +5,8 @@ import {
   TimeLimit,
   Points,
 } from "../valueObject/Question";
-import { MediaUrl, QuizId } from "../valueObject/Quiz";
+import { QuizId } from "../valueObject/Quiz";
+import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Answer } from "../entity/Answer";
 
 export class Question {
@@ -14,7 +15,7 @@ export class Question {
   private constructor(
     private readonly _id: QuestionId,
     private readonly _text: QuestionText,
-    private readonly _media: MediaUrl,
+    private readonly _mediaId: MediaIdVO | null,
     private readonly _type: QuestionType,
     private readonly _timeLimit: TimeLimit,
     private readonly _points: Points,
@@ -37,7 +38,7 @@ export class Question {
   public static create(
     id: QuestionId,
     text: QuestionText,
-    media: MediaUrl,
+    mediaId: MediaIdVO | null,
     type: QuestionType,
     timeLimit: TimeLimit,
     points: Points,
@@ -65,7 +66,7 @@ export class Question {
     }
     // --- FIN DE LA NUEVA VALIDACIÓN ---
 
-    return new Question(id, text, media, type, timeLimit, points, answers);
+    return new Question(id, text, mediaId, type, timeLimit, points, answers);
   }
 
   public get id(): QuestionId {
@@ -76,8 +77,8 @@ export class Question {
     return this._text;
   }
 
-  public get media(): MediaUrl {
-    return this._media;
+  public get mediaId(): MediaIdVO | null {
+    return this._mediaId;
   }
 
   public get type(): QuestionType {
@@ -93,7 +94,7 @@ export class Question {
       id: this._id.value,
       quizId: this._quiz.value,
       text: this._text.value,
-      mediaUrl: this._media.value,
+      mediaId: this._mediaId ? this._mediaId.value : null,
       type: this._type.value,
       timeLimit: this._timeLimit.value,
       points: this._points.value,
