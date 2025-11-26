@@ -16,16 +16,12 @@ export class FindOneParams {
     id: string;
  }
 
-@Controller('kahoots')
+@Controller('explore')
 export class SearchController {
     constructor(
         private readonly getFeaturedQuizzesUseCase: GetFeaturedQuizzesUseCase,
     ){}
 
-    @Get('')
-    async search() {
-        return 'pong'
-    }
 
     @Get('featured')
     async getFeatured(
