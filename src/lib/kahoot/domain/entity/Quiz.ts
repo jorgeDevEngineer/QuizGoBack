@@ -140,6 +140,10 @@ export class Quiz {
     return this._themeId;
   }
 
+  public getTotalQuestions(){
+    return this._questions.length;
+  }
+
   public toPlainObject() {
     return {
       id: this._id.value,
