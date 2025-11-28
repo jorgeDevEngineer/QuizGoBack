@@ -36,5 +36,8 @@ José Gabriel Vilchez Porra
 José Alejandro Briceño Luzardo
 ✉️ josea2102@gmail.com 
 
+Daniel García
+✉️ dangar452000@gmail.com
+
 ## Licencia 📄
 MIT

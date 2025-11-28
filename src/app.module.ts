@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KahootModule } from './lib/kahoot/infrastructure/NestJs/kahoot.module';
 import { MediaModule } from './lib/media/infrastructure/NestJs/media.module';
+import { SearchModule } from './lib/search/infrastructure/NestJs/search.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MediaModule } from './lib/media/infrastructure/NestJs/media.module';
 
     KahootModule,
     MediaModule,
+    SearchModule,
   ],
 })
 export class AppModule {}
