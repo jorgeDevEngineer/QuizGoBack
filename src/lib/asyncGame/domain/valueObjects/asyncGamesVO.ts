@@ -131,24 +131,25 @@ export class GameScore {
 export class PlayerAnswer {
 
     private constructor( 
+        private readonly questionId: QuestionId,
         private readonly answerIndex: Optional<number | number[]>,
         private readonly timeUsedMs: number           
     ) {}
 
-    public static create(answerIndex: Optional<number | number[]>, timeUsedMs: number): PlayerAnswer {
-        return new PlayerAnswer(answerIndex, timeUsedMs);
+    public static create(questionId: QuestionId, answerIndex: Optional<number | number[]>, timeUsedMs: number): PlayerAnswer {
+        return new PlayerAnswer(questionId, answerIndex, timeUsedMs);
     }
 
     public getAnswer(): Optional<number | number[]> {
-        if (!this.answerIndex.hasValue()){
-            return new Optional<number | number[]>();
-        } else {
-            return this.answerIndex;
-        }
+        return this.answerIndex;
     }
 
     public getTimeUsed(): number {
         return this.timeUsedMs;
+    }
+
+    public getQuestionId(): QuestionId {
+        return this.questionId;
     }
 
 }
@@ -187,12 +188,20 @@ export class QuestionResult {
         private readonly evaluatedAnswer: EvaluatedAnswer
     ) {}
 
+    public static create(questionId: QuestionId, playerAnswer: PlayerAnswer, evaluatedAnswer: EvaluatedAnswer): QuestionResult {
+        return new QuestionResult(questionId, playerAnswer, evaluatedAnswer);
+    }
+
     public getPlayerAnswer(): PlayerAnswer {
         return this.playerAnswer;
     }
 
     public getEvaluatedAnswer(): EvaluatedAnswer {
         return this.evaluatedAnswer;
+    }
+
+    public getQuestionId(): QuestionId {
+        return this.questionId;
     }
 
 }

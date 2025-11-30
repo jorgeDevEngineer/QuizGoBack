@@ -45,6 +45,11 @@ export class Quiz {
     return this._id;
   }
 
+  public getQuestions(): Question[]{
+    return this._questions;
+  }
+  
+
   // El método de factoría ahora exige los Value Objects correctos.
   public static create(
     id: QuizId,

@@ -89,6 +89,14 @@ export class Question {
     return this._timeLimit;
   }
 
+  public getAnswers(): Answer[] {
+    return this._answers;
+  }
+
+  public getPoints(): Points {
+    return this._points;
+  }
+
   public toPlainObject() {
     return {
       id: this._id.value,

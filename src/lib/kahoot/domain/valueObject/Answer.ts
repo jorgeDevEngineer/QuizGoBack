@@ -88,4 +88,8 @@ export class IsCorrect {
   public static fromBoolean(value: boolean): IsCorrect {
     return new IsCorrect(value);
   }
+
+  public getValue(): boolean {
+    return this.value;
+  }
 }

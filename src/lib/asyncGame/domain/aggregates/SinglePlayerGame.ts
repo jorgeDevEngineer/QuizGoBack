@@ -20,9 +20,18 @@ export class SinglePlayerGame {
         private gameScore: GameScore,
         private readonly startedAt: Date,
         private completedAt: Optional<Date>,
-        private gameAnswers: QuestionResult[]
+        private questionsResults: QuestionResult[]
     ) {}
-    
+
+    public getGameId(): SinglePlayerGameId { return this.gameId; }
+    public getQuizId(): QuizId { return this.quizId; }
+    public getPlayerId(): UserId { return this.playerId; }
+    public getProgress(): GameProgress { return this.gameProgress; }
+    public getScore(): GameScore { return this.gameScore; }
+    public getQuestionsResults(): QuestionResult[] { return [...this.questionsResults]; }
+    public getStartedAt(): Date { return this.startedAt; }
+    public getCompletedAt(): Optional<Date> { return this.completedAt; }
+    public getTotalQuestions(): number { return this.totalQuestions; }
 
     public static create(
         gameId: SinglePlayerGameId,
@@ -52,7 +61,7 @@ export class SinglePlayerGame {
         gameScore: GameScore,
         startedAt: Date,
         completedAt: Optional<Date>,
-        gameAnswers: QuestionResult[]
+        questionsResults: QuestionResult[]
     ): SinglePlayerGame {
         return new SinglePlayerGame(
             gameId,
@@ -63,8 +72,55 @@ export class SinglePlayerGame {
             gameScore,
             startedAt,
             completedAt,
-            gameAnswers
+            questionsResults
         );
+    }
+
+
+    private updateScore(questionResult: QuestionResult): void {
+        this.gameScore = this.gameScore.add(questionResult.getEvaluatedAnswer().getPointsEarned());
+    }
+
+    private updateProgress(): void {
+        const progressPercentage = (this.questionsResults.length / this.totalQuestions) * 100;
+        this.gameProgress = GameProgress.create(progressPercentage);
+
+        if (this.gameProgress.isCompleted()){
+            this.completeGame();
+        }
+    }
+
+    public completeGame():void {
+        if (!this.isComplete()) {
+            throw new Error('Game is not yet completed');
+        }
+        this.completedAt = new Optional<Date>(new Date());
+    }
+
+    public isComplete(): boolean {
+        return this.gameProgress.isCompleted();
+    }
+
+    public getCorrectAnswersCount(): number {
+        return this.questionsResults.filter(result => result.getEvaluatedAnswer().getWasCorrect()).length;
+    }
+
+    public submitGameAnswer(questionResult: QuestionResult): void {
+
+        if (this.isComplete()) {
+            throw new Error('Cannot submit answers to a completed game');
+        }
+
+        const alreadyAnswered = this.questionsResults.some(
+            result => result.getQuestionId() === (questionResult.getQuestionId())
+        );   
+        if (alreadyAnswered) {
+            throw new Error('Question already answered');
+        }
+
+        this.questionsResults.push(questionResult);
+        this.updateScore(questionResult);
+        this.updateProgress();
     }
     
 }
