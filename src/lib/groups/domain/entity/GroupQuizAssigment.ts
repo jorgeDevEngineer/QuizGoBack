@@ -1,6 +1,6 @@
 import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
-import { GroupId } from "../valueObject/Group";
-import { GroupQuizAssignmentId } from "../valueObject/GroupQuizAssigments";
+import { GroupId } from "../valueObject/GroupId";
+import { GroupQuizAssignmentId } from "../valueObject/GroupQuizAssigmentId";
 
 export class GroupQuizAssignment {
   private _group!: GroupId;

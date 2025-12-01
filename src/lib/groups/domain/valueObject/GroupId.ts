@@ -5,16 +5,15 @@ function isValidUUID(value: string): boolean {
   return UUID_V4_REGEX.test(value);
 }
 
-export class GroupQuizAttemptId {
+// --- ID del grupo ---
+
+export class GroupId {
   private constructor(public readonly value: string) {
     if (!isValidUUID(value)) {
-      throw new Error(
-        `GroupQuizAttemptId does not have a valid UUID v4 format: ${value}`,
-      );
+      throw new Error(`GroupId does not have a valid UUID v4 format: ${value}`);
     }
   }
-
-  public static of(value: string): GroupQuizAttemptId {
-    return new GroupQuizAttemptId(value);
+  public static of(value: string): GroupId {
+    return new GroupId(value);
   }
 }

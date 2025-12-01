@@ -42,8 +42,10 @@ export class Optional<T> {
  * Encapsula un identificador para una Partida de un Kahoot (UUID v4).
  */
 export class SinglePlayerGameId {
+    private readonly IdGame: string;
 
     private constructor(private readonly gameId:string){
+        this.IdGame = gameId;
         if(!isValidUUID(gameId)){
             throw new Error(`SinglePlayerGameId does not have a valid UUID v4 format: ${gameId}`);
         }
@@ -56,6 +58,11 @@ export class SinglePlayerGameId {
     public static generate(): SinglePlayerGameId{
         return new SinglePlayerGameId(randomUUID());
     }
+    public get game(): string {
+        return this.IdGame;
+    }
+
+    
 }
 
 /**
