@@ -37,15 +37,15 @@ export class UpdateQuizUseCase {
 
     const newQuestions: Question[] = request.questions.map((qData) => {
       const answers = qData.answers.map((aData) => {
-        if ((!aData.answerText && !aData.mediaId) || (aData.answerText && aData.mediaId)) {
-          throw new Error('Cada respuesta debe tener answerText o mediaId, pero no ambos.');
+        if ((!aData.text && !aData.mediaId) || (aData.text && aData.mediaId)) {
+          throw new Error('Cada respuesta debe tener text o mediaId, pero no ambos.');
         }
 
         try {
-          if (aData.answerText) {
+          if (aData.text) {
             return Answer.createTextAnswer(
               AnswerId.generate(),
-              AnswerText.of(aData.answerText),
+              AnswerText.of(aData.text),
               IsCorrect.fromBoolean(aData.isCorrect),
             );
           } else {
@@ -62,7 +62,7 @@ export class UpdateQuizUseCase {
 
       return Question.create(
         QuestionId.generate(),
-        QuestionText.of(qData.questionText),
+        QuestionText.of(qData.text),
         qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
         QuestionType.fromString(qData.questionType),
         TimeLimit.of(qData.timeLimit),
