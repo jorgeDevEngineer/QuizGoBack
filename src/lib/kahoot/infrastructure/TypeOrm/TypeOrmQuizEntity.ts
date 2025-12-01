@@ -25,10 +25,10 @@ export class TypeOrmQuizEntity {
   @Column()
   userId: string;
 
-  @Column()
+  @Column({ nullable: true })
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @Column({ default: 'Private' })
@@ -37,7 +37,7 @@ export class TypeOrmQuizEntity {
   @Column({ default: 'Draft' })
   status: 'Draft' | 'Published';
 
-  @Column()
+  @Column({ nullable: true })
   category: string;
 
   @Column()

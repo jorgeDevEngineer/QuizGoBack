@@ -24,6 +24,14 @@ export class UpdateQuizUseCase {
     if (!quiz) {
       throw new QuizNotFoundError('Quiz not found');
     }
+    
+    const isDraft = request.status === 'Draft';
+
+    if (!isDraft && (!request.title || !request.description || !request.category)) {
+      throw new Error(
+        'Title, description, and category are required for published quizzes.',
+      );
+    }
 
     quiz.updateMetadata(
       QuizTitle.of(request.title),
@@ -36,9 +44,21 @@ export class UpdateQuizUseCase {
     );
 
     const newQuestions: Question[] = request.questions.map((qData) => {
+      if (!isDraft && !qData.text) {
+        throw new Error('Question text is required for published quizzes.');
+      }
+      
       const answers = qData.answers.map((aData) => {
-        if ((!aData.text && !aData.mediaId) || (aData.text && aData.mediaId)) {
-          throw new Error('Cada respuesta debe tener text o mediaId, pero no ambos.');
+        if (!isDraft && !aData.text && !aData.mediaId) {
+          throw new Error(
+            'Answer text or mediaId is required for published quizzes.',
+          );
+        }
+
+        if ((aData.text && aData.mediaId)) {
+          throw new Error(
+            'Cada respuesta debe tener text o mediaId, pero no ambos.',
+          );
         }
 
         try {
@@ -66,7 +86,7 @@ export class UpdateQuizUseCase {
         qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
         QuestionType.fromString(qData.questionType),
         TimeLimit.of(qData.timeLimit),
-        Points.of(qData.points || 1000),
+        Points.of(qData.points),
         answers,
       );
     });

@@ -1,13 +1,3 @@
-// 1. Quiz (Raíz del Agregado - Entidad)
-
-// Esta es la entidad principal. Orquesta y valida la lógica de negocio general.
-// _id: QuizId (Value Object)
-// _authorId: UserId (Value Object - ID del agregado User)
-// _title: QuizTitle (Value Object)
-// _description: QuizDescription (Value Object)
-// _visibility: Visibility (Value Object)
-// _coverImage: MediaUrl (Value Object)
-// _questions: Question[] (Lista de Entidades)
 
 import {
   QuizId,
@@ -26,18 +16,17 @@ export class Quiz {
   private constructor(
     private readonly _id: QuizId,
     private _authorId: UserId,
-    private _title: QuizTitle,
-    private _description: QuizDescription,
+    private _title: QuizTitle | null,
+    private _description: QuizDescription | null,
     private _visibility: Visibility,
     private _status: QuizStatus,
-    private _category: QuizCategory,
+    private _category: QuizCategory | null,
     private _themeId: ThemeId,
     private _coverImageId: MediaIdVO | null,
     private readonly _createdAt: Date,
     private _playCount: number,
     private _questions: Question[] = []
   ) {
-    // Asignamos la referencia de este quiz (this) a cada una de sus preguntas.
     this._questions.forEach((question) => question._setQuiz(this._id));
   }
 
@@ -45,15 +34,14 @@ export class Quiz {
     return this._id;
   }
 
-  // El método de factoría ahora exige los Value Objects correctos.
   public static create(
     id: QuizId,
     authorId: UserId,
-    title: QuizTitle,
-    description: QuizDescription,
+    title: QuizTitle | null,
+    description: QuizDescription | null,
     visibility: Visibility,
     status: QuizStatus,
-    category: QuizCategory,
+    category: QuizCategory | null,
     themeId: ThemeId,
     coverImageId: MediaIdVO | null,
     questions: Question[],
@@ -79,11 +67,11 @@ export class Quiz {
   public static fromDb(
     id: QuizId,
     authorId: UserId,
-    title: QuizTitle,
-    description: QuizDescription,
+    title: QuizTitle | null,
+    description: QuizDescription | null,
     visibility: Visibility,
     status: QuizStatus,
-    category: QuizCategory,
+    category: QuizCategory | null,
     themeId: ThemeId,
     coverImageId: MediaIdVO | null,
     createdAt: Date,
@@ -107,11 +95,11 @@ export class Quiz {
   }
 
   public updateMetadata(
-    title: QuizTitle,
-    description: QuizDescription,
+    title: QuizTitle | null,
+    description: QuizDescription | null,
     visibility: Visibility,
     status: QuizStatus,
-    category: QuizCategory,
+    category: QuizCategory | null,
     themeId: ThemeId,
     coverImageId: MediaIdVO | null
   ): void {
@@ -125,10 +113,7 @@ export class Quiz {
   }
 
   public replaceQuestions(newQuestions: Question[]): void {
-    // Asignamos el ID de este quiz a las nuevas preguntas para mantener la referencia
     newQuestions.forEach((q) => q._setQuiz(this._id));
-
-    // Reemplazamos el array
     this._questions = newQuestions;
   }
 
@@ -144,11 +129,11 @@ export class Quiz {
     return {
       id: this._id.value,
       authorId: this._authorId.value,
-      title: this._title.value,
-      description: this._description.value,
+      title: this._title ? this._title.value : null,
+      description: this._description ? this._description.value : null,
       visibility: this._visibility.value,
       status: this._status.value,
-      category: this._category.value,
+      category: this._category ? this._category.value : null,
       themeId: this._themeId.value,
       coverImageId: this._coverImageId ? this._coverImageId.value : null,
       createdAt: this._createdAt,

@@ -1,3 +1,4 @@
+
 import {
   QuestionId,
   QuestionText,
@@ -10,61 +11,50 @@ import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Answer } from "../entity/Answer";
 
 export class Question {
-  private _quiz!: QuizId; // Referencia al Quiz padre.
+  private _quiz!: QuizId;
 
   private constructor(
     private readonly _id: QuestionId,
-    private readonly _text: QuestionText,
+    private readonly _text: QuestionText | null,
     private readonly _mediaId: MediaIdVO | null,
     private readonly _type: QuestionType,
     private readonly _timeLimit: TimeLimit,
-    private readonly _points: Points,
+    private readonly _points: Points | null,
     private readonly _answers: Answer[]
   ) {
-    // Asignamos la referencia de esta pregunta a cada una de sus respuestas.
     this._answers.forEach((answer) => answer._setQuestion(this._id));
   }
 
-  /**
-   * Asigna el quiz padre a esta pregunta.
-   * Este método solo debe ser llamado por el constructor de Quiz.
-   * @param quiz La instancia del quiz padre.
-   */
   _setQuiz(quiz: QuizId) {
     this._quiz = quiz;
   }
 
-  // El método de factoría ahora exige los Value Objects correctos.
   public static create(
     id: QuestionId,
-    text: QuestionText,
+    text: QuestionText | null,
     mediaId: MediaIdVO | null,
     type: QuestionType,
     timeLimit: TimeLimit,
-    points: Points,
+    points: Points | null,
     answers: Answer[]
   ): Question {
-    // Validación de número de respuestas (existente)
-    if (type.value === "quiz" && (answers.length < 2 || answers.length > 4)) {
+    if (type.value === "quiz" && (answers.length > 4)) {
       throw new Error(
-        'Las preguntas de tipo "quiz" deben tener entre 2 y 4 respuestas.'
+        'Las preguntas de tipo "quiz" no pueden tener más de 4 respuestas.'
       );
     }
 
-    if (type.value === "true_false" && answers.length !== 2) {
+    if (type.value === "true_false" && answers.length > 2) {
       throw new Error(
-        'Las preguntas de tipo "true_false" deben tener exactamente 2 respuestas.'
+        'Las preguntas de tipo "true_false" no pueden tener más de 2 respuestas.'
       );
     }
     
-    // Verificamos que al menos una respuesta sea correcta.
-    // (Asume que la entidad Answer tiene un getter `isCorrect`)
     const hasCorrectAnswer = answers.some(answer => answer.isCorrect.value);
 
-    if (!hasCorrectAnswer) {
+    if (answers.length > 0 && !hasCorrectAnswer) {
       throw new Error('La pregunta debe tener al menos una respuesta correcta.');
     }
-    // --- FIN DE LA NUEVA VALIDACIÓN ---
 
     return new Question(id, text, mediaId, type, timeLimit, points, answers);
   }
@@ -73,7 +63,7 @@ export class Question {
     return this._id;
   }
 
-  public get text(): QuestionText {
+  public get text(): QuestionText | null {
     return this._text;
   }
 
@@ -89,15 +79,19 @@ export class Question {
     return this._timeLimit;
   }
 
+  public get points(): Points | null {
+    return this._points;
+  }
+
   public toPlainObject() {
     return {
       id: this._id.value,
       quizId: this._quiz.value,
-      text: this._text.value,
+      text: this._text ? this._text.value : null,
       mediaId: this._mediaId ? this._mediaId.value : null,
       type: this._type.value,
       timeLimit: this._timeLimit.value,
-      points: this._points.value,
+      points: this._points ? this._points.value : null,
       answers: this._answers.map((a) => a.toPlainObject()),
     };
   }

@@ -1,13 +1,6 @@
-// 3. Answer (Entidad Interna)
-
-// Es una entidad gestionada por Question.
-// _id: AnswerId (Value Object)
-// _content: AnswerContent (Value Object)
-// _isCorrect: IsCorrect (Value Object)
 
 import { randomUUID } from "crypto";
 
-// --- (Asumimos que isValidUUID existe en este ámbito) ---
 const UUID_V4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function isValidUUID(value: string): boolean {
@@ -16,9 +9,6 @@ function isValidUUID(value: string): boolean {
 
 // --- VOs de Identidad ---
 
-/**
- * Encapsula un identificador único (UUID) para una Respuesta (Answer).
- */
 export class AnswerId {
   private constructor(public readonly value: string) {
     if (!isValidUUID(value)) {
@@ -37,13 +27,9 @@ export class AnswerId {
 
 // --- VOs de Contenido ---
 
-/**
- * Encapsula el texto de una opción de respuesta, validando su longitud.
- */
 export class AnswerText {
-  // Límites para el texto de una respuesta
   private static readonly MIN_LENGTH = 1;
-  private static readonly MAX_LENGTH = 75; // Como en tu ejemplo
+  private static readonly MAX_LENGTH = 75;
 
   private constructor(public readonly value: string) {
     if (
@@ -55,35 +41,21 @@ export class AnswerText {
       );
     }
   }
-  public static of(value: string): AnswerText {
-    return new AnswerText(value);
+  public static of(value: string | null): AnswerText | null {
+    return value === null ? null : new AnswerText(value);
   }
 }
 
-/**
- * Encapsula el estado de "correctitud" de una respuesta.
- * Provee semántica de dominio sobre un booleano primitivo.
- */
 export class IsCorrect {
   private constructor(public readonly value: boolean) {}
-  /**
-   * Crea una instancia que representa 'Correcto'.
-   */
 
   public static true(): IsCorrect {
     return new IsCorrect(true);
   }
-  /**
-   * Crea una instancia que representa 'Incorrecto'.
-   */
 
   public static false(): IsCorrect {
     return new IsCorrect(false);
   }
-  /**
-   * Crea una instancia a partir de un valor booleano primitivo.
-   * Útil para deserialización o mapeo desde la base de datos.
-   */
 
   public static fromBoolean(value: boolean): IsCorrect {
     return new IsCorrect(value);
