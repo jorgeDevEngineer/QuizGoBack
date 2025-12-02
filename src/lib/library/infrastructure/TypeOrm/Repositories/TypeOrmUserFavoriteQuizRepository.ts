@@ -27,6 +27,10 @@ export class TypeOrmUserFavoriteQuizRepository
     });
   }
 
+  async isFavorite(userId: UserId, quizId: QuizId): Promise<boolean> {
+    return this.repository.exist({ where: { user_id: userId.value, quiz_id: quizId.value } });
+  }
+  
   async findFavoritesQuizByUser(userId: UserId): Promise<QuizId[]> {
     const favorites = await this.repository.find({ where: { user_id: userId.value } });
     return favorites.map((fav) => QuizId.of(fav.quiz_id));

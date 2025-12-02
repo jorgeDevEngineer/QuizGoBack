@@ -6,9 +6,12 @@ import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRe
 import { TypeOrmUserFavoriteQuizRepository } from '../TypeOrm/Repositories/TypeOrmUserFavoriteQuizRepository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmUserFavoriteQuizEntity } from '../TypeOrm/Entities/TypeOrmUserFavoriteQuizEntity';
+import { TypeOrmQuizEntity } from '../TypeOrm/Entities/TypeOrmQuizEntity';
+import { TypeOrmQuizRepository } from '../TypeOrm/Repositories/TypeOrmQuizRepository';
+import { QuizRepository } from '../../domain/port/QuizRepository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity])],
+  imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity])],
   controllers: [LibraryController],
   providers: [
     {
@@ -16,10 +19,16 @@ import { TypeOrmUserFavoriteQuizEntity } from '../TypeOrm/Entities/TypeOrmUserFa
       useClass: TypeOrmUserFavoriteQuizRepository,
     },
     {
+      provide: 'QuizRepository',
+      useClass: TypeOrmQuizRepository,
+    },
+    {
       provide: 'AddUserFavoriteQuizUseCase',
-      useFactory: (repository: UserFavoriteQuizRepository) =>
-        new AddUserFavoriteQuizUseCase(repository),
-      inject: ['UserFavoriteQuizRepository'],
+      useFactory: (userFavoriteRepository: UserFavoriteQuizRepository,
+        quizRepository: QuizRepository
+      ) =>
+        new AddUserFavoriteQuizUseCase(userFavoriteRepository, quizRepository),
+      inject: ['UserFavoriteQuizRepository', 'QuizRepository'],
     },
     {
       provide: 'DeleteUserFavoriteQuizUseCase',

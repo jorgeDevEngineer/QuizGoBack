@@ -8,6 +8,7 @@ export interface QuizRepository {
      */
     find(id: QuizId): Promise<Quiz | null>;
     searchByAuthor(authorId: UserId): Promise<Quiz[]>;
+    quizExists(quizId: QuizId): Promise<boolean>
 }
 
 /**

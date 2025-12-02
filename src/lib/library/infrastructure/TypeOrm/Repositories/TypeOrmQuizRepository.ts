@@ -93,4 +93,9 @@ export class TypeOrmQuizRepository implements QuizRepository {
       });
       return quizzes.map((q) => this.mapToDomain(q));
     }
+
+    async quizExists(quizId: QuizId): Promise<boolean> {
+      return await this.repository.exists({ where: { id: quizId.value } });
+    }
+      
 }
