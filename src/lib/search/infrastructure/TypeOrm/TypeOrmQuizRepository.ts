@@ -29,6 +29,7 @@ import {
   IsCorrect,
 } from '../../domain/valueObject/Answer';
 import { SearchParamsDto, SearchResultDto } from '../../application/SearchQuizzesUseCase';
+import { CategoriesDTO } from '../../application/GetCategoriesUseCase';
 
 export class TypeOrmQuizRepository implements QuizRepository {
   constructor(
@@ -137,6 +138,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
 
   async findFeatured(limit: number): Promise<Quiz[]> {
     const quizzes = await this.repository.find({
+
         where: {
           visibility: 'public',
           status: 'published',
@@ -147,6 +149,14 @@ export class TypeOrmQuizRepository implements QuizRepository {
         take: limit,
       });
     return quizzes.map((q) => this.mapToDomain(q));
+  }
+
+  async getCategories(): Promise<QuizCategory[]> {
+    const categories = await this.repository.createQueryBuilder('quiz')
+    .select('category')
+    .distinct(true)
+    .getRawMany();
+    return categories.map((c) => QuizCategory.of(c.category));
   }
 
 }

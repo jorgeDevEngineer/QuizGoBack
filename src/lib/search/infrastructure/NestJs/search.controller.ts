@@ -2,12 +2,12 @@ import {
     Controller,
     DefaultValuePipe,
     Get,
-    NotFoundException,
-    Param,
+    InternalServerErrorException,
     Query,
   } from '@nestjs/common';
   import { GetFeaturedQuizzesUseCase } from '../../application/GetFeaturedQuizzesUseCase';
   import { IsString, Length } from 'class-validator';
+import { GetCategoriesUseCase } from '../../application/GetCategoriesUseCase';
 
 
 export class FindOneParams {
@@ -20,6 +20,7 @@ export class FindOneParams {
 export class SearchController {
     constructor(
         private readonly getFeaturedQuizzesUseCase: GetFeaturedQuizzesUseCase,
+        private readonly getCategoriesUseCase: GetCategoriesUseCase,
     ){}
 
 
@@ -31,7 +32,16 @@ export class SearchController {
             const quizzes = await this.getFeaturedQuizzesUseCase.run(limit);
             return quizzes;
         } catch (e) {
-            throw new NotFoundException(e.message);
+            throw new InternalServerErrorException(e.message);
+        }
+    }
+    @Get('categories')
+    async getCategories() {
+        try {
+            const categories = await this.getCategoriesUseCase.run();
+            return categories;
+        } catch (e) {
+            throw new InternalServerErrorException(e.message);
         }
     }
 }
