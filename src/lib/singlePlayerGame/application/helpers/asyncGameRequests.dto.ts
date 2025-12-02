@@ -2,7 +2,7 @@ import { IsString, IsNumber, IsOptional } from "class-validator";
 
 export class StartGameRequestDto {
   @IsString()
-  kahootid: string; 
+  kahootId: string; 
 }
 
 export class SubmitAnswerRequestDto {

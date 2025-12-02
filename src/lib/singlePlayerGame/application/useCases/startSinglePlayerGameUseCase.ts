@@ -28,7 +28,7 @@ export class startSinglePlayerGameUseCase {
 
         const quiz = await this.quizRepo.find(QuizId.of(command.kahootId));
         if (!quiz) {
-            throw new Error('Quiz not found');
+            throw new Error(`No se encontró el quiz de id ${command.kahootId}`);
         }
 
         const game = SinglePlayerGame.create(
