@@ -1,5 +1,7 @@
 import { User } from "../domain/entity/User";
 import { UserRepository } from "../domain/port/UserRepository";
+import { UserDate } from "../domain/valueObject/UserDate";
+import { UserId } from "../domain/valueObject/UserId";
 
 export class EditUser {
   constructor(private readonly userRepository: UserRepository) {}
@@ -14,10 +16,11 @@ export class EditUser {
     name: string,
     theme: string,
     language: string,
-    gameStreak: number,
-    createdAt: Date,
-    updatedAt: Date
+    gameStreak: number
   ): Promise<void> {
+    const createdAt = (await this.userRepository.getOneById(new UserId(id)))
+      ?.createdAt.value;
+    const updatedAt = new Date();
     const user = new User(
       id,
       userName,
