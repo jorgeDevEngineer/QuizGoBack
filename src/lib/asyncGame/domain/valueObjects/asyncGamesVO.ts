@@ -54,6 +54,10 @@ export class SinglePlayerGameId {
     public static generate(): SinglePlayerGameId{
         return new SinglePlayerGameId(randomUUID());
     }
+
+    public getId():string{
+        return this.gameId;
+    }
 }
 
 /**
@@ -93,6 +97,10 @@ export class GameProgress {
 
     public getProgress(): number{
         return this.progress;
+    }
+
+    public getStatus():GameProgressStatus {
+        return this.status
     }
 
 }
@@ -203,5 +211,16 @@ export class QuestionResult {
     public getQuestionId(): QuestionId {
         return this.questionId;
     }
+    
+}
 
+/**
+ * Interfaz para la entidad typeORM
+ */
+export interface QuestionResultJSON {
+  questionId: string;
+  answerIndex: number | number[] | null;
+  timeUsedMs: number;
+  wasCorrect: boolean;
+  pointsEarned: number;
 }

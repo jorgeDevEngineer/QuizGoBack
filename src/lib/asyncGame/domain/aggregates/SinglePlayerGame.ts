@@ -28,7 +28,7 @@ export class SinglePlayerGame {
     public getPlayerId(): UserId { return this.playerId; }
     public getProgress(): GameProgress { return this.gameProgress; }
     public getScore(): GameScore { return this.gameScore; }
-    public getQuestionsResults(): QuestionResult[] { return [...this.questionsResults]; }
+    public getQuestionsResults(): QuestionResult[] { return this.questionsResults; }
     public getStartedAt(): Date { return this.startedAt; }
     public getCompletedAt(): Optional<Date> { return this.completedAt; }
     public getTotalQuestions(): number { return this.totalQuestions; }

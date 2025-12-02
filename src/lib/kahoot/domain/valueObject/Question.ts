@@ -33,6 +33,9 @@ export class QuestionId {
   public static generate(): QuestionId {
     return new QuestionId(randomUUID());
   }
+  public getValue():string {
+    return this.value;
+  }
 }
 
 // --- VOs de Contenido ---
