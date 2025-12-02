@@ -1,18 +1,18 @@
 import { Injectable } from "@nestjs/common";
-import { TypeOrmSinglePlayerGameRepository } from "../../infrastructure/TypeOrm/TypeOrmSinglePlayerGameRepository";
-import { TypeOrmQuizRepository } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizRepository";
 import { StartSinglePlayerGameCommand } from "../helpers/asyncGameCommands";
 import { StartGameResponseDto } from "../helpers/asyncGameResponses.dto";
 import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { SinglePlayerGame } from "../../domain/aggregates/SinglePlayerGame";
 import { SinglePlayerGameId } from "../../domain/valueObjects/asyncGamesVO";
+import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
+import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 
 @Injectable()
 export class startSinglePlayerGameUseCase {
 
     constructor(
-        private readonly gameRepo: TypeOrmSinglePlayerGameRepository,
-        private readonly quizRepo: TypeOrmQuizRepository
+        private readonly gameRepo: SinglePlayerGameRepository,
+        private readonly quizRepo: QuizRepository
     ) {}
 
     async execute(command: StartSinglePlayerGameCommand): Promise<StartGameResponseDto> { 

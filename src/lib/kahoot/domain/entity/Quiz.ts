@@ -8,7 +8,6 @@
 // _visibility: Visibility (Value Object)
 // _coverImage: MediaUrl (Value Object)
 // _questions: Question[] (Lista de Entidades)
-
 import {
   QuizId,
   UserId,
@@ -21,6 +20,7 @@ import {
 } from "../valueObject/Quiz";
 import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Question } from "../entity/Question";
+import { QuestionId } from "../valueObject/Question";
 
 export class Quiz {
   private constructor(
@@ -169,4 +169,17 @@ export class Quiz {
   public getFirstQuestion(): Question {
     return this._questions[0];
   }
+
+  public getQuestionIds(): QuestionId[] {
+    return this._questions.map( question => question.id);
+  }
+
+  public getQuestionById(id: QuestionId):Question {
+    const question: Question = this._questions.find( question => { question.id.equals(id)})
+    if (!question){
+      throw new Error('No se encontró la pregunta dentro del quiz');
+    }
+    return question;
+  }
+  
 }

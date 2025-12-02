@@ -13,3 +13,11 @@ export class SubmitAnswerCommand {
     public readonly timeElapsedSeconds?: number
   ) {}
 }
+
+export class GetGameProgressCommand {
+  constructor(public readonly attemptId: string) {}
+}
+
+export class GetGameSummaryCommand {
+  constructor(public readonly attemptId: string) {}
+}

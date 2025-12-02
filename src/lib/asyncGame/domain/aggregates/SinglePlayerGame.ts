@@ -5,9 +5,9 @@ import {
     Optional,
     QuestionResult
 } from "../valueObjects/asyncGamesVO";
+import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
 import { QuizId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
-
 
 export class SinglePlayerGame {
 
@@ -121,6 +121,19 @@ export class SinglePlayerGame {
         this.questionsResults.push(questionResult);
         this.updateScore(questionResult);
         this.updateProgress();
+    }
+
+    public findNextQuestionId(ids: QuestionId[]): Optional<QuestionId> {
+        const idsRespondidos:QuestionId[] = this.questionsResults.map( result => {
+            return result.getQuestionId();
+        });
+
+        for (const id of ids) {
+            if (!idsRespondidos.includes(id)){
+                return new Optional<QuestionId>(id);
+            }
+        }
+        return new Optional<QuestionId>();
     }
     
 }

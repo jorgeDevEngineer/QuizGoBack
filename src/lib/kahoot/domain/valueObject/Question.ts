@@ -33,6 +33,9 @@ export class QuestionId {
   public static generate(): QuestionId {
     return new QuestionId(randomUUID());
   }
+  public equals(id: QuestionId): boolean {
+    return id.getValue() === this.value;
+  }
   public getValue():string {
     return this.value;
   }
