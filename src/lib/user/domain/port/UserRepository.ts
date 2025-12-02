@@ -1,6 +1,6 @@
 import { UserId } from "../valueObject/UserId";
 import { User } from "../entity/User";
-import { UserName } from "../valueObject/userName";
+import { UserName } from "../valueObject/UserName";
 
 export interface UserRepository {
   getAll(): Promise<User[]>;
