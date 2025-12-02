@@ -22,24 +22,24 @@ import { Create, Edit } from "./Validations";
 @Controller("user")
 export class UserController {
   constructor(
-    @Inject("UserGetAll") private readonly userGetAll: GetAllUsers,
-    @Inject("UserGetOneById") private readonly userGetOneById: GetOneUserById,
-    @Inject("UserGetOneByUserName")
-    private readonly userGetOneUserByUserName: GetOneUserByUserName,
-    @Inject("UserCreate") private readonly userCreate: CreateUser,
-    @Inject("UserEdit") private readonly userEdit: EditUser,
-    @Inject("UserDelete") private readonly userDelete: DeleteUser
+    @Inject("GetAllUsers") private readonly getAllUsers: GetAllUsers,
+    @Inject("GetOneUserById") private readonly getOneUserById: GetOneUserById,
+    @Inject("GetOneUserByUserName")
+    private readonly getOneUserByUserName: GetOneUserByUserName,
+    @Inject("CreateUser") private readonly createUser: CreateUser,
+    @Inject("EditUser") private readonly editUser: EditUser,
+    @Inject("DeleteUser") private readonly deleteUser: DeleteUser
   ) {}
 
   @Get()
   async getAll() {
-    return (await this.userGetAll.run()).map((user) => user.toPlainObject());
+    return (await this.getAllUsers.run()).map((user) => user.toPlainObject());
   }
 
   @Get(":id")
   async getOneById(@Param() params: FindByIdParams) {
     try {
-      return (await this.userGetOneById.run(params.id)).toPlainObject();
+      return (await this.getOneUserById.run(params.id)).toPlainObject();
     } catch (error) {
       if (error instanceof UserNotFoundError) {
         throw new NotFoundException("User not found");
@@ -48,10 +48,10 @@ export class UserController {
   }
 
   @Get(":userName")
-  async getOneUserByUserName(@Param() params: FindByUserNameParams) {
+  async getOneUserByName(@Param() params: FindByUserNameParams) {
     try {
       return (
-        await this.userGetOneUserByUserName.run(params.userName)
+        await this.getOneUserByUserName.run(params.userName)
       ).toPlainObject();
     } catch (error) {
       if (error instanceof UserNotFoundError) {
@@ -62,7 +62,7 @@ export class UserController {
 
   @Post()
   async create(@Body() body: Create) {
-    return await this.userCreate.run(
+    return await this.createUser.run(
       body.id,
       body.userName,
       body.email,
@@ -74,11 +74,11 @@ export class UserController {
 
   @Put(":id")
   async edit(@Param() params: FindByIdParams, @Body() body: Edit) {
-    const user = await this.userGetOneById.run(params.id);
+    const user = await this.getOneUserById.run(params.id);
     if (!user) {
       throw new Error("User not found");
     }
-    return await this.userEdit.run(
+    return await this.editUser.run(
       user.id.value,
       body.userName,
       body.email,
@@ -94,6 +94,6 @@ export class UserController {
 
   @Delete(":id")
   async delete(@Param() params: FindByIdParams) {
-    return await this.userDelete.run(params.id);
+    return await this.deleteUser.run(params.id);
   }
 }

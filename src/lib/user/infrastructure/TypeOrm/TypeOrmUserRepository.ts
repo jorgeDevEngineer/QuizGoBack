@@ -1,15 +1,14 @@
 import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../../domain/entity/User";
 import { UserRepository } from "../../domain/port/UserRepository";
 import { UserName } from "../../domain/valueObject/userName";
 import { TypeOrmUserEntity } from "./TypeOrmUserEntity";
-import { Inject } from "@nestjs/common";
-import { Type } from "class-transformer";
 import { UserId } from "../../domain/valueObject/UserId";
 
 export class TypeOrmUserRepository implements UserRepository {
   constructor(
-    @Inject(TypeOrmUserEntity)
+    @InjectRepository(TypeOrmUserEntity)
     private readonly repository: Repository<TypeOrmUserEntity>
   ) {}
 
