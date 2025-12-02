@@ -3,9 +3,7 @@ import { EvaluatedAnswer, PlayerAnswer, QuestionResult } from "../valueObjects/a
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { Quiz } from "src/lib/kahoot/domain/entity/Quiz";
 import { Question } from "src/lib/kahoot/domain/entity/Question";
-import { Injectable } from "@nestjs/common";
 
-@Injectable()
 export class SinglePlayerEvaluationService {
     
     async evaluate(quizId: QuizId, playerAnswer:PlayerAnswer, quizRepo: QuizRepository):Promise<QuestionResult>{

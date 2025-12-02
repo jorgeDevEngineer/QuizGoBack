@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { SubmitAnswerCommand } from "../helpers/asyncGameCommands";
@@ -7,7 +6,6 @@ import { SinglePlayerEvaluationService } from "../../domain/services/SinglePlaye
 import { Optional, PlayerAnswer, SinglePlayerGameId } from "../../domain/valueObjects/asyncGamesVO";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
 
-@Injectable()
 export class submitGameAnswerUseCase {
 
     constructor(

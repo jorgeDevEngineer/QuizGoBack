@@ -1,4 +1,3 @@
-import { Injectable } from "@nestjs/common";
 import { StartSinglePlayerGameCommand } from "../helpers/asyncGameCommands";
 import { StartGameResponseDto } from "../helpers/asyncGameResponses.dto";
 import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
@@ -7,7 +6,6 @@ import { SinglePlayerGameId } from "../../domain/valueObjects/asyncGamesVO";
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 
-@Injectable()
 export class startSinglePlayerGameUseCase {
 
     constructor(

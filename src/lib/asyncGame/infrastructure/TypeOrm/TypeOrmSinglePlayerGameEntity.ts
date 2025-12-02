@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { SinglePlayerGame } from '../../domain/aggregates/SinglePlayerGame';
 import { 
     EvaluatedAnswer, 
