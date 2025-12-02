@@ -10,6 +10,7 @@ export class UserHashedPassword {
 
   private isValid(value: string): boolean {
     // Example validation: password must be a valid hash (e.g., bcrypt hash)
+    // Rounds (Cost Factor) recomended for production: 12
     const hashRegex = /^\$2[ayb]\$.{56}$/; // Regex for bcrypt hashes
     return hashRegex.test(value);
   }
