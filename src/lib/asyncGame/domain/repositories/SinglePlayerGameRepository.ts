@@ -10,7 +10,11 @@ export interface SinglePlayerGameRepository {
 
     findByPlayerId(id: UserId): Promise<SinglePlayerGame[] | null>;
 
-    findActiveGameByPlayerAndQuiz(playerId: UserId, quizId: QuizId): Promise<SinglePlayerGame | null>;
+    findInProgressGameByPlayerAndQuiz(playerId: UserId, quizId: QuizId): Promise<SinglePlayerGame | null>;
+
+    findInProgressGames(playerId: UserId):Promise<SinglePlayerGame[] | null>;
+
+    findCompletedGames(playerId: UserId):Promise<SinglePlayerGame[] | null>;
 
     delete(id: SinglePlayerGameId): Promise<void>;
 

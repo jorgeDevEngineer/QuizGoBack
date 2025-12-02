@@ -41,15 +41,40 @@ export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameReposi
         return entities.map(entity => entity.toDomain());
     }
 
-    async findActiveGameByPlayerAndQuiz(playerId: UserId, quizId: QuizId): Promise<SinglePlayerGame | null> {
+    async findInProgressGameByPlayerAndQuiz(playerId: UserId, quizId: QuizId): Promise<SinglePlayerGame | null> {
         const entity = await this.gameRepo.findOne({
-        where: { 
-            playerId: playerId.getValue(),
-            quizId: quizId.getValue(),
-            status: GameProgressStatus.IN_PROGRESS
-        }
+            where: { 
+                playerId: playerId.getValue(),
+                quizId: quizId.getValue(),
+                status: GameProgressStatus.IN_PROGRESS
+            }
         });
 
         return entity ? entity.toDomain() : null;
     }
+
+    async findInProgressGames(playerId: UserId): Promise<SinglePlayerGame[] | null> {
+        const entities = await this.gameRepo.find({
+            where: { 
+                playerId: playerId.getValue(),
+                status: GameProgressStatus.IN_PROGRESS
+            },
+            order: { startedAt: 'DESC' }
+        });
+
+        return entities.map(entity => entity.toDomain());
+    }
+
+    async findCompletedGames(playerId: UserId):Promise<SinglePlayerGame[] | null> {
+        const entities = await this.gameRepo.find({
+            where: { 
+                playerId: playerId.getValue(),
+                status: GameProgressStatus.COMPLETED
+            },
+            order: { startedAt: 'DESC' }
+        });
+
+        return entities.map(entity => entity.toDomain());
+    }
+
 }
