@@ -1,4 +1,4 @@
-import { UserName } from "../valueObject/userName";
+import { UserName } from "../valueObject/UserName";
 import { UserEmail } from "../valueObject/UserEmail";
 import { UserHashedPassword } from "../valueObject/UserHashedPassword";
 import { UserType } from "../valueObject/UserType";
