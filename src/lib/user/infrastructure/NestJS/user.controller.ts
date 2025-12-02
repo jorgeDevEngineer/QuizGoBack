@@ -4,8 +4,10 @@ import {
   Delete,
   Get,
   Inject,
+  InternalServerErrorException,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
 } from "@nestjs/common";
@@ -16,7 +18,7 @@ import { CreateUser } from "../../aplication/CreateUser";
 import { EditUser } from "../../aplication/EditUser";
 import { DeleteUser } from "../../aplication/DeleteUser";
 import { FindByIdParams, FindByUserNameParams } from "./Validations";
-import { UserNotFoundError } from "../../domain/error/UserNotFoundError";
+import { UserNotFoundError } from "../../aplication/error/UserNotFoundError";
 import { Create, Edit } from "./Validations";
 
 @Controller("user")
@@ -33,7 +35,11 @@ export class UserController {
 
   @Get()
   async getAll() {
-    return (await this.getAllUsers.run()).map((user) => user.toPlainObject());
+    try {
+      return (await this.getAllUsers.run()).map((user) => user.toPlainObject());
+    } catch (error) {
+      throw new InternalServerErrorException("Could not fetch users");
+    }
   }
 
   @Get(":id")
@@ -43,11 +49,13 @@ export class UserController {
     } catch (error) {
       if (error instanceof UserNotFoundError) {
         throw new NotFoundException("User not found");
+      } else {
+        throw new InternalServerErrorException("Could not fetch users");
       }
     }
   }
 
-  @Get(":userName")
+  @Get("username/:userName")
   async getOneUserByName(@Param() params: FindByUserNameParams) {
     try {
       return (
@@ -56,27 +64,35 @@ export class UserController {
     } catch (error) {
       if (error instanceof UserNotFoundError) {
         throw new NotFoundException("User not found");
+      } else {
+        throw new InternalServerErrorException("Could not fetch users");
       }
     }
   }
 
   @Post()
   async create(@Body() body: Create) {
-    return await this.createUser.run(
-      body.id,
-      body.userName,
-      body.email,
-      body.hashedPassword,
-      body.userType,
-      body.avatarUrl
-    );
+    try {
+      return await this.createUser.run(
+        body.id,
+        body.userName,
+        body.email,
+        body.hashedPassword,
+        body.userType,
+        body.avatarUrl
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        "Could not create user : " + error.message
+      );
+    }
   }
 
-  @Put(":id")
+  @Patch(":id")
   async edit(@Param() params: FindByIdParams, @Body() body: Edit) {
     const user = await this.getOneUserById.run(params.id);
     if (!user) {
-      throw new Error("User not found");
+      throw new NotFoundException("User not found");
     }
     return await this.editUser.run(
       user.id.value,
@@ -94,6 +110,10 @@ export class UserController {
 
   @Delete(":id")
   async delete(@Param() params: FindByIdParams) {
+    const user = await this.getOneUserById.run(params.id);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
     return await this.deleteUser.run(params.id);
   }
 }
