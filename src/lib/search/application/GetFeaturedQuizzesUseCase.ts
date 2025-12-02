@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { QuizRepository } from "../domain/port/QuizRepository";
 import { Quiz } from "../domain/entity/Quiz";
 
@@ -15,7 +15,7 @@ export class GetFeaturedQuizzesUseCase {
         const safeLimit = Math.min(limit, 10);
         const result = await this.quizRepository.findFeatured(safeLimit);
         if (!result || result.length === 0) {
-            throw new InternalServerErrorException('Featured quizzes not found');
+            throw new NotFoundException('Featured quizzes not found');
         }
         return result;
     }

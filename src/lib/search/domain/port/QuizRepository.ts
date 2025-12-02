@@ -1,5 +1,5 @@
 import { Quiz } from '../entity/Quiz';
-import { QuizCategory, QuizId, UserId } from '../valueObject/Quiz';
+import { QuizId, UserId } from '../valueObject/Quiz';
 
 export interface QuizRepository {
         /**
@@ -26,8 +26,6 @@ export interface QuizRepository {
     * Busca los Quizzes mas destacados segun el limite de quizzes.
     */
     findFeatured(limit: number): Promise<Quiz[]>;
-
-    getCategories(): Promise<QuizCategory[]>;
     
 
 }
