@@ -1,5 +1,5 @@
 export class UserTheme {
-  private readonly value: string;
+  readonly value: string;
   private static readonly allowedThemes = ["light", "dark", "system"];
 
   constructor(value: string) {

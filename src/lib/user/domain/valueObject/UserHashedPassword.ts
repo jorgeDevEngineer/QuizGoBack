@@ -1,5 +1,5 @@
 export class UserHashedPassword {
-  private readonly value: string;
+  readonly value: string;
 
   constructor(value: string) {
     if (!this.isValid(value)) {

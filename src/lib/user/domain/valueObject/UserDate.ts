@@ -1,5 +1,5 @@
 export class UserDate {
-  private readonly value: Date;
+  readonly value: Date;
 
   constructor(value: Date) {
     if (!this.isValid(value)) {

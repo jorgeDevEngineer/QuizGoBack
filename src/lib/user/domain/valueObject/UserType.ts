@@ -1,5 +1,5 @@
 export class UserType {
-  private readonly value: "student" | "teacher" | "personal";
+  readonly value: "student" | "teacher" | "personal";
 
   constructor(value: "student" | "teacher" | "personal") {
     if (!this.isValid(value)) {

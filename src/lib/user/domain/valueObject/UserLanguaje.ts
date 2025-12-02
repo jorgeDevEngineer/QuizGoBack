@@ -1,5 +1,5 @@
 export class UserLanguage {
-  private readonly value: string;
+  readonly value: string;
   private static readonly allowedLanguages = ["en", "es"];
 
   constructor(value: string) {

@@ -8,40 +8,68 @@ import { UserLanguage } from "../valueObject/UserLanguaje";
 import { UserGameStreak } from "../valueObject/UserGameStreak";
 import { UserDate } from "../valueObject/UserDate";
 import { UserId } from "../valueObject/UserId";
+import { UserPlainName } from "../valueObject/UserPlainName";
 
 export class User {
-  id: UserId;
-  name: UserName;
-  email: UserEmail;
-  hasshedPassword: UserHashedPassword; // Opcional al devolver la respuesta al front
-  userType: UserType;
-  avatarUrl: UserAvatarUrl;
-  theme?: UserTheme; // Default: 'light'
-  language?: UserLanguage; // Default: 'es'
-  gameStreak: UserGameStreak; // Default: 0
-  createdAt: UserDate;
-  updatedAt: UserDate;
-
+  readonly id: UserId;
+  readonly userName: UserName;
+  readonly email: UserEmail;
+  readonly hasshedPassword: UserHashedPassword;
+  readonly userType: UserType;
+  readonly avatarUrl: UserAvatarUrl;
+  readonly name: UserPlainName;
+  readonly theme: UserTheme; // Default: 'light'
+  readonly language: UserLanguage; // Default: 'es'
+  readonly gameStreak: UserGameStreak; // Default: 0
+  readonly createdAt: UserDate;
+  readonly updatedAt: UserDate;
   constructor(
     id: string,
-    name: string,
+    userName: string,
     email: string,
     hasshedPassword: string,
     userType: "student" | "teacher" | "personal",
     avatarUrl: string,
-    createdAt: Date,
-    updatedAt: Date
+    name?: string,
+    theme?: string,
+    language?: string,
+    gameStreak?: number,
+    createdAt?: Date,
+    updatedAt?: Date
   ) {
     this.id = new UserId(id);
-    this.name = new UserName(name);
+    this.userName = new UserName(userName);
     this.email = new UserEmail(email);
     this.hasshedPassword = new UserHashedPassword(hasshedPassword);
     this.userType = new UserType(userType);
     this.avatarUrl = new UserAvatarUrl(avatarUrl);
-    this.createdAt = new UserDate(createdAt);
-    this.updatedAt = new UserDate(updatedAt);
-    if (!this.gameStreak) this.gameStreak = new UserGameStreak(0);
-    if (!this.theme) this.theme = new UserTheme("light");
-    if (!this.language) this.language = new UserLanguage("es");
+    if (!name) this.name = new UserPlainName("");
+    else this.name = new UserPlainName(name);
+    if (!theme) this.theme = new UserTheme("light");
+    else this.theme = new UserTheme(theme);
+    if (!language) this.language = new UserLanguage("es");
+    else this.language = new UserLanguage(language);
+    if (!gameStreak) this.gameStreak = new UserGameStreak(0);
+    else this.gameStreak = new UserGameStreak(gameStreak);
+    if (!createdAt) this.createdAt = new UserDate(new Date());
+    else this.createdAt = new UserDate(createdAt);
+    if (!updatedAt) this.updatedAt = new UserDate(this.createdAt.value);
+    else this.updatedAt = new UserDate(updatedAt);
+  }
+
+  toPlainObject() {
+    return {
+      id: this.id.value,
+      userName: this.userName.value,
+      name: this.name.value,
+      email: this.email.value,
+      userType: this.userType.value,
+      avatarUrl: this.avatarUrl.value,
+      theme: this.theme.value,
+      language: this.language.value,
+      gameStreak: this.gameStreak.value,
+      createdAt: this.createdAt.value,
+      updatedAt: this.updatedAt.value,
+    };
   }
 }

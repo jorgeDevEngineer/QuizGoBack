@@ -1,5 +1,5 @@
 export class UserGameStreak {
-  private readonly value: number;
+  readonly value: number;
   private static readonly MIN_STREAK = 0;
 
   constructor(value: number) {
