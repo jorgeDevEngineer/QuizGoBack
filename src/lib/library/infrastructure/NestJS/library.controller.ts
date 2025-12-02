@@ -15,7 +15,11 @@ export class LibraryController {
     @Post('favorites/:quizId')
     @HttpCode(201)
     async addFavorite(@Param('quizId') quizId: string, @Body() dto: FavoriteDTO): Promise<void> {
-        await this.addUserFavoriteQuizUseCase.run(dto, quizId);
+        const result = await this.addUserFavoriteQuizUseCase.run(dto, quizId);
+        if(result.isLeft()){
+            throw result.getLeft();
+        }
+        return result.getRight();
     }
 
     @Delete('favorites/:quizId')

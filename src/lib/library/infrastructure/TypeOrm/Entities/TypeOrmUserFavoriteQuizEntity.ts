@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('user_favorite_quizzes')
 export class TypeOrmUserFavoriteQuizEntity {

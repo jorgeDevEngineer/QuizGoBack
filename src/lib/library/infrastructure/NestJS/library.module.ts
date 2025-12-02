@@ -6,7 +6,7 @@ import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRe
 import { TypeOrmUserFavoriteQuizRepository } from '../TypeOrm/Repositories/TypeOrmUserFavoriteQuizRepository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmUserFavoriteQuizEntity } from '../TypeOrm/Entities/TypeOrmUserFavoriteQuizEntity';
-import { TypeOrmQuizEntity } from '../TypeOrm/Entities/TypeOrmQuizEntity';
+import { TypeOrmQuizEntity } from '../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
 import { TypeOrmQuizRepository } from '../TypeOrm/Repositories/TypeOrmQuizRepository';
 import { QuizRepository } from '../../domain/port/QuizRepository';
 

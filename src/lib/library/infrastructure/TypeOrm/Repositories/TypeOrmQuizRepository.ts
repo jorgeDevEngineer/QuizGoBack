@@ -12,7 +12,7 @@ import {
   QuizStatus,
   QuizCategory,
 } from '../../../domain/valueObject/Quiz';
-import { TypeOrmQuizEntity } from '../Entities/TypeOrmQuizEntity';
+import { TypeOrmQuizEntity } from '../../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
 import { Question } from '../../../domain/entity/Question';
 import { Answer } from '../../../domain/entity/Answer';
 import {
