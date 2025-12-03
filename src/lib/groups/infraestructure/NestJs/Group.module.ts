@@ -12,7 +12,7 @@ import { CreateGroupUseCase } from "../../application/CrearteGroupUseCase";
 import { GetUserGroupsUseCase } from "../../application/GetUserGroupsUseCase";
 import { GetGroupDetailUseCase } from "../../application/GroupDetailsUseCase";
 import { GenerateGroupInvitationUseCase } from "../../application/GenerateGroupInvitationUseCase";
-import { cryptoInvitationTokenGenerator } from "../token/InvitationTokenGeenerator";
+import { cryptoInvitationTokenGenerator } from "../Token/InvitationTokenGenerator";
 import { InvitationTokenGenerator } from "../../domain/port/GroupInvitationTokenGenerator";
 import { JoinGroupByInvitationUseCase } from "../../application/JoinGroupByInvitation";
 import { LeaveGroupUseCase } from "../../application/LeaveGroupUseCase";
