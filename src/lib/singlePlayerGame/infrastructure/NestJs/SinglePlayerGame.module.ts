@@ -7,12 +7,10 @@ import { TypeOrmSinglePlayerGameRepository } from "../TypeOrm/TypeOrmSinglePlaye
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { SinglePlayerEvaluationService } from "../../domain/services/SinglePlayerEvaluationService";
-import { 
-    StartSinglePlayerGameUseCase, 
-    GetGameProgressUseCase,
-    GetGameSummaryUseCase,
-    SubmitGameAnswerUseCase,
-} from "../../application/useCases";
+import { StartSinglePlayerGameUseCase } from "../../application/useCases/StartSinglePlayerGameUseCase";
+import { SubmitGameAnswerUseCase } from "../../application/useCases/SubmitGameAnswerUseCase";
+import { GetGameSummaryUseCase } from "../../application/useCases/GetGameSummaryUseCase";
+import { GetGameProgressUseCase } from "../../application/useCases/GetGameProgressUseCase";
 
 @Module({
     imports: [
