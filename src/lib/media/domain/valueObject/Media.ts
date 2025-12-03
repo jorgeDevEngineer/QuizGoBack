@@ -21,6 +21,13 @@ export class MediaId {
   }
 
   static of(value: string): MediaId {
+    if (value.includes('/')) {
+      const parts = value.split('/');
+      const uuid = parts.pop();
+      if (uuid && isValidUUID(uuid)) {
+        return new MediaId(uuid);
+      }
+    }
     return new MediaId(value);
   }
 }

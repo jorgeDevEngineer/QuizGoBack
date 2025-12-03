@@ -41,6 +41,13 @@ export class ThemeId {
         }
     }
     public static of(value: string): ThemeId {
+        if (value.includes('/')) {
+            const parts = value.split('/');
+            const uuid = parts.pop();
+            if (uuid && isValidUUID(uuid)) {
+                return new ThemeId(uuid);
+            }
+        }
         return new ThemeId(value);
     }
     public static generate(): ThemeId {
