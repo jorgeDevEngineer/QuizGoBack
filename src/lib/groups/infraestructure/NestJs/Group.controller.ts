@@ -9,8 +9,11 @@ import {
   Patch,
   Post,
   Req,
+  UseGuards
 } from "@nestjs/common";
 import { Request } from "express";
+
+import { FakeCurrentUserGuard } from "./FakeCurrentUser.guard";
 
 import { CreateGroupUseCase } from "../../application/CrearteGroupUseCase";
 import { GetUserGroupsUseCase } from "../../application/GetUserGroupsUseCase";
@@ -26,6 +29,7 @@ import { LeaveGroupUseCase } from "../../application/LeaveGroupUseCase";
 import { TransferGroupAdminUseCase } from "../../application/TransferGroupAdminUseCase";
 
 @Controller("groups")
+@UseGuards(FakeCurrentUserGuard)//currentUser con Header
 export class GroupsController {
   constructor(
     private readonly createGroupUseCase: CreateGroupUseCase,
@@ -40,15 +44,11 @@ export class GroupsController {
   ) {}
 
   private getCurrentUserId(req: Request): string {
-    let currentUserId = (req as any).user?.id || (req as any).user?.sub;
-
-    if (!currentUserId) {
-      //  SOLO PARA PRUEBAS
-      currentUserId = "123e4567-e89b-42d3-a456-426614174123";
-      console.log(" Usando userId de prueba:", currentUserId);
+    const user = (req as any).user;
+    if (!user?.id) {
+      throw new Error("Missing current user id in request.user");
     }
-
-    return currentUserId;
+    return user.id;
   }
 
   @Post()
