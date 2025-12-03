@@ -15,28 +15,28 @@ import {
     GameProgressResponseDto, 
     GameSummaryResponseDto, 
     StartGameResponseDto 
-} from "../../application/helpers/SinglePlayerGameResponses.dto";
-import { StartSinglePlayerGameUseCase } from "src/lib/singlePlayerGame/application/usecases/startSinglePlayerGameUseCase";
-import { GetGameProgressUseCase } from "src/lib/singlePlayerGame/application/usecases/getGameProgressUseCase";
-import { SubmitGameAnswerUseCase } from "src/lib/singlePlayerGame/application/usecases/submitGameAnswerUseCase";
-import { GetGameSummaryUseCase } from "src/lib/singlePlayerGame/application/usecases/getGameSummaryUseCase";
+} from "../../application/helpers/SinglePlayerGameResponses.dto";;
 import { StartGameRequestDto, SubmitAnswerRequestDto } from "../../application/helpers/SinglePlayerGameRequests.dto";
+import { StartSinglePlayerGameUseCase } from "../../application/useCases/StartSinglePlayerGameUseCase";
+import { SubmitGameAnswerUseCase } from "../../application/useCases/SubmitGameAnswerUseCase";
+import { GetGameSummaryUseCase } from "../../application/useCases/GetGameSummaryUseCase";
+import { GetGameProgressUseCase } from "../../application/useCases/GetGameProgressUseCase";
 
 @Controller('attempts')
 export class SinglePlayerGameController {
 
     constructor(
         @Inject('StartSinglePlayerGameUseCase')
-        private readonly startSinglePlayerGameUseCase: StartSinglePlayerGameUseCase,
+        private readonly StartSinglePlayerGameUseCase: StartSinglePlayerGameUseCase,
 
         @Inject('GetGameProgressUseCase')
-        private readonly getGameProgressUseCase: GetGameProgressUseCase,
+        private readonly GetGameProgressUseCase: GetGameProgressUseCase,
 
         @Inject('SubmitGameAnswerUseCase')
-        private readonly submitGameAnswerUseCase: SubmitGameAnswerUseCase,
+        private readonly SubmitGameAnswerUseCase: SubmitGameAnswerUseCase,
 
         @Inject('GetGameSummaryUseCase')
-        private readonly getGameSummaryUseCase: GetGameSummaryUseCase
+        private readonly GetGameSummaryUseCase: GetGameSummaryUseCase
     ) {}
 
     //Mientras no esté hecho el modulo de autentición
@@ -64,7 +64,7 @@ export class SinglePlayerGameController {
 
         try {
             const playerId = this.extractUserIdFromToken(authHeader);
-            return await this.startSinglePlayerGameUseCase.execute({
+            return await this.StartSinglePlayerGameUseCase.execute({
                 kahootId: body.kahootId,
                 playerId
             });
@@ -87,7 +87,7 @@ export class SinglePlayerGameController {
         }
 
         try {
-            return await this.getGameProgressUseCase.execute({ attemptId });
+            return await this.GetGameProgressUseCase.execute({ attemptId });
         } catch (error) {
             if (error.message === `No se encontró la partida de id ${attemptId}`) {
                 throw new HttpException(`Partida de id ${attemptId} no encontrada`, HttpStatus.NOT_FOUND);
@@ -109,7 +109,7 @@ export class SinglePlayerGameController {
         }
 
         try {
-            return await this.submitGameAnswerUseCase.execute({
+            return await this.SubmitGameAnswerUseCase.execute({
                 attemptId,
                 slideId: body.slideId,
                 answerIndex: body.answerIndex,
@@ -142,7 +142,7 @@ export class SinglePlayerGameController {
 
 
         try {
-            return await this.getGameSummaryUseCase.execute({ attemptId });
+            return await this.GetGameSummaryUseCase.execute({ attemptId });
         } catch (error) {
             if (error.message === `No se encontró la partida de id ${attemptId}`) {
                 throw new HttpException(`Quiz de id ${attemptId} no encontrado`, HttpStatus.NOT_FOUND);
