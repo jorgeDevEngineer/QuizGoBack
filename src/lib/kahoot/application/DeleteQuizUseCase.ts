@@ -1,6 +1,5 @@
 import { QuizRepository } from '../domain/port/QuizRepository';
 import { QuizId } from '../domain/valueObject/Quiz';
-import { QuizNotFoundError } from '../domain/QuizNotFoundError';
 
 export class DeleteQuizUseCase {
   constructor(private readonly quizRepository: QuizRepository) {}
@@ -11,7 +10,7 @@ export class DeleteQuizUseCase {
     const quiz = await this.quizRepository.find(quizId);
 
     if (!quiz) {
-      throw new QuizNotFoundError(`Quiz <${quizIdStr}> not found`);
+      throw new Error(`Quiz <${quizIdStr}> not found`);
     }
 
     await this.quizRepository.delete(quizId);

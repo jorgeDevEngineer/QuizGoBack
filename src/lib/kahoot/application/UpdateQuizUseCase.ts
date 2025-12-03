@@ -12,7 +12,6 @@ import {
 } from '../domain/valueObject/Answer';
 import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 import { CreateQuizDto } from './CreateQuizUseCase';
-import { QuizNotFoundError } from '../domain/QuizNotFoundError';
 
 export class UpdateQuizUseCase {
   constructor(private readonly quizRepository: QuizRepository) {}
@@ -22,7 +21,7 @@ export class UpdateQuizUseCase {
     const quiz = await this.quizRepository.find(quizId);
 
     if (!quiz) {
-      throw new QuizNotFoundError('Quiz not found');
+      throw new Error('Quiz not found');
     }
     
     const isDraft = request.status === 'Draft';
