@@ -3,8 +3,10 @@ import {UserFavoriteQuizRepository} from "../domain/port/UserFavoriteQuizReposit
 import {QuizRepository} from "../domain/port/QuizRepository";
 import {QuizId, UserId} from "src/lib/kahoot/domain/valueObject/Quiz";
 import { FavoriteDTO } from "./DTOs/FavoriteDTO";
-import { ConflictException, HttpException, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Either } from "src/lib/shared/Either";
+import { QuizNotFoundException } from "../domain/exceptions/QuizNotFoundException";
+import { HttpException } from "@nestjs/common";
+import { QuizAlreadyFavoriteException } from "../domain/exceptions/QuizAlreadyFavoriteException";
 
 export class AddUserFavoriteQuizUseCase {
    constructor(private readonly userFavoriteQuizRepository: UserFavoriteQuizRepository,
@@ -18,12 +20,12 @@ export class AddUserFavoriteQuizUseCase {
   
     const exists = await this.quizRepository.quizExists(quizIdVO);
     if (!exists) {
-      return Either.makeLeft<HttpException, void>(new NotFoundException('El kahoot no existe'));
+      return Either.makeLeft<HttpException, void>(new QuizNotFoundException());
     }
 
     const alreadyFavorite = await this.userFavoriteQuizRepository.isFavorite(userIdVO, quizIdVO);
     if (alreadyFavorite) {
-      return Either.makeLeft<HttpException, void>(new ConflictException('El kahoot ya está en favoritos'));
+      return Either.makeLeft<HttpException, void>(new QuizAlreadyFavoriteException);
     }
 
     await this.userFavoriteQuizRepository.addFavoriteQuiz(UserFavoriteQuiz.Of(userIdVO, quizIdVO));
