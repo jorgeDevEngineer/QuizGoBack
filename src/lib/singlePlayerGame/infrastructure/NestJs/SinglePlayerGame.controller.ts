@@ -16,10 +16,10 @@ import {
     GameSummaryResponseDto, 
     StartGameResponseDto 
 } from "../../application/helpers/SinglePlayerGameResponses.dto";
-import { StartSinglePlayerGameUseCase } from "../../application/usecases/StartSinglePlayerGameUseCase";
-import { GetGameProgressUseCase } from "../../application/usecases/GetGameProgressUseCase";
-import { SubmitGameAnswerUseCase } from "../../application/usecases/SubmitGameAnswerUseCase";
-import { GetGameSummaryUseCase } from "../../application/usecases/GetGameSummaryUseCase";
+import { StartSinglePlayerGameUseCase } from "src/lib/singlePlayerGame/application/usecases/StartSinglePlayerGameUseCase";
+import { GetGameProgressUseCase } from "src/lib/singlePlayerGame/application/usecases/GetGameProgressUseCase";
+import { SubmitGameAnswerUseCase } from "src/lib/singlePlayerGame/application/usecases/SubmitGameAnswerUseCase";
+import { GetGameSummaryUseCase } from "src/lib/singlePlayerGame/application/usecases/GetGameSummaryUseCase";
 import { StartGameRequestDto, SubmitAnswerRequestDto } from "../../application/helpers/SinglePlayerGameRequests.dto";
 
 @Controller('attempts')
