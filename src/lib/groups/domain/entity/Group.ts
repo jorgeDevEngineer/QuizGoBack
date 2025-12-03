@@ -10,7 +10,7 @@ import { GroupQuizAssignment } from "./GroupQuizAssigment";
 import { GroupQuizAssignmentId } from "../valueObject/GroupQuizAssigmentId";
 import { GroupInvitationToken } from "../valueObject/GroupInvitationToken";  
 import { GroupQuizCompletion } from "./GroupQuizCompletion";
-import { SinglePlayerGameId } from "src/lib/asyncGame/domain/valueObjects/asyncGamesVO";
+import { SinglePlayerGameId } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 import { InvitationTokenGenerator } from "../port/GroupInvitationTokenGenerator";
 
 export class Group {
