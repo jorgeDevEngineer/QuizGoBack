@@ -33,6 +33,12 @@ export class QuestionId {
   public static generate(): QuestionId {
     return new QuestionId(randomUUID());
   }
+  public equals(id: QuestionId): boolean {
+    return id.getValue() === this.value;
+  }
+  public getValue():string {
+    return this.value;
+  }
 }
 
 // --- VOs de Contenido ---
@@ -57,12 +63,16 @@ export class QuestionText {
   public static of(value: string): QuestionText {
     return new QuestionText(value);
   }
+
+  public getValue(): string {
+    return this.value;
+  }
 }
 
 // --- VOs de Configuración y Estado ---
 
 // El tipo ahora solo incluye las dos opciones válidas
-type QuestionTypeValue = "quiz" | "true_false";
+type QuestionTypeValue = "quiz" | "true_false" | "multiple";
 
 /**
  * Encapsula el tipo de pregunta (quiz de opción múltiple o verdadero/falso).
@@ -93,6 +103,10 @@ export class QuestionType {
       );
     }
     return new QuestionType(value as QuestionTypeValue);
+  }
+
+  public getValue(): QuestionTypeValue{
+    return this.value;
   }
 }
 
@@ -133,6 +147,10 @@ export class TimeLimit {
   public static getAllowedValues(): number[] {
     return Array.from(TimeLimit.ALLOWED_VALUES);
   }
+
+  public getValue(): number {
+    return this.value;
+  }
 }
 
 /**
@@ -170,5 +188,9 @@ export class Points {
    */
   public static getAllowedValues(): number[] {
     return Array.from(Points.ALLOWED_VALUES);
+  }
+
+  public getValue(): number {
+    return this.value;
   }
 }

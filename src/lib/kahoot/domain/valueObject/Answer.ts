@@ -58,6 +58,10 @@ export class AnswerText {
   public static of(value: string): AnswerText {
     return new AnswerText(value);
   }
+
+  public getValue(): string {
+    return this.value;
+  }
 }
 
 /**
@@ -87,5 +91,9 @@ export class IsCorrect {
 
   public static fromBoolean(value: boolean): IsCorrect {
     return new IsCorrect(value);
+  }
+
+  public getValue(): boolean {
+    return this.value;
   }
 }

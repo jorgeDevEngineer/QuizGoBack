@@ -76,4 +76,13 @@ export class Answer {
       isCorrect: this._isCorrect.value,
     };
   }
+
+  public getText(): AnswerText | null {
+    return this._text;
+  }
+
+  public getMediaId(): MediaIdVO | null{
+    return this._mediaId;
+  }
+  
 }

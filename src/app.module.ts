@@ -5,6 +5,7 @@ import { KahootModule } from "./lib/kahoot/infrastructure/NestJs/kahoot.module";
 import { MediaModule } from "./lib/media/infrastructure/NestJs/media.module";
 import { SearchModule } from "./lib/search/infrastructure/NestJs/search.module";
 import { UserModule } from "./lib/user/infrastructure/NestJS/user.module";
+import { SinglePlayerGameModule } from './lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserModule } from "./lib/user/infrastructure/NestJS/user.module";
 
     KahootModule,
     MediaModule,
+    SinglePlayerGameModule,
     SearchModule,
     UserModule,
   ],
