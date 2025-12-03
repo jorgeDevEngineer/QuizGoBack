@@ -89,6 +89,14 @@ export class Question {
     return this._timeLimit;
   }
 
+  public getAnswers(): Answer[] {
+    return this._answers;
+  }
+
+  public getPoints(): Points {
+    return this._points;
+  }
+
   public toPlainObject() {
     return {
       id: this._id.value,
@@ -101,4 +109,25 @@ export class Question {
       answers: this._answers.map((a) => a.toPlainObject()),
     };
   }
+
+  public toResponseDto() {
+
+    const answers = this._answers.map( (answer, index) => {
+      return {
+        index: (index + 1).toString(),
+        text: answer.getText() ? answer.getText().getValue() : null,
+        mediaID: answer.getMediaId() ? answer.getMediaId().getValue() : null
+      }
+    });
+
+    return {
+      slideId: this._id.getValue(),
+      questionType: this._type.getValue(),
+      questionText: this._text.getValue(),
+      timeLimitSeconds: this._timeLimit.getValue(),
+      mediaId: this._mediaId ? this._mediaId.getValue() : null,
+      options: answers
+    }
+  }
+  
 }
