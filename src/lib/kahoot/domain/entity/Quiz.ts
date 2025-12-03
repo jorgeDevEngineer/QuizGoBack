@@ -8,6 +8,7 @@
 // _visibility: Visibility (Value Object)
 // _coverImage: MediaUrl (Value Object)
 // _questions: Question[] (Lista de Entidades)
+
 import {
   QuizId,
   UserId,
@@ -20,7 +21,6 @@ import {
 } from "../valueObject/Quiz";
 import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Question } from "../entity/Question";
-import { QuestionId } from "../valueObject/Question";
 
 export class Quiz {
   private constructor(
@@ -44,11 +44,6 @@ export class Quiz {
   public get id(): QuizId {
     return this._id;
   }
-
-  public getQuestions(): Question[]{
-    return this._questions;
-  }
-  
 
   // El método de factoría ahora exige los Value Objects correctos.
   public static create(
@@ -145,10 +140,6 @@ export class Quiz {
     return this._themeId;
   }
 
-  public getTotalQuestions(){
-    return this._questions.length;
-  }
-
   public toPlainObject() {
     return {
       id: this._id.value,
@@ -165,21 +156,4 @@ export class Quiz {
       questions: this._questions.map((q) => q.toPlainObject()),
     };
   }
-
-  public getFirstQuestion(): Question {
-    return this._questions[0];
-  }
-
-  public getQuestionIds(): QuestionId[] {
-    return this._questions.map( question => question.id);
-  }
-
-  public getQuestionById(id: QuestionId):Question {
-    const question: Question = this._questions.find(question => question.id.equals(id))
-    if (!question){
-      throw new Error('No se encontró la pregunta dentro del quiz');
-    }
-    return question;
-  }
-  
 }

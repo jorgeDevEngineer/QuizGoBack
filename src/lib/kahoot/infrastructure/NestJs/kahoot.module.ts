@@ -49,8 +49,5 @@ import { QuizRepository } from '../../domain/port/QuizRepository';
       inject: ['QuizRepository'],
     },
   ],
-  exports: [ 
-    'QuizRepository', 
-  ],
 })
 export class KahootModule {}
