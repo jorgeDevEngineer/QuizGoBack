@@ -1,5 +1,7 @@
-import { randomUUID } from "crypto";
+import { randomUUID, UUID } from "crypto";
+import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
+import { AnswerId } from "src/lib/kahoot/domain/valueObject/Answer";
 
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function isValidUUID(value: string): boolean {
@@ -54,10 +56,6 @@ export class SinglePlayerGameId {
     public static generate(): SinglePlayerGameId{
         return new SinglePlayerGameId(randomUUID());
     }
-
-    public getId():string{
-        return this.gameId;
-    }
 }
 
 /**
@@ -99,10 +97,6 @@ export class GameProgress {
         return this.progress;
     }
 
-    public getStatus():GameProgressStatus {
-        return this.status
-    }
-
 }
 
 /**
@@ -138,26 +132,32 @@ export class GameScore {
  */
 export class PlayerAnswer {
 
-    private constructor( 
-        private readonly questionId: QuestionId,
-        private readonly answerIndex: Optional<number | number[]>,
+    private constructor(
+        private readonly playerId: UserId,
+        private readonly questionId: QuestionId,     
+        private readonly answer: Optional<AnswerId | AnswerId[]>,
         private readonly timeUsedMs: number           
     ) {}
 
-    public static create(questionId: QuestionId, answerIndex: Optional<number | number[]>, timeUsedMs: number): PlayerAnswer {
-        return new PlayerAnswer(questionId, answerIndex, timeUsedMs);
+    public static create(
+        playerId: UserId,
+        questionId: QuestionId,     
+        answer: Optional<AnswerId | AnswerId[]>,
+        timeUsedMs: number
+    ): PlayerAnswer {
+        return new PlayerAnswer(playerId, questionId, answer, timeUsedMs);
     }
 
-    public getAnswer(): Optional<number | number[]> {
-        return this.answerIndex;
+    public getAnswer(): Optional<AnswerId | AnswerId[]> {
+        if (!this.answer.hasValue()){
+            return new Optional<AnswerId | AnswerId[]>();
+        } else {
+            return this.answer;
+        }
     }
 
     public getTimeUsed(): number {
         return this.timeUsedMs;
-    }
-
-    public getQuestionId(): QuestionId {
-        return this.questionId;
     }
 
 }
@@ -168,12 +168,13 @@ export class PlayerAnswer {
 export class EvaluatedAnswer {
 
     private constructor(
+        private readonly playerId: UserId,
         private readonly wasCorrect: boolean,
         private readonly pointsEarned: number
     ) {}
 
-    public static create(wasCorrect: boolean, pointsEarned: number): EvaluatedAnswer {
-        return new EvaluatedAnswer(wasCorrect, pointsEarned);
+    public static create(playerId: UserId, wasCorrect: boolean, pointsEarned: number): EvaluatedAnswer {
+        return new EvaluatedAnswer(playerId, wasCorrect, pointsEarned);
     }
 
     public getPointsEarned(): number {
@@ -196,10 +197,6 @@ export class QuestionResult {
         private readonly evaluatedAnswer: EvaluatedAnswer
     ) {}
 
-    public static create(questionId: QuestionId, playerAnswer: PlayerAnswer, evaluatedAnswer: EvaluatedAnswer): QuestionResult {
-        return new QuestionResult(questionId, playerAnswer, evaluatedAnswer);
-    }
-
     public getPlayerAnswer(): PlayerAnswer {
         return this.playerAnswer;
     }
@@ -208,19 +205,4 @@ export class QuestionResult {
         return this.evaluatedAnswer;
     }
 
-    public getQuestionId(): QuestionId {
-        return this.questionId;
-    }
-    
-}
-
-/**
- * Interfaz para la entidad typeORM
- */
-export interface QuestionResultJSON {
-  questionId: string;
-  answerIndex: number | number[] | null;
-  timeUsedMs: number;
-  wasCorrect: boolean;
-  pointsEarned: number;
 }

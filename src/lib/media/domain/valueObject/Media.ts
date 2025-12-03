@@ -23,10 +23,6 @@ export class MediaId {
   static of(value: string): MediaId {
     return new MediaId(value);
   }
-
-  public getValue():string {
-    return this.value;
-  }
 }
 
 export class MimeType {

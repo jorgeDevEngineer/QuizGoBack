@@ -11,7 +11,7 @@ interface QuestionEmbed {
     id: string;
     text: string;
     mediaId?: string;
-    type: 'quiz' | 'true_false' | 'multiple';
+    type: 'quiz' | 'true_false';
     timeLimit: number;
     points: number;
     answers: AnswerEmbed[];
