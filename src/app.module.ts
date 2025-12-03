@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KahootModule } from './lib/kahoot/infrastructure/NestJs/kahoot.module';
 import { MediaModule } from './lib/media/infrastructure/NestJs/media.module';
+=======
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { KahootModule } from "./lib/kahoot/infrastructure/NestJs/kahoot.module";
+import { MediaModule } from "./lib/media/infrastructure/NestJs/media.module";
+>>>>>>> efabbb04af56625a687a737203a949e4615009a8
 import { SearchModule } from "./lib/search/infrastructure/NestJs/search.module";
 import { UserModule } from "./lib/user/infrastructure/NestJS/user.module";
 import { SinglePlayerGameModule } from './lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module';
