@@ -39,5 +39,8 @@ José Alejandro Briceño Luzardo
 Daniel García
 ✉️ dangar452000@gmail.com
 
+Andrés Guilarte
+✉️ andresguilartelamuno@gmail.com
+
 ## Licencia 📄
 MIT
