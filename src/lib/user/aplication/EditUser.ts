@@ -7,12 +7,12 @@ export class EditUser {
   constructor(private readonly userRepository: UserRepository) {}
 
   async run(
-    id: string,
     userName: string,
     email: string,
     hashedPassword: string,
     userType: "student" | "teacher" | "personal",
     avatarUrl: string,
+    id: string,
     name: string,
     theme: string,
     language: string,
@@ -22,12 +22,12 @@ export class EditUser {
       ?.createdAt.value;
     const updatedAt = new Date();
     const user = new User(
-      id,
       userName,
       email,
       hashedPassword,
       userType,
       avatarUrl,
+      id,
       name,
       theme,
       language,

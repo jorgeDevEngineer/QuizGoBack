@@ -1,16 +1,17 @@
 import { UserRepository } from "../domain/port/UserRepository";
 import { User } from "../domain/entity/User";
+import { UserId } from "../domain/valueObject/UserId";
 
 export class CreateUser {
   constructor(private readonly userRepository: UserRepository) {}
 
   async run(
-    id: string,
     userName: string,
     email: string,
     hashedPassword: string,
     userType: "student" | "teacher" | "personal",
     avatarUrl: string,
+    id?: string,
     name?: string,
     theme?: string,
     language?: string,
@@ -19,12 +20,12 @@ export class CreateUser {
     updatedAt?: Date
   ): Promise<void> {
     const newUser = new User(
-      id,
       userName,
       email,
       hashedPassword,
       userType,
       avatarUrl,
+      id,
       name,
       theme,
       language,

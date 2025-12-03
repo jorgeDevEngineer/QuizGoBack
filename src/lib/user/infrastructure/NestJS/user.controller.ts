@@ -38,7 +38,9 @@ export class UserController {
     try {
       return (await this.getAllUsers.run()).map((user) => user.toPlainObject());
     } catch (error) {
-      throw new InternalServerErrorException("Could not fetch users");
+      throw new InternalServerErrorException(
+        "Could not fetch users: " + error.message
+      );
     }
   }
 
@@ -50,7 +52,9 @@ export class UserController {
       if (error instanceof UserNotFoundError) {
         throw new NotFoundException("User not found");
       } else {
-        throw new InternalServerErrorException("Could not fetch users");
+        throw new InternalServerErrorException(
+          "Could not fetch users: " + error.message
+        );
       }
     }
   }
@@ -65,7 +69,9 @@ export class UserController {
       if (error instanceof UserNotFoundError) {
         throw new NotFoundException("User not found");
       } else {
-        throw new InternalServerErrorException("Could not fetch users");
+        throw new InternalServerErrorException(
+          "Could not fetch users: " + error.message
+        );
       }
     }
   }
@@ -74,7 +80,6 @@ export class UserController {
   async create(@Body() body: Create) {
     try {
       return await this.createUser.run(
-        body.id,
         body.userName,
         body.email,
         body.hashedPassword,
@@ -93,12 +98,12 @@ export class UserController {
     try {
       const user = await this.getOneUserById.run(params.id);
       return await this.editUser.run(
-        user.id.value,
         body.userName,
         body.email,
         body.hashedPassword,
         body.userType,
         body.avatarUrl,
+        user.id.value,
         body.name,
         body.theme,
         body.language,
