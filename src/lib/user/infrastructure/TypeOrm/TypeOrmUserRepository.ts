@@ -14,12 +14,12 @@ export class TypeOrmUserRepository implements UserRepository {
 
   private mapToDomain(entity: TypeOrmUserEntity): User {
     return new User(
-      entity.id,
       entity.userName,
       entity.email,
       entity.hashedPassword,
       entity.userType,
       entity.avatarUrl,
+      entity.id,
       entity.name,
       entity.theme,
       entity.language,

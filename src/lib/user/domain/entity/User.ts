@@ -9,6 +9,7 @@ import { UserGameStreak } from "../valueObject/UserGameStreak";
 import { UserDate } from "../valueObject/UserDate";
 import { UserId } from "../valueObject/UserId";
 import { UserPlainName } from "../valueObject/UserPlainName";
+import { create } from "domain";
 
 export class User {
   readonly id: UserId;
@@ -24,12 +25,12 @@ export class User {
   readonly createdAt: UserDate;
   readonly updatedAt: UserDate;
   constructor(
-    id: string,
     userName: string,
     email: string,
     hashedPassword: string,
     userType: "student" | "teacher" | "personal",
     avatarUrl: string,
+    id?: string,
     name?: string,
     theme?: string,
     language?: string,
@@ -37,24 +38,26 @@ export class User {
     createdAt?: Date,
     updatedAt?: Date
   ) {
-    this.id = new UserId(id);
     this.userName = new UserName(userName);
     this.email = new UserEmail(email);
     this.hashedPassword = new UserHashedPassword(hashedPassword);
     this.userType = new UserType(userType);
     this.avatarUrl = new UserAvatarUrl(avatarUrl);
-    if (!name) this.name = new UserPlainName("");
-    else this.name = new UserPlainName(name);
-    if (!theme) this.theme = new UserTheme("light");
-    else this.theme = new UserTheme(theme);
-    if (!language) this.language = new UserLanguage("es");
-    else this.language = new UserLanguage(language);
-    if (!gameStreak) this.gameStreak = new UserGameStreak(0);
-    else this.gameStreak = new UserGameStreak(gameStreak);
-    if (!createdAt) this.createdAt = new UserDate(new Date());
-    else this.createdAt = new UserDate(createdAt);
-    if (!updatedAt) this.updatedAt = new UserDate(this.createdAt.value);
-    else this.updatedAt = new UserDate(updatedAt);
+    this.id = id ? new UserId(id) : UserId.generateId();
+    this.name = name ? new UserPlainName(name) : new UserPlainName("");
+    this.theme = theme ? new UserTheme(theme) : new UserTheme("light");
+    this.language = language
+      ? new UserLanguage(language)
+      : new UserLanguage("es");
+    this.gameStreak = gameStreak
+      ? new UserGameStreak(gameStreak)
+      : new UserGameStreak(0);
+    this.createdAt = createdAt
+      ? new UserDate(createdAt)
+      : new UserDate(new Date());
+    this.updatedAt = updatedAt
+      ? new UserDate(updatedAt)
+      : new UserDate(this.createdAt.value);
   }
 
   toPlainObject() {
