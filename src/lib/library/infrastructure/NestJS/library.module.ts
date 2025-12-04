@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { LibraryController } from './library.controller';
-import { AddUserFavoriteQuizUseCase } from '../../application/AddUserFavoriteQuizUseCase';
-import { DeleteUserFavoriteQuizUseCase } from '../../application/DeleteUserFavoriteQuizUseCase';
-import { GetUserFavoriteQuizzesUseCase } from '../../application/GetUserFavoriteQuizzesUseCase';
-import { GetAllUserQuizzesUseCase } from '../../application/GetAllUserQuizzesUseCase';
+import { AddUserFavoriteQuizUseCase } from '../../application/Services/AddUserFavoriteQuizUseCase';
+import { DeleteUserFavoriteQuizUseCase } from '../../application/Services/DeleteUserFavoriteQuizUseCase';
+import { GetUserFavoriteQuizzesUseCase } from '../../application/Services/GetUserFavoriteQuizzesUseCase';
+import { GetAllUserQuizzesUseCase } from '../../application/Services/GetAllUserQuizzesUseCase';
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { TypeOrmUserFavoriteQuizRepository } from '../TypeOrm/Repositories/TypeOrmUserFavoriteQuizRepository';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
@@ -16,8 +16,8 @@ import { TypeOrmUserRepository } from '../../../user/infrastructure/TypeOrm/Type
 import { QuizRepository } from '../../domain/port/QuizRepository';
 import { CriteriaApplier } from '../../domain/port/CriteriaApplier';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { TypeOrmCriteriaApplier } from '../TypeOrm/TypeOrmCriteriaApplier';
-import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/TypeOrmAdvancedCriteriaApplier';
+import { TypeOrmCriteriaApplier } from '../TypeOrm//Criteria Appliers/TypeOrmCriteriaApplier';
+import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity])],
@@ -75,9 +75,9 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/TypeOrmAdvancedCriter
     },
     {
       provide: 'GetAllUserQuizzesUseCase',
-      useFactory: (quizRepository: QuizRepository) =>
-        new GetAllUserQuizzesUseCase(quizRepository),
-      inject: ['QuizRepository'],
+      useFactory: (quizRepository: QuizRepository, userRepo: UserRepository) =>
+        new GetAllUserQuizzesUseCase(quizRepository, userRepo),
+      inject: ['QuizRepository', 'UserRepository'],
     },
   ],
 

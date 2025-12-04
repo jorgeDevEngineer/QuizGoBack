@@ -1,6 +1,6 @@
 import { SelectQueryBuilder } from "typeorm";
-import { CriteriaApplier } from "../../domain/port/CriteriaApplier";
-import { QueryCriteria } from "../../domain/valueObject/QueryCriteria";
+import { CriteriaApplier } from "../../../domain/port/CriteriaApplier";
+import { QueryCriteria } from "../../../domain/valueObject/QueryCriteria";
 
 export class TypeOrmAdvancedCriteriaApplier<Entity>
   implements CriteriaApplier<SelectQueryBuilder<Entity>>

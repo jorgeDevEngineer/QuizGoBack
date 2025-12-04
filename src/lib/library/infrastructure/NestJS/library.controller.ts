@@ -1,11 +1,12 @@
-import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Inject, Param, Post, Query } from '@nestjs/common';
 import { UserIdDTO } from '../../application/DTOs/UserIdDTO';
-import { AddUserFavoriteQuizUseCase } from '../../application/AddUserFavoriteQuizUseCase';
-import { DeleteUserFavoriteQuizUseCase } from '../../application/DeleteUserFavoriteQuizUseCase';
-import { GetAllUserQuizzesUseCase } from '../../application/GetAllUserQuizzesUseCase';
-import { GetUserFavoriteQuizzesUseCase } from '../../application/GetUserFavoriteQuizzesUseCase';
-import { QuizResponse } from '../../application/QuizResponse';
+import { AddUserFavoriteQuizUseCase } from '../../application/Services/AddUserFavoriteQuizUseCase';
+import { DeleteUserFavoriteQuizUseCase } from '../../application/Services/DeleteUserFavoriteQuizUseCase';
+import { GetAllUserQuizzesUseCase } from '../../application/Services/GetAllUserQuizzesUseCase';
+import { GetUserFavoriteQuizzesUseCase } from '../../application/Services/GetUserFavoriteQuizzesUseCase';
+import { QuizResponse } from '../../application/Response Types/QuizResponse';
 import { QueryParamsInput } from '../../application/DTOs/QueryParamsDTO';
+import { QueryResponse } from '../../application/Response Types/QueryResponse';
 
 @Controller('library')
 export class LibraryController {
@@ -42,15 +43,21 @@ export class LibraryController {
 
     @Get('favorites')
     @HttpCode(200)
-    async getFavorites(@Body() dto: UserIdDTO, @Query() queryParams: QueryParamsInput): Promise<any> {
+    async getFavorites(@Body() dto: UserIdDTO, @Query() queryParams: QueryParamsInput): Promise<QueryResponse<QuizResponse>> {
         const result = await this.getUserFavoriteQuizzesUseCase.execute(dto.userId, queryParams);
-        return result;
+        if(result.isLeft()){
+            throw result.getLeft();
+        }
+        return result.getRight();
     }
 
     @Get('my-creations')
     @HttpCode(200)
-    async getMyCreations(@Body() dto: UserIdDTO, @Query() queryParams: QueryParamsInput): Promise<any> {
+    async getMyCreations(@Body() dto: UserIdDTO, @Query() queryParams: QueryParamsInput): Promise<QueryResponse<QuizResponse>> {
         const result = await this.getAllUserQuizzesUseCase.run(dto, queryParams);
-        return result;
+        if(result.isLeft()){
+            throw result.getLeft();
+        }
+        return result.getRight();
     }
 }

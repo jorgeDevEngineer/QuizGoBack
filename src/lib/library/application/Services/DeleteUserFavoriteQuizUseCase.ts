@@ -1,11 +1,11 @@
-import {UserFavoriteQuiz} from "../domain/valueObject/UserFavoriteQuiz";
-import {UserFavoriteQuizRepository} from "../domain/port/UserFavoriteQuizRepository";
+import {UserFavoriteQuiz} from "../../domain/valueObject/UserFavoriteQuiz";
+import {UserFavoriteQuizRepository} from "../../domain/port/UserFavoriteQuizRepository";
 import {QuizId} from "src/lib/kahoot/domain/valueObject/Quiz";
 import {UserId} from "src/lib/user/domain/valueObject/UserId";
 import { HttpException } from "@nestjs/common";
-import { UserFavoriteQuizNotFoundException } from "../domain/exceptions/UserFavoriteQuizNotFoundException";
+import { UserFavoriteQuizNotFoundException } from "../../domain/exceptions/UserFavoriteQuizNotFoundException";
 import { Either } from "src/lib/shared/Either";
-import { UserIdDTO } from "./DTOs/UserIdDTO";
+import { UserIdDTO } from "../DTOs/UserIdDTO";
 
 export class DeleteUserFavoriteQuizUseCase {
     constructor(
