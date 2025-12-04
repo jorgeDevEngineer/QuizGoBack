@@ -5,14 +5,14 @@ import {UserId} from "src/lib/user/domain/valueObject/UserId";
 import { HttpException } from "@nestjs/common";
 import { UserFavoriteQuizNotFoundException } from "../domain/exceptions/UserFavoriteQuizNotFoundException";
 import { Either } from "src/lib/shared/Either";
-import { FavoriteDTO } from "./DTOs/FavoriteDTO";
+import { UserIdDTO } from "./DTOs/UserIdDTO";
 
 export class DeleteUserFavoriteQuizUseCase {
     constructor(
         private readonly userFavoriteQuizRepository: UserFavoriteQuizRepository,
     ) {}
     
-    async run(userId: FavoriteDTO, quizId: string): Promise<Either<HttpException, void>> {
+    async run(userId: UserIdDTO, quizId: string): Promise<Either<HttpException, void>> {
       // Construimos el objeto de favorito
       const userFavoriteQuiz = UserFavoriteQuiz.Of(new UserId(userId.userId), QuizId.of(quizId));
   

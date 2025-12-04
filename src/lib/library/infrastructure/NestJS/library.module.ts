@@ -3,6 +3,7 @@ import { LibraryController } from './library.controller';
 import { AddUserFavoriteQuizUseCase } from '../../application/AddUserFavoriteQuizUseCase';
 import { DeleteUserFavoriteQuizUseCase } from '../../application/DeleteUserFavoriteQuizUseCase';
 import { GetUserFavoriteQuizzesUseCase } from '../../application/GetUserFavoriteQuizzesUseCase';
+import { GetAllUserQuizzesUseCase } from '../../application/GetAllUserQuizzesUseCase';
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { TypeOrmUserFavoriteQuizRepository } from '../TypeOrm/Repositories/TypeOrmUserFavoriteQuizRepository';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
@@ -71,6 +72,12 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/TypeOrmAdvancedCriter
       ) =>
         new GetUserFavoriteQuizzesUseCase(favoritesRepo, quizRepo, userRepo),
       inject: ['UserFavoriteQuizRepository', 'QuizRepository', 'UserRepository'],
+    },
+    {
+      provide: 'GetAllUserQuizzesUseCase',
+      useFactory: (quizRepository: QuizRepository) =>
+        new GetAllUserQuizzesUseCase(quizRepository),
+      inject: ['QuizRepository'],
     },
   ],
 

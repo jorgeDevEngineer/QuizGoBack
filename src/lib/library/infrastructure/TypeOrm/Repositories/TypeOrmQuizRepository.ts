@@ -91,12 +91,18 @@ export class TypeOrmQuizRepository implements QuizRepository {
     return this.mapToDomain(quizEntity);
   }
 
-  async searchByAuthor(authorId: UserIdVO): Promise<Quiz[]> {
-      const quizzes = await this.repository.find({
-        where: { userId: authorId.value },
-      });
-      return quizzes.map((q) => this.mapToDomain(q));
-    }
+  async searchByAuthor(authorId: UserIdVO, criteria: QueryCriteria): Promise<[Quiz[], number]> {
+    let qb = this.repository.createQueryBuilder('quiz');
+    qb.where('quiz.userId = :authorId', { authorId: authorId.value });
+  
+    // aplicar criterios avanzados sobre la tabla de quizzes
+    qb = this.criteriaApplier.apply(qb, criteria, 'quiz');
+  
+    const [rows, totalCount] = await qb.getManyAndCount();
+    const quizzes = rows.map((q) => this.mapToDomain(q));
+  
+    return [quizzes, totalCount];
+  }
 
     async quizExists(quizId: QuizId): Promise<boolean> {
       return await this.repository.exists({ where: { id: quizId.value } });

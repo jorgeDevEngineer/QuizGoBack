@@ -9,7 +9,7 @@ export interface QuizRepository {
      * Debe reconstruir el agregado completo (incluyendo preguntas y respuestas).
      */
     find(id: QuizId): Promise<Quiz | null>;
-    searchByAuthor(authorId: UserId): Promise<Quiz[]>;
+    searchByAuthor(authorId: UserId, criteria: QueryCriteria): Promise<[Quiz[], number]>;
     quizExists(quizId: QuizId): Promise<boolean>;
     findByIds(ids: QuizId[], criteria: QueryCriteria): Promise<Quiz[]>
 }

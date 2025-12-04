@@ -1,14 +1,11 @@
 import {QueryParamsDto, QueryParamsInput} from "./DTOs/QueryParamsDTO";
 import {UserFavoriteQuizRepository} from "../domain/port/UserFavoriteQuizRepository";
 import {QuizRepository} from "../domain/port/QuizRepository";
-import {QuizId } from "../../kahoot/domain/valueObject/Quiz";
 import { Quiz } from "../../kahoot/domain/entity/Quiz";
 import { QuizResponse, toQuizResponse} from "./QuizResponse";
 import { UserRepository } from "src/lib/user/domain/port/UserRepository";
 import { User } from "src/lib/user/domain/entity/User";
 import { UserId } from "src/lib/user/domain/valueObject/UserId";
-import { CriteriaApplier } from "../domain/port/CriteriaApplier";
-import { SelectQueryBuilder } from "typeorm";
 
 export class GetUserFavoriteQuizzesUseCase {
   constructor(private readonly favoritesRepo: UserFavoriteQuizRepository, 
@@ -36,7 +33,7 @@ export class GetUserFavoriteQuizzesUseCase {
       };
     }
 
-    const favoriteQuizzes = await this.quizRepo.findByIds(favoriteIds, criteria);
+    const favoriteQuizzes:Quiz[] = await this.quizRepo.findByIds(favoriteIds, criteria);
     const data: QuizResponse[] = [];
     for(const quiz of favoriteQuizzes){
       const author: User | null = await this.userRepo.getOneById(new UserId(quiz.authorId.value));
