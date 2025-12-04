@@ -1,9 +1,8 @@
 import { User } from "src/lib/user/domain/entity/User";
-import { Quiz } from "../../kahoot/domain/entity/Quiz";
+import { Quiz } from "src/lib/kahoot/domain/entity/Quiz";
 
 /**
  * Tipo de respuesta para un Quiz
- * Cumple con la estructura solicitada para los casos de uso
  */
 export type QuizResponse = {
     /** Identificador único del quiz (UUID) */

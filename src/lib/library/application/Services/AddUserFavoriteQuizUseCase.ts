@@ -1,13 +1,13 @@
-import {UserFavoriteQuiz} from "../domain/valueObject/UserFavoriteQuiz";
-import {UserFavoriteQuizRepository} from "../domain/port/UserFavoriteQuizRepository";
-import {QuizRepository} from "../domain/port/QuizRepository";
+import {UserFavoriteQuiz} from "../../domain/valueObject/UserFavoriteQuiz";
+import {UserFavoriteQuizRepository} from "../../domain/port/UserFavoriteQuizRepository";
+import {QuizRepository} from "../../domain/port/QuizRepository";
 import {QuizId} from "src/lib/kahoot/domain/valueObject/Quiz";
 import {UserId} from "src/lib/user/domain/valueObject/UserId";
-import { UserIdDTO } from "./DTOs/UserIdDTO";
+import { UserIdDTO } from "../DTOs/UserIdDTO";
 import { Either } from "src/lib/shared/Either";
-import { QuizNotFoundException } from "../domain/exceptions/QuizNotFoundException";
+import { QuizNotFoundException } from "../../domain/exceptions/QuizNotFoundException";
 import { HttpException } from "@nestjs/common";
-import { QuizAlreadyFavoriteException } from "../domain/exceptions/QuizAlreadyFavoriteException";
+import { QuizAlreadyFavoriteException } from "../../domain/exceptions/QuizAlreadyFavoriteException";
 
 export class AddUserFavoriteQuizUseCase {
    constructor(private readonly userFavoriteQuizRepository: UserFavoriteQuizRepository,
