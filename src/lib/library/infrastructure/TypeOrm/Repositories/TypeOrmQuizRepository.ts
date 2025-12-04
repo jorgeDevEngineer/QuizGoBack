@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuizRepository } from '../../../domain/port/QuizRepository';
 import { Quiz } from '../../../../kahoot/domain/entity/Quiz';
@@ -29,11 +29,14 @@ import {
   IsCorrect,
 } from '../../../../kahoot/domain/valueObject/Answer';
 import { UserId as UserIdVO } from '../../../../user/domain/valueObject/UserId';
+import { QueryCriteria } from 'src/lib/library/domain/valueObject/QueryCriteria';
+import { CriteriaApplier } from 'src/lib/library/domain/port/CriteriaApplier';
 
 export class TypeOrmQuizRepository implements QuizRepository {
   constructor(
     @InjectRepository(TypeOrmQuizEntity)
     private readonly repository: Repository<TypeOrmQuizEntity>,
+    private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmQuizEntity>>
   ) {}
 
   private mapToDomain(q: TypeOrmQuizEntity): Quiz {
@@ -98,4 +101,17 @@ export class TypeOrmQuizRepository implements QuizRepository {
     async quizExists(quizId: QuizId): Promise<boolean> {
       return await this.repository.exists({ where: { id: quizId.value } });
     }
+
+    async findByIds(ids: QuizId[], criteria: QueryCriteria): Promise<Quiz[]> {
+      let qb = this.repository.createQueryBuilder('quiz');
+      qb.where('quiz.id IN (:...ids)', { ids: ids.map(id => id.value) });
+  
+      // 🔑 aplicar criterios completos sobre la tabla de quizzes
+      qb = this.criteriaApplier.apply(qb, criteria, 'quiz');
+  
+      const rows = await qb.getMany();
+  
+      // mapear a entidades de dominio Quiz
+      return rows.map(row => this.mapToDomain(row));
+    }  
 }

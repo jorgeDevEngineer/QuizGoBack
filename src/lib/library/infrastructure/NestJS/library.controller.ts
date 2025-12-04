@@ -42,6 +42,6 @@ export class LibraryController {
     @HttpCode(200)
     async getFavorites(@Body() dto: FavoriteDTO, @Query() queryParams: QueryParamsInput): Promise<any> {
         const result = await this.getUserFavoriteQuizzesUseCase.execute(dto.userId, queryParams);
-        return null;
+        return result;
     }
 }

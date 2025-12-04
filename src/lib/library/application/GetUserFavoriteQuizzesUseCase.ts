@@ -36,11 +36,10 @@ export class GetUserFavoriteQuizzesUseCase {
       };
     }
 
-    // 2. Traer quizzes completos y autores
+    const favoriteQuizzes = await this.quizRepo.findByIds(favoriteIds, criteria);
     const data: QuizResponse[] = [];
-    for (const quizId of favoriteIds) {
-      const quiz = await this.quizRepo.find(quizId); // devuelve entidad de dominio Quiz
-      const author = await this.userRepo.getOneById(new UserId(quiz.authorId.value));
+    for(const quiz of favoriteQuizzes){
+      const author: User | null = await this.userRepo.getOneById(new UserId(quiz.authorId.value));
       data.push(toQuizResponse(quiz, author));
     }
 

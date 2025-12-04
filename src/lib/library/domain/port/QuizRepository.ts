@@ -1,6 +1,7 @@
 import { Quiz } from 'src/lib/kahoot/domain/entity/Quiz';
 import { QuizId } from 'src/lib/kahoot/domain/valueObject/Quiz';
 import { UserId } from 'src/lib/user/domain/valueObject/UserId';
+import { QueryCriteria } from '../valueObject/QueryCriteria';
 
 export interface QuizRepository {
     /**
@@ -10,6 +11,7 @@ export interface QuizRepository {
     find(id: QuizId): Promise<Quiz | null>;
     searchByAuthor(authorId: UserId): Promise<Quiz[]>;
     quizExists(quizId: QuizId): Promise<boolean>;
+    findByIds(ids: QuizId[], criteria: QueryCriteria): Promise<Quiz[]>
 }
 
 /**

@@ -16,6 +16,7 @@ import { QuizRepository } from '../../domain/port/QuizRepository';
 import { CriteriaApplier } from '../../domain/port/CriteriaApplier';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { TypeOrmCriteriaApplier } from '../TypeOrm/TypeOrmCriteriaApplier';
+import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/TypeOrmAdvancedCriteriaApplier';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity])],
@@ -24,6 +25,9 @@ import { TypeOrmCriteriaApplier } from '../TypeOrm/TypeOrmCriteriaApplier';
     {
       provide: 'CriteriaApplier',
       useClass: TypeOrmCriteriaApplier, // tu implementación genérica
+    },{
+      provide: 'AdvancedCriteriaApplier',
+      useClass: TypeOrmAdvancedCriteriaApplier, // usado en quizzes
     },
     {
       provide: 'UserFavoriteQuizRepository',
@@ -35,7 +39,11 @@ import { TypeOrmCriteriaApplier } from '../TypeOrm/TypeOrmCriteriaApplier';
     },
     {
       provide: 'QuizRepository',
-      useClass: TypeOrmQuizRepository,
+      useFactory: (
+        ormRepo: Repository<TypeOrmQuizEntity>,
+        advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmQuizEntity>>,
+      ) => new TypeOrmQuizRepository(ormRepo, advancedCriteriaApplier),
+      inject: [getRepositoryToken(TypeOrmQuizEntity), 'AdvancedCriteriaApplier'],
     },
     {
       provide: 'UserRepository',
