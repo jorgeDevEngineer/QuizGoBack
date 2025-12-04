@@ -1,6 +1,6 @@
 import { GroupQuizAssignmentId } from "../valueObject/GroupQuizAssigmentId";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
-import { SinglePlayerGameId } from "src/lib/asyncGame/domain/valueObjects/asyncGamesVO";
+import { SinglePlayerGameId } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 
 export class GroupQuizCompletion {
   private constructor(
@@ -59,7 +59,7 @@ export class GroupQuizCompletion {
     return {
       assignmentId: this._assignmentId.value,
       userId: this._userId.value,
-      quizAttemptId: this._quizAttemptId.game,
+      quizAttemptId: this._quizAttemptId,
       score: this._score,
       completedAt: this._completedAt.toISOString(),
     };
