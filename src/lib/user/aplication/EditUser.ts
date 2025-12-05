@@ -32,7 +32,10 @@ export class EditUser {
     if (!existing) {
       throw new UserNotFoundError("User not found");
     }
-    if (existing.name.value !== name) {
+    const userWithSameUserName = await this.userRepository.getOneByName(
+      new UserName(userName)
+    );
+    if (userWithSameUserName && userWithSameUserName.id.value !== id) {
       throw new Error("That name already belongs to another user");
     }
 
