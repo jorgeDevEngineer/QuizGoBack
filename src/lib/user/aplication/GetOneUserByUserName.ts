@@ -1,5 +1,5 @@
 import { UserRepository } from "../domain/port/UserRepository";
-import { User } from "../domain/entity/User";
+import { User } from "../domain/aggregate/User";
 import { UserName } from "../domain/valueObject/UserName";
 import { UserNotFoundError } from "./error/UserNotFoundError";
 

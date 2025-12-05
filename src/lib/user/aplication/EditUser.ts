@@ -1,4 +1,4 @@
-import { User } from "../domain/entity/User";
+import { User } from "../domain/aggregate/User";
 import { UserRepository } from "../domain/port/UserRepository";
 import { UserDate } from "../domain/valueObject/UserDate";
 import { UserId } from "../domain/valueObject/UserId";

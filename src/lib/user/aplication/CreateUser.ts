@@ -1,5 +1,5 @@
 import { UserRepository } from "../domain/port/UserRepository";
-import { User } from "../domain/entity/User";
+import { User } from "../domain/aggregate/User";
 import { UserId } from "../domain/valueObject/UserId";
 
 export class CreateUser {
