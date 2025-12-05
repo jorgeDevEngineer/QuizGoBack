@@ -22,6 +22,7 @@ import { UserNotFoundError } from "../../aplication/error/UserNotFoundError";
 import { Create, Edit } from "./Validations";
 import { EnableFreeMembership } from "../../aplication/EnableFreeMembership";
 import { EnablePremiumMembership } from "../../aplication/EnablePremiumMembership";
+import { MEMBERSHIP_TYPES } from "../../domain/valueObject/MembershipType";
 
 @Controller("user")
 export class UserController {
@@ -140,6 +141,11 @@ export class UserController {
         );
       }
     }
+  }
+
+  @Get("plans/list")
+  async getPlans() {
+    return [...Object.values(MEMBERSHIP_TYPES)];
   }
 
   @Get(":id/subscription")

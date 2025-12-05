@@ -1,3 +1,8 @@
+export const MEMBERSHIP_TYPES = {
+  FREE: "free",
+  PREMIUM: "premium",
+} as const;
+
 export class MembershipType {
   readonly value: "free" | "premium";
   constructor(value: "free" | "premium") {
