@@ -77,6 +77,9 @@ export class TypeOrmUserRepository implements UserRepository {
       theme: user.theme.value,
       language: user.language.value,
       gameStreak: user.gameStreak.value,
+      membershipType: user.membership.type.value,
+      membershipStartedAt: user.membership.startedAt.value,
+      membershipExpiresAt: user.membership.expiresAt.value,
       createdAt: user.createdAt.value,
       updatedAt: user.updatedAt.value,
     });
@@ -94,6 +97,9 @@ export class TypeOrmUserRepository implements UserRepository {
       theme: user.theme.value,
       language: user.language.value,
       gameStreak: user.gameStreak.value,
+      membershipType: user.membership.type.value,
+      membershipStartedAt: user.membership.startedAt.value,
+      membershipExpiresAt: user.membership.expiresAt.value,
       updatedAt: user.updatedAt.value,
     });
   }

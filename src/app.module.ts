@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { KahootModule } from './lib/kahoot/infrastructure/NestJs/kahoot.module';
-import { MediaModule } from './lib/media/infrastructure/NestJs/media.module';
-import { SearchModule } from './lib/search/infrastructure/NestJs/search.module';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { KahootModule } from "./lib/kahoot/infrastructure/NestJs/kahoot.module";
+import { MediaModule } from "./lib/media/infrastructure/NestJs/media.module";
+import { SearchModule } from "./lib/search/infrastructure/NestJs/search.module";
 import { GroupsModule } from "./lib/groups/infraestructure/NestJs/Group.module";
 import { UserModule } from "./lib/user/infrastructure/NestJS/user.module";
-import { LibraryModule } from './lib/library/infrastructure/NestJS/library.module';
-import { SinglePlayerGameModule } from './lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module';
+import { LibraryModule } from "./lib/library/infrastructure/NestJS/library.module";
+import { SinglePlayerGameModule } from "./lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module";
 
 @Module({
   imports: [
@@ -23,8 +23,8 @@ import { SinglePlayerGameModule } from './lib/singlePlayerGame/infrastructure/Ne
           type: "postgres",
           url: configService.get<string>("DATABASE_URL"),
           autoLoadEntities: true,
-          synchronize: true, 
-          ssl: isProduction ? { rejectUnauthorized: false } : false, 
+          synchronize: false,
+          ssl: isProduction ? { rejectUnauthorized: false } : false,
         };
       },
     }),
