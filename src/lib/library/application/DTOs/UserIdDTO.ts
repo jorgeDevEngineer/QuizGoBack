@@ -1,13 +1,13 @@
 import { IsNotEmpty, IsUUID } from "class-validator";
-import { UserId } from "../../domain/valueObject/Quiz";
+import { UserId } from "../../../user/domain/valueObject/UserId";
 
-export class FavoriteDTO {
+export class UserIdDTO {
     @IsUUID()
     @IsNotEmpty()
     userId!: string;
   
     public toValueObject(): UserId {
-      return UserId.of(this.userId);
+      return new UserId(this.userId);
     }
   }
   

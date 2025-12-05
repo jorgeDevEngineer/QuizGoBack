@@ -1,5 +1,5 @@
 import { Quiz } from '../entity/Quiz';
-import { QuizId, UserId } from '../valueObject/Quiz';
+import { QuizCategory, QuizId, UserId } from '../valueObject/Quiz';
 
 export interface QuizRepository {
         /**
@@ -8,12 +8,27 @@ export interface QuizRepository {
     search(params: {
             q?: string;
             categories?: string[];
-            limit: number;
-            page: number;
-            orderBy: string;
+            limit?: number;
+            page?: number;
+            orderBy?: string;
             order: 'asc' | 'desc';
     }): Promise<{
-            data: Quiz[];
+            data: {
+                id: string;
+                title: string;
+                description: string;
+                themeId: string;
+                category: string;
+                author: {
+                    id: string;
+                    name: string;
+                };
+                coverImageId: string | null;
+                playCount: number;
+                createdAt: Date;
+                visibility: string;
+                Status: string;
+            }[];
             pagination: {
                 page: number;
                 limit: number;
@@ -25,7 +40,32 @@ export interface QuizRepository {
     /**
     * Busca los Quizzes mas destacados segun el limite de quizzes.
     */
-    findFeatured(limit: number): Promise<Quiz[]>;
+    findFeatured(limit: number): Promise<{
+        data: {
+            id: string;
+            title: string;
+            description: string;
+            themeId: string;
+            category: string;
+            author: {
+                id: string;
+                name: string;
+            };
+            coverImageId: string | null;
+            playCount: number;
+            createdAt: Date;
+            visibility: string;
+            Status: string;
+        }[];
+        pagination: {
+            page: number;
+            limit: number;
+            totalCount: number;
+            totalPages: number;
+        };
+   }>;
+
+    getCategories(): Promise<{ name: string }[]>;
     
 
 }

@@ -1,12 +1,13 @@
 import { GroupQuizAssignmentId } from "../valueObject/GroupQuizAssigmentId";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 //import { SinglePlayerGameId } from "src/lib/asyncGame/domain/valueObjects/asyncGamesVO";
+import { SinglePlayerGameId } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 
 export class GroupQuizCompletion {
   private constructor(
     private readonly _assignmentId: GroupQuizAssignmentId,
     private readonly _userId: UserId,
-    //private readonly _quizAttemptId: SinglePlayerGameId,
+    private readonly _quizAttemptId: SinglePlayerGameId,
     private readonly _score: number,
     private readonly _completedAt: Date,
   ) {
@@ -22,14 +23,14 @@ export class GroupQuizCompletion {
   static create(
     assignmentId: GroupQuizAssignmentId,
     userId: UserId,
-    //quizAttemptId: SinglePlayerGameId,
+    quizAttemptId: SinglePlayerGameId,
     score: number,
     completedAt: Date = new Date(),
   ): GroupQuizCompletion {
     return new GroupQuizCompletion(
       assignmentId,
       userId,
-    //  quizAttemptId,
+      quizAttemptId,
       score,
       completedAt,
     );
@@ -43,9 +44,9 @@ export class GroupQuizCompletion {
     return this._userId;
   }
 
-//  get quizAttemptId(): SinglePlayerGameId {
-//    return this._quizAttemptId;
-//  }
+  get quizAttemptId(): SinglePlayerGameId {
+    return this._quizAttemptId;
+  }
 
   get score(): number {
     return this._score;
@@ -59,7 +60,7 @@ export class GroupQuizCompletion {
     return {
       assignmentId: this._assignmentId.value,
       userId: this._userId.value,
- //     quizAttemptId: this._quizAttemptId.game,
+      quizAttemptId: this._quizAttemptId,
       score: this._score,
       completedAt: this._completedAt.toISOString(),
     };

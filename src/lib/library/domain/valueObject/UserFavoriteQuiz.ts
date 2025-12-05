@@ -1,4 +1,5 @@
-import { QuizId, UserId } from "./Quiz";
+import { QuizId} from "../../../kahoot/domain/valueObject/Quiz";
+import { UserId } from "src/lib/user/domain/valueObject/UserId";
 
 export class UserFavoriteQuiz {
     private constructor(

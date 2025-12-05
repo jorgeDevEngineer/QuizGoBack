@@ -29,6 +29,9 @@ export class QuizId {
     public static generate(): QuizId {
         return new QuizId(randomUUID());
     }
+    public getValue():string {
+        return this.value;
+    }
 }
 
 /**
@@ -45,6 +48,9 @@ export class UserId {
     }
     public static generate(): UserId {
         return new UserId(randomUUID());
+    }
+    public getValue():string{
+        return this.value;
     }
 }
 

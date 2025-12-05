@@ -9,7 +9,16 @@ export class UserId {
   }
 
   private isValid(value: string): boolean {
-    // Example validation: User ID must be a non-empty string (customize as needed)
-    return typeof value === "string" && value.trim().length > 0;
+    const UUID_V4_REGEX =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return (
+      typeof value === "string" &&
+      value.trim().length > 0 &&
+      UUID_V4_REGEX.test(value)
+    );
+  }
+
+  public static generateId(): UserId {
+    return new UserId(crypto.randomUUID());
   }
 }

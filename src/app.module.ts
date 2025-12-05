@@ -7,6 +7,7 @@ import { SearchModule } from './lib/search/infrastructure/NestJs/search.module';
 import { GroupsModule } from "./lib/groups/infraestructure/NestJs/Group.module";
 import { UserModule } from "./lib/user/infrastructure/NestJS/user.module";
 import { LibraryModule } from './lib/library/infrastructure/NestJS/library.module';
+import { SinglePlayerGameModule } from './lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LibraryModule } from './lib/library/infrastructure/NestJS/library.modul
     GroupsModule,
     LibraryModule,
     UserModule,
+    SinglePlayerGameModule,
   ],
 })
 export class AppModule {}

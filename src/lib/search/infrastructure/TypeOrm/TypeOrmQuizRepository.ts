@@ -1,6 +1,8 @@
-import {  In, Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Inject } from '@nestjs/common';
 import { QuizRepository } from '../../domain/port/QuizRepository';
+import { UserRepository } from '../../domain/port/UserRepository';
 import { Quiz } from '../../domain/entity/Quiz';
 import {
   QuizId,
@@ -34,6 +36,8 @@ export class TypeOrmQuizRepository implements QuizRepository {
   constructor(
     @InjectRepository(TypeOrmQuizEntity)
     private readonly repository: Repository<TypeOrmQuizEntity>,
+    @Inject('UserRepository')
+    private readonly userRepository: UserRepository,
   ) {}
 
   private mapToDomain(q: TypeOrmQuizEntity): Quiz {
@@ -62,6 +66,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
         answers,
       );
     });
+    
 
     const quiz = Quiz.fromDb(
       QuizId.of(q.id),
@@ -89,43 +94,57 @@ export class TypeOrmQuizRepository implements QuizRepository {
   }
 
   async search(params: SearchParamsDto): Promise<SearchResultDto> {
-    // Opciones base
-    const where: any = {
-      visibility: 'public',
-      status: 'published',
-    };
-  
-    // Filtro por categorías
+    const qb = this.repository.createQueryBuilder('quiz');
+
     if (params.categories?.length) {
-      where.category = In(params.categories);
+      qb.andWhere('quiz.category IN (:...categories)', { categories: params.categories });
     }
-  
-    // patron de busqueda es un or entre el titulo y la descripcion
+
     if (params.q) {
-      where.or = [
-        { title: Like(`%${params.q}%`) },
-        { description: Like(`%${params.q}%`) },
-      ];
+      qb.andWhere('(quiz.title LIKE :q OR quiz.description LIKE :q)', { q: `%${params.q}%` });
     }
-  
-    // Contar total
-    const totalCount = await this.repository.count({
-      where
-      
-    });
-  
-    // Obtener datos con paginación y orden
-    const data = await this.repository.find({
-      where,
-      //todo: agregar relacion con user para obtener el nombre del autor
-      skip: params.page * params.limit,
-      take: params.limit,
-    });
-  
+
+    // Aplicar ordenamiento
+    if (params.orderBy) {
+      const orderDirection = params.order?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+      qb.orderBy(`quiz.${params.orderBy}`, orderDirection);
+    } else {
+      // Ordenamiento por defecto
+      qb.orderBy('quiz.createdAt', 'DESC');
+    }
+
+    const totalCount = await qb.getCount();
+
+    // Corregir el cálculo del skip: página 1 debe empezar en índice 0
+    const skip = (params.page - 1) * params.limit;
+    const data = await qb
+      .skip(skip)
+      .take(params.limit)
+      .getMany();
+
+    const resultData = await Promise.all(
+      data.map(async (q) => ({
+        id: q.id,
+        title: q.title,
+        description: q.description,
+        themeId: q.themeId,
+        category: q.category,
+        author: {
+          id: q.userId,
+          name: await this.userRepository.getNameById(q.userId),
+        },
+        coverImageId: q.coverImageId,
+        playCount: q.playCount,
+        createdAt: q.createdAt,
+        visibility: q.visibility,
+        Status: q.status,
+      })),
+    );
+
     const totalPages = Math.ceil(totalCount / params.limit);
-  
+
     return {
-      data: data.map((q) => this.mapToDomain(q)),
+      data: resultData,
       pagination: {
         page: params.page,
         limit: params.limit,
@@ -135,7 +154,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
     };
   }
 
-  async findFeatured(limit: number): Promise<Quiz[]> {
+  async findFeatured(limit: number): Promise<SearchResultDto> {
     const quizzes = await this.repository.find({
         where: {
           visibility: 'public',
@@ -146,7 +165,41 @@ export class TypeOrmQuizRepository implements QuizRepository {
         },
         take: limit,
       });
-    return quizzes.map((q) => this.mapToDomain(q));
+    const resultData = await Promise.all(
+      quizzes.map(async (q) => ({
+        id: q.id,
+        title: q.title,
+        description: q.description,
+        themeId: q.themeId,
+        category: q.category,
+        author: {
+          id: q.userId,
+          name: await this.userRepository.getNameById(q.userId),
+        },
+        coverImageId: q.coverImageId,
+        playCount: q.playCount,
+        createdAt: q.createdAt,
+        visibility: q.visibility,
+        Status: q.status,
+      })),
+    );
+    return {
+      data: resultData,
+      pagination: {
+        page: 1,
+        limit: limit,
+        totalCount: quizzes.length,
+        totalPages: 1,
+      },
+    };
+  }
+
+  async getCategories(): Promise<{ name: string }[]> {
+    const categories = await this.repository.createQueryBuilder('quiz')
+    .select('category')
+    .distinct(true)
+    .getRawMany();
+    return categories.map((c) => ({ name: c.category }));
   }
 
 }

@@ -5,14 +5,29 @@ import { Quiz } from "../domain/entity/Quiz";
 export interface SearchParamsDto {
     q?: string,
     categories?: string[],
-    limit: number,
-    page: number,
-    orderBy: string
-    order: 'asc' | 'desc',
+    limit?: number,
+    page?: number,
+    orderBy?: string,
+    order: 'asc' | 'desc'
 }
 
 export interface SearchResultDto {
-    data: Quiz[];
+    data: {
+        id: string;
+        title: string;
+        description: string;
+        themeId: string;
+        category: string;
+        author: {
+            id: string;
+            name: string;
+        };
+        coverImageId: string | null;
+        playCount: number;
+        createdAt: Date;
+        visibility: string;
+        Status: string;
+    }[]; 
     pagination: {
       page: number;
       limit: number;
@@ -32,9 +47,7 @@ export class SearchQuizzesUseCase {
 
     async run(params: SearchParamsDto): Promise<SearchResultDto> {
         const result = await this.quizRepository.search(params);
-        if (!result) {
-            throw new NotFoundException('Quizzes not found');
-        }
+        // Devolver el resultado incluso si data está vacío (es válido)
         return result;
     }
 }
