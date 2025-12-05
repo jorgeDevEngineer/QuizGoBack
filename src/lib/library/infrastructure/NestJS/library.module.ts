@@ -4,6 +4,8 @@ import { AddUserFavoriteQuizUseCase } from '../../application/Services/AddUserFa
 import { DeleteUserFavoriteQuizUseCase } from '../../application/Services/DeleteUserFavoriteQuizUseCase';
 import { GetUserFavoriteQuizzesUseCase } from '../../application/Services/GetUserFavoriteQuizzesUseCase';
 import { GetAllUserQuizzesUseCase } from '../../application/Services/GetAllUserQuizzesUseCase';
+import { GetInProgressQuizzesUseCase} from '../../application/Services/GetInProgessQuizzesUseCase';
+import { GetCompletedQuizzesUseCase} from '../../application/Services/GetCompletedQuizzesUseCase';
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { TypeOrmUserFavoriteQuizRepository } from '../TypeOrm/Repositories/TypeOrmUserFavoriteQuizRepository';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +15,9 @@ import { TypeOrmQuizRepository } from '../TypeOrm/Repositories/TypeOrmQuizReposi
 import { UserRepository } from '../../../user/domain/port/UserRepository';
 import { TypeOrmUserEntity } from '../../../user/infrastructure/TypeOrm//TypeOrmUserEntity';
 import { TypeOrmUserRepository } from '../../../user/infrastructure/TypeOrm/TypeOrmUserRepository';
+import { SinglePlayerGameRepository} from '../../domain/port/SinglePlayerRepository';
+import { TypeOrmSinglePlayerGameRepository } from '../TypeOrm/Repositories/TypeOrmSinglePlayerGameRepository';
+import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { QuizRepository } from '../../domain/port/QuizRepository';
 import { CriteriaApplier } from '../../domain/port/CriteriaApplier';
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -20,15 +25,15 @@ import { TypeOrmCriteriaApplier } from '../TypeOrm//Criteria Appliers/TypeOrmCri
 import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity])],
+  imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity, TypeOrmSinglePlayerGameEntity])],
   controllers: [LibraryController],
   providers: [
     {
       provide: 'CriteriaApplier',
-      useClass: TypeOrmCriteriaApplier, // tu implementación genérica
+      useClass: TypeOrmCriteriaApplier, // implementación genérica
     },{
       provide: 'AdvancedCriteriaApplier',
-      useClass: TypeOrmAdvancedCriteriaApplier, // usado en quizzes
+      useClass: TypeOrmAdvancedCriteriaApplier, // implementación avanzada
     },
     {
       provide: 'UserFavoriteQuizRepository',
@@ -49,6 +54,14 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/Typ
     {
       provide: 'UserRepository',
       useClass: TypeOrmUserRepository,
+    },
+    {
+      provide: 'SinglePlayerGameRepository',
+      useFactory: (
+        ormRepo: Repository<TypeOrmSinglePlayerGameEntity>,
+        advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>>
+      ) => new TypeOrmSinglePlayerGameRepository(ormRepo, advancedCriteriaApplier),
+      inject: [getRepositoryToken(TypeOrmSinglePlayerGameEntity), 'AdvancedCriteriaApplier'],
     },
     {
       provide: 'AddUserFavoriteQuizUseCase',
@@ -78,6 +91,22 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/Typ
       useFactory: (quizRepository: QuizRepository, userRepo: UserRepository) =>
         new GetAllUserQuizzesUseCase(quizRepository, userRepo),
       inject: ['QuizRepository', 'UserRepository'],
+    },
+    {
+      provide: 'GetInProgressQuizzesUseCase',
+      useFactory: (quizRepository: QuizRepository,
+        userRepo: UserRepository,
+        singlePlayerRepo: SinglePlayerGameRepository) =>
+        new GetInProgressQuizzesUseCase(quizRepository, userRepo, singlePlayerRepo),
+      inject: ['QuizRepository', 'UserRepository', 'SinglePlayerGameRepository'],
+    },
+    {
+      provide: 'GetCompletedQuizzesUseCase',
+      useFactory: (quizRepository: QuizRepository,
+        userRepo: UserRepository,
+        singlePlayerRepo: SinglePlayerGameRepository) =>
+        new GetCompletedQuizzesUseCase(quizRepository, userRepo, singlePlayerRepo),
+      inject: ['QuizRepository', 'UserRepository', 'SinglePlayerGameRepository'],
     },
   ],
 

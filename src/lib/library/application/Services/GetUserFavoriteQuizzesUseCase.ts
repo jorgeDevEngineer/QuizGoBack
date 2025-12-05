@@ -18,7 +18,7 @@ export class GetUserFavoriteQuizzesUseCase {
     private readonly userRepo: UserRepository
   ) {}
 
-  async execute(userId: string, queryInput: QueryParamsInput): Promise<Either<HttpException, QueryResponse<QuizResponse>>> {
+  async run(userId: string, queryInput: QueryParamsInput): Promise<Either<HttpException, QueryResponse<QuizResponse>>> {
     const query = new QueryParamsDto(queryInput);
     const criteria = query.toCriteria();
     const [favoriteIds, totalCount] = await this.favoritesRepo.findFavoritesQuizByUser(

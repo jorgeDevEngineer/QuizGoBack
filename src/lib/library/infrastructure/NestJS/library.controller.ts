@@ -7,6 +7,8 @@ import { GetUserFavoriteQuizzesUseCase } from '../../application/Services/GetUse
 import { QuizResponse } from '../../application/Response Types/QuizResponse';
 import { QueryParamsInput } from '../../application/DTOs/QueryParamsDTO';
 import { QueryResponse } from '../../application/Response Types/QueryResponse';
+import { PlayingQuizResponse } from '../../application/Response Types/PlayingQuizResponse';
+import { GetInProgressQuizzesUseCase } from '../../application/Services/GetInProgessQuizzesUseCase';
 
 @Controller('library')
 export class LibraryController {
@@ -19,6 +21,10 @@ export class LibraryController {
        private readonly getUserFavoriteQuizzesUseCase: GetUserFavoriteQuizzesUseCase,
        @Inject('GetAllUserQuizzesUseCase')
        private readonly getAllUserQuizzesUseCase: GetAllUserQuizzesUseCase,
+       @Inject('GetInProgressQuizzesUseCase')
+       private readonly getInProgressQuizzesUseCase: GetInProgressQuizzesUseCase,
+       @Inject('GetCompletedQuizzesUseCase')
+       private readonly getCompletedQuizzesUseCase: GetInProgressQuizzesUseCase,
     ){}
 
     @Post('favorites/:quizId')
@@ -44,7 +50,7 @@ export class LibraryController {
     @Get('favorites')
     @HttpCode(200)
     async getFavorites(@Body() dto: UserIdDTO, @Query() queryParams: QueryParamsInput): Promise<QueryResponse<QuizResponse>> {
-        const result = await this.getUserFavoriteQuizzesUseCase.execute(dto.userId, queryParams);
+        const result = await this.getUserFavoriteQuizzesUseCase.run(dto.userId, queryParams);
         if(result.isLeft()){
             throw result.getLeft();
         }
@@ -60,4 +66,25 @@ export class LibraryController {
         }
         return result.getRight();
     }
+    
+    @Get('in-progress')
+    @HttpCode(200)
+    async getInProgressQuizzes(@Body() dto: UserIdDTO, @Query() queryParams: QueryParamsInput): Promise<QueryResponse<PlayingQuizResponse>> {
+       const result = await this.getInProgressQuizzesUseCase.run(dto, queryParams);
+       if(result.isLeft()){
+         throw result.getLeft();
+       }
+       return result.getRight();
+    }
+
+    @Get('completed')
+    @HttpCode(200)
+    async getCompletedQuizzes(@Body() dto: UserIdDTO, @Query() queryParams: QueryParamsInput): Promise<QueryResponse<PlayingQuizResponse>> {
+       const result = await this.getCompletedQuizzesUseCase.run(dto, queryParams);
+       if(result.isLeft()){
+         throw result.getLeft();
+       }
+       return result.getRight();
+    }
+
 }

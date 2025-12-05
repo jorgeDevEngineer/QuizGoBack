@@ -14,7 +14,7 @@ import { QuizzesNotFoundException } from '../../domain/exceptions/QuizzesNotFoun
 import { UserNotFoundException } from '../../domain/exceptions/UserNotFoundException';
 import { User } from 'src/lib/user/domain/entity/User';
 
-export class GetInProgressQuizzesUseCase {
+export class GetCompletedQuizzesUseCase {
   constructor(private readonly quizRepository: QuizRepository,
   private readonly userRepo: UserRepository,
   private readonly singlePlayerRepo: SinglePlayerGameRepository) {}
@@ -22,7 +22,7 @@ export class GetInProgressQuizzesUseCase {
   async run(id: UserIdDTO, queryInput:QueryParamsInput): Promise<Either<HttpException, QueryResponse<PlayingQuizResponse>>> {
     const query = new QueryParamsDto(queryInput);
     const criteria = query.toCriteria();
-    const [inProgressGames, totalCount] = await this.singlePlayerRepo.findInProgressGames(UserIdQuizVo.of(id.userId), criteria);
+    const [inProgressGames, totalCount] = await this.singlePlayerRepo.findCompletedGames(UserIdQuizVo.of(id.userId), criteria);
     if(inProgressGames.length == 0){
       return Either.makeLeft(new NotInProgressQuizzesException());
     }
