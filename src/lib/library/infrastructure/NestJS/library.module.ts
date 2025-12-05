@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { LibraryController } from './library.controller';
-import { AddUserFavoriteQuizUseCase } from '../../application/Services/AddUserFavoriteQuizUseCase';
-import { DeleteUserFavoriteQuizUseCase } from '../../application/Services/DeleteUserFavoriteQuizUseCase';
-import { GetUserFavoriteQuizzesUseCase } from '../../application/Services/GetUserFavoriteQuizzesUseCase';
-import { GetAllUserQuizzesUseCase } from '../../application/Services/GetAllUserQuizzesUseCase';
-import { GetInProgressQuizzesUseCase} from '../../application/Services/GetInProgessQuizzesUseCase';
-import { GetCompletedQuizzesUseCase} from '../../application/Services/GetCompletedQuizzesUseCase';
+import { AddUserFavoriteQuizService } from '../../application/Services/AddUserFavoriteQuizUseService';
+import { DeleteUserFavoriteQuizService } from '../../application/Services/DeleteUserFavoriteQuizUseService';
+import { GetUserFavoriteQuizzesService } from '../../application/Services/GetUserFavoriteQuizzesService';
+import { GetAllUserQuizzesService } from '../../application/Services/GetAllUserQuizzesUseService';
+import { GetInProgressQuizzesService} from '../../application/Services/GetInProgessQuizzesService';
+import { GetCompletedQuizzesService } from '../../application/Services/GetCompletedQuizzesSerice';
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { TypeOrmUserFavoriteQuizRepository } from '../TypeOrm/Repositories/TypeOrmUserFavoriteQuizRepository';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
@@ -64,48 +64,48 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/Typ
       inject: [getRepositoryToken(TypeOrmSinglePlayerGameEntity), 'AdvancedCriteriaApplier'],
     },
     {
-      provide: 'AddUserFavoriteQuizUseCase',
+      provide: 'AddUserFavoriteQuizService',
       useFactory: (userFavoriteRepository: UserFavoriteQuizRepository,
         quizRepository: QuizRepository
       ) =>
-        new AddUserFavoriteQuizUseCase(userFavoriteRepository, quizRepository),
+        new AddUserFavoriteQuizService(userFavoriteRepository, quizRepository),
       inject: ['UserFavoriteQuizRepository', 'QuizRepository'],
     },
     {
-      provide: 'DeleteUserFavoriteQuizUseCase',
+      provide: 'DeleteUserFavoriteQuizService',
       useFactory: (repository: UserFavoriteQuizRepository) =>
-        new DeleteUserFavoriteQuizUseCase(repository),
+        new DeleteUserFavoriteQuizService(repository),
       inject: ['UserFavoriteQuizRepository'],
     },
     {
-      provide: 'GetUserFavoriteQuizzesUseCase',
+      provide: 'GetUserFavoriteQuizzesService',
       useFactory: (favoritesRepo: UserFavoriteQuizRepository,
         quizRepo: QuizRepository,
         userRepo: UserRepository
       ) =>
-        new GetUserFavoriteQuizzesUseCase(favoritesRepo, quizRepo, userRepo),
+        new GetUserFavoriteQuizzesService(favoritesRepo, quizRepo, userRepo),
       inject: ['UserFavoriteQuizRepository', 'QuizRepository', 'UserRepository'],
     },
     {
-      provide: 'GetAllUserQuizzesUseCase',
+      provide: 'GetAllUserQuizzesService',
       useFactory: (quizRepository: QuizRepository, userRepo: UserRepository) =>
-        new GetAllUserQuizzesUseCase(quizRepository, userRepo),
+        new GetAllUserQuizzesService(quizRepository, userRepo),
       inject: ['QuizRepository', 'UserRepository'],
     },
     {
-      provide: 'GetInProgressQuizzesUseCase',
+      provide: 'GetInProgressQuizzesService',
       useFactory: (quizRepository: QuizRepository,
         userRepo: UserRepository,
         singlePlayerRepo: SinglePlayerGameRepository) =>
-        new GetInProgressQuizzesUseCase(quizRepository, userRepo, singlePlayerRepo),
+        new GetInProgressQuizzesService(quizRepository, userRepo, singlePlayerRepo),
       inject: ['QuizRepository', 'UserRepository', 'SinglePlayerGameRepository'],
     },
     {
-      provide: 'GetCompletedQuizzesUseCase',
+      provide: 'GetCompletedQuizzesService',
       useFactory: (quizRepository: QuizRepository,
         userRepo: UserRepository,
         singlePlayerRepo: SinglePlayerGameRepository) =>
-        new GetCompletedQuizzesUseCase(quizRepository, userRepo, singlePlayerRepo),
+        new GetCompletedQuizzesService(quizRepository, userRepo, singlePlayerRepo),
       inject: ['QuizRepository', 'UserRepository', 'SinglePlayerGameRepository'],
     },
   ],

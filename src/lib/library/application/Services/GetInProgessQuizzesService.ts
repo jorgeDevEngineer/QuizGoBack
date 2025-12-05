@@ -2,10 +2,10 @@ import { QuizRepository } from "../../domain/port/QuizRepository";
 import {
   QuizId,
   UserId as UserIdQuizVo,
-} from "src/lib/kahoot/domain/valueObject/Quiz";
-import { UserId } from "src/lib/user/domain/valueObject/UserId";
+} from "../../../kahoot/domain/valueObject/Quiz";
+import { UserId } from "../../../user/domain/valueObject/UserId";
 import { SinglePlayerGameRepository } from "../../domain/port/SinglePlayerRepository";
-import { UserRepository } from "src/lib/user/domain/port/UserRepository";
+import { UserRepository } from "../../../user/domain/port/UserRepository";
 import { UserIdDTO } from "../DTOs/UserIdDTO";
 import {
   PlayingQuizResponse,
@@ -13,14 +13,15 @@ import {
 } from "../Response Types/PlayingQuizResponse";
 import { QueryResponse } from "../Response Types/QueryResponse";
 import { HttpException } from "@nestjs/common";
-import { Either } from "src/lib/shared/Either";
+import { Either } from "../../../shared/Either";
 import { QueryParamsDto, QueryParamsInput } from "../DTOs/QueryParamsDTO";
 import { NotInProgressQuizzesException } from "../../domain/exceptions/NotInProgressQuizzesException";
 import { QuizzesNotFoundException } from "../../domain/exceptions/QuizzesNotFoundException";
 import { UserNotFoundException } from "../../domain/exceptions/UserNotFoundException";
-import { User } from "src/lib/user/domain/aggregate/User";
+import { DomainUnexpectedException } from "../../domain/exceptions/DomainUnexpectedException";
+import { User } from "../../../user/domain/aggregate/User";
 
-export class GetCompletedQuizzesUseCase {
+export class GetInProgressQuizzesService {
   constructor(
     private readonly quizRepository: QuizRepository,
     private readonly userRepo: UserRepository,
@@ -31,10 +32,11 @@ export class GetCompletedQuizzesUseCase {
     id: UserIdDTO,
     queryInput: QueryParamsInput
   ): Promise<Either<HttpException, QueryResponse<PlayingQuizResponse>>> {
-    const query = new QueryParamsDto(queryInput);
+    try{
+      const query = new QueryParamsDto(queryInput);
     const criteria = query.toCriteria();
     const [inProgressGames, totalCount] =
-      await this.singlePlayerRepo.findCompletedGames(
+      await this.singlePlayerRepo.findInProgressGames(
         UserIdQuizVo.of(id.userId),
         criteria
       );
@@ -96,5 +98,8 @@ export class GetCompletedQuizzesUseCase {
     return Either.makeRight<HttpException, QueryResponse<PlayingQuizResponse>>(
       answer
     );
+    }catch(error){
+      return Either.makeLeft(new DomainUnexpectedException());
+    }
   }
 }

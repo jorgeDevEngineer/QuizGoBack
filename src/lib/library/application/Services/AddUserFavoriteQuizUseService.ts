@@ -8,28 +8,33 @@ import { Either } from "src/lib/shared/Either";
 import { QuizNotFoundException } from "../../domain/exceptions/QuizNotFoundException";
 import { HttpException } from "@nestjs/common";
 import { QuizAlreadyFavoriteException } from "../../domain/exceptions/QuizAlreadyFavoriteException";
+import { DomainUnexpectedException } from "../../domain/exceptions/DomainUnexpectedException";
 
-export class AddUserFavoriteQuizUseCase {
+export class AddUserFavoriteQuizService {
    constructor(private readonly userFavoriteQuizRepository: UserFavoriteQuizRepository,
     private readonly quizRepository: QuizRepository
    ) {
    }
 
    async run(userId: UserIdDTO, quizId: string): Promise<Either<HttpException, void>> {
-    const userIdVO = new UserId(userId.userId);
-    const quizIdVO = QuizId.of(quizId);
-  
-    const exists = await this.quizRepository.quizExists(quizIdVO);
-    if (!exists) {
-      return Either.makeLeft<HttpException, void>(new QuizNotFoundException());
-    }
+    try{
+      const userIdVO = new UserId(userId.userId);
+      const quizIdVO = QuizId.of(quizId);
+    
+      const exists = await this.quizRepository.quizExists(quizIdVO);
+      if (!exists) {
+        return Either.makeLeft<HttpException, void>(new QuizNotFoundException());
+      }
 
-    const alreadyFavorite = await this.userFavoriteQuizRepository.isFavorite(userIdVO, quizIdVO);
-    if (alreadyFavorite) {
-      return Either.makeLeft<HttpException, void>(new QuizAlreadyFavoriteException);
-    }
+      const alreadyFavorite = await this.userFavoriteQuizRepository.isFavorite(userIdVO, quizIdVO);
+      if (alreadyFavorite) {
+        return Either.makeLeft<HttpException, void>(new QuizAlreadyFavoriteException);
+      }
 
-    await this.userFavoriteQuizRepository.addFavoriteQuiz(UserFavoriteQuiz.Of(userIdVO, quizIdVO));
-    return Either.makeRight<HttpException, void>(undefined);
+      await this.userFavoriteQuizRepository.addFavoriteQuiz(UserFavoriteQuiz.Of(userIdVO, quizIdVO));
+      return Either.makeRight<HttpException, void>(undefined);
+    }catch(error){
+      return Either.makeLeft(new DomainUnexpectedException());
+    }	
   }  
 }
