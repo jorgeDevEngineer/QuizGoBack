@@ -11,8 +11,9 @@ import { HttpException } from "@nestjs/common";
 import { Either } from "src/lib/shared/Either";
 import { QuizzesNotFoundException } from "../../domain/exceptions/QuizzesNotFoundException";
 import { UserNotFoundException } from "../../domain/exceptions/UserNotFoundException";
+import { DomainUnexpectedException } from "../../domain/exceptions/DomainUnexpectedException";
 
-export class GetUserFavoriteQuizzesUseCase {
+export class GetUserFavoriteQuizzesService {
   constructor(
     private readonly favoritesRepo: UserFavoriteQuizRepository,
     private readonly quizRepo: QuizRepository,
@@ -23,43 +24,47 @@ export class GetUserFavoriteQuizzesUseCase {
     userId: string,
     queryInput: QueryParamsInput
   ): Promise<Either<HttpException, QueryResponse<QuizResponse>>> {
-    const query = new QueryParamsDto(queryInput);
-    const criteria = query.toCriteria();
-    const [favoriteIds, totalCount] =
+    try{
+      const query = new QueryParamsDto(queryInput);
+      const criteria = query.toCriteria();
+      const [favoriteIds, totalCount] =
       await this.favoritesRepo.findFavoritesQuizByUser(
         new UserId(userId),
         criteria
       );
 
-    if (favoriteIds.length === 0) {
-      return Either.makeLeft(new QuizzesNotFoundException());
-    }
-
-    const favoriteQuizzes: Quiz[] = await this.quizRepo.findByIds(
-      favoriteIds,
-      criteria
-    );
-    const data: QuizResponse[] = [];
-    for (const quiz of favoriteQuizzes) {
-      const author: User | null = await this.userRepo.getOneById(
-        new UserId(quiz.authorId.value)
-      );
-      if (!author) {
-        return Either.makeLeft(new UserNotFoundException());
+      if (favoriteIds.length === 0) {
+        return Either.makeLeft(new QuizzesNotFoundException());
       }
-      data.push(toQuizResponse(quiz, author));
+
+      const favoriteQuizzes: Quiz[] = await this.quizRepo.findByIds(
+        favoriteIds,
+        criteria
+      );
+      const data: QuizResponse[] = [];
+      for (const quiz of favoriteQuizzes) {
+        const author: User | null = await this.userRepo.getOneById(
+          new UserId(quiz.authorId.value)
+        );
+        if (!author) {
+          return Either.makeLeft(new UserNotFoundException());
+        }
+        data.push(toQuizResponse(quiz, author));
+      }
+
+      const answer: QueryResponse<QuizResponse> = {
+        data,
+        pagination: {
+          page: criteria.page,
+          limit: criteria.limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / criteria.limit),
+        },
+      };
+
+      return Either.makeRight<HttpException, QueryResponse<QuizResponse>>(answer);
+    }catch(err){
+       return Either.makeLeft(new DomainUnexpectedException());
     }
-
-    const answer: QueryResponse<QuizResponse> = {
-      data,
-      pagination: {
-        page: criteria.page,
-        limit: criteria.limit,
-        totalCount,
-        totalPages: Math.ceil(totalCount / criteria.limit),
-      },
-    };
-
-    return Either.makeRight<HttpException, QueryResponse<QuizResponse>>(answer);
   }
 }
