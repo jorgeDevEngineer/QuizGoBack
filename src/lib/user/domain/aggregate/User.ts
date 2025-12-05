@@ -22,9 +22,9 @@ export class User {
   readonly theme: UserTheme; // Default: 'light'
   readonly language: UserLanguage; // Default: 'es'
   readonly gameStreak: UserGameStreak; // Default: 0
-  readonly membership: Membership;
+  membership: Membership;
   readonly createdAt: UserDate;
-  readonly updatedAt: UserDate;
+  updatedAt: UserDate;
   constructor(
     userName: UserName,
     email: UserEmail,
@@ -72,5 +72,19 @@ export class User {
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
     };
+  }
+
+  hasPremiumMembershipEnabled(): boolean {
+    return this.membership.isPremium() && this.membership.isEnabled();
+  }
+
+  enablePremiumMembership(): void {
+    this.membership = Membership.createPremiumMembership();
+    this.updatedAt = new UserDate(new Date());
+  }
+
+  enableFreeMembership(): void {
+    this.membership = Membership.createFreeMembership();
+    this.updatedAt = new UserDate(new Date());
   }
 }
