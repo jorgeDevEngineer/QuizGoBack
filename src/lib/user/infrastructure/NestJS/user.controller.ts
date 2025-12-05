@@ -20,6 +20,9 @@ import { DeleteUser } from "../../aplication/DeleteUser";
 import { FindByIdParams, FindByUserNameParams } from "./Validations";
 import { UserNotFoundError } from "../../aplication/error/UserNotFoundError";
 import { Create, Edit } from "./Validations";
+import { EnableFreeMembership } from "../../aplication/EnableFreeMembership";
+import { EnablePremiumMembership } from "../../aplication/EnablePremiumMembership";
+import { MEMBERSHIP_TYPES } from "../../domain/valueObject/MembershipType";
 
 @Controller("user")
 export class UserController {
@@ -30,7 +33,11 @@ export class UserController {
     private readonly getOneUserByUserName: GetOneUserByUserName,
     @Inject("CreateUser") private readonly createUser: CreateUser,
     @Inject("EditUser") private readonly editUser: EditUser,
-    @Inject("DeleteUser") private readonly deleteUser: DeleteUser
+    @Inject("DeleteUser") private readonly deleteUser: DeleteUser,
+    @Inject("EnablePremiumMembership")
+    private readonly enablePremiumMembership: EnablePremiumMembership,
+    @Inject("EnableFreeMembership")
+    private readonly enableFreeMembership: EnableFreeMembership
   ) {}
 
   @Get()
@@ -131,6 +138,57 @@ export class UserController {
       } else {
         throw new InternalServerErrorException(
           "Could not delete user : " + error.message
+        );
+      }
+    }
+  }
+
+  @Get("plans/list")
+  async getPlans() {
+    return [...Object.values(MEMBERSHIP_TYPES)];
+  }
+
+  @Get(":id/subscription")
+  async getSubscriptionStatus(@Param() params: FindByIdParams) {
+    try {
+      const user = await this.getOneUserById.run(params.id);
+      return {
+        membershipType: user.membership.type.value,
+        status: user.membership.isEnabled() ? "enabled" : "disabled",
+        expiresAt: user.membership.expiresAt.value,
+      };
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        throw new NotFoundException("User not found");
+      }
+    }
+  }
+
+  @Post(":id/subscription")
+  async enablePremiumSubscription(@Param() params: FindByIdParams) {
+    try {
+      return await this.enablePremiumMembership.run(params.id);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        throw new NotFoundException("User not found");
+      } else {
+        throw new InternalServerErrorException(
+          "Could not enable premium membership: " + error.message
+        );
+      }
+    }
+  }
+
+  @Delete(":id/subscription")
+  async enableFreeSubscription(@Param() params: FindByIdParams) {
+    try {
+      return await this.enableFreeMembership.run(params.id);
+    } catch (error) {
+      if (error instanceof UserNotFoundError) {
+        throw new NotFoundException("User not found");
+      } else {
+        throw new InternalServerErrorException(
+          "Could not enable free membership: " + error.message
         );
       }
     }

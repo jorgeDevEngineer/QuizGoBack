@@ -7,11 +7,9 @@ import { GroupName } from "../domain/valueObject/GroupName";
 import { GroupDescription } from "../domain/valueObject/GroupDescription";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 
-
 export class CreateGroupRequestDto {
   name!: string; 
 }
-
 export class CreateGroupResponseDto {
   id!: string;
   name!: string;
@@ -39,12 +37,12 @@ export class CreateGroupUseCase {
 
   async execute(input: CreateGroupInput): Promise<CreateGroupOutput> {
     const now = input.now ?? new Date();
-
     const rawId = randomUUID();
     const groupId = GroupId.of(rawId); 
     const groupName = GroupName.of(input.name);
     const groupDescription = GroupDescription.of("");
     const adminId = UserId.of(input.currentUserId);
+    
     const group = Group.create(
       groupId,
       groupName,

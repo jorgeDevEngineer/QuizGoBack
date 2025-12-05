@@ -1,11 +1,10 @@
-import { Group } from "../domain/entity/Group";
+import { GroupNotFoundError } from "../domain/GroupNotFoundError";
 import { UserNotMemberOfGroupError } from "../domain/NotMemberGroupError";
 import { GroupRepository } from "../domain/port/GroupRepository";
 import { GroupId } from "../domain/valueObject/GroupId";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
-import { GroupNotFoundError } from "../domain/GroupNotFoundError";
 
-export interface GetGroupDetailInput {
+export interface GetGroupMembersInput {
   groupId: string;
   currentUserId: string;
 }
@@ -17,46 +16,37 @@ export interface GroupMemberDto {
   completedQuizzes: number;
 }
 
-export interface GetGroupDetailOutput {
-  id: string;
+export interface GetGroupMembersOutput {
   name: string;
-  description: string;
-  adminId: string;
   members: GroupMemberDto[];
-  createdAt: string;
-  updatedAt: string;
 }
 
-export class GetGroupDetailUseCase {
+export class GetGroupMembersUseCase {
   constructor(private readonly groupRepository: GroupRepository) {}
 
-  async execute(input: GetGroupDetailInput): Promise<GetGroupDetailOutput> {
+  async execute(input: GetGroupMembersInput): Promise<GetGroupMembersOutput> {
     const groupId = GroupId.of(input.groupId);
     const currentUserId = UserId.of(input.currentUserId);
 
     const group = await this.groupRepository.findById(groupId);
     if (!group) {
-      throw new GroupNotFoundError(input.groupId);
+      throw new GroupNotFoundError(groupId.value);
     }
     const plain = group.toPlainObject();
-    const isMember = plain.members.some((m) => m.userId === currentUserId.value);
+    const isMember = plain.members.some(
+      (m) => m.userId === currentUserId.value,
+    );
     if (!isMember) {
-      throw new UserNotMemberOfGroupError(input.currentUserId, input.groupId);
+      throw new UserNotMemberOfGroupError(currentUserId.value, groupId.value);
     }
-
     return {
-      id: plain.id,
       name: plain.name,
-      description: plain.description,
-      adminId: plain.adminId,
       members: plain.members.map((m) => ({
         userId: m.userId,
         role: m.role,
         joinedAt: m.joinedAt,
         completedQuizzes: m.completedQuizzes,
       })),
-      createdAt: plain.createdAt,
-      updatedAt: plain.updatedAt,
     };
   }
 }

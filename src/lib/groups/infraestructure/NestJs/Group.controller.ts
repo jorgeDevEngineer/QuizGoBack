@@ -19,6 +19,7 @@ import { CreateGroupUseCase } from "../../application/CrearteGroupUseCase";
 import { GetUserGroupsUseCase } from "../../application/GetUserGroupsUseCase";
 import { GetGroupDetailUseCase } from "../../application/GroupDetailsUseCase";
 import { GenerateGroupInvitationUseCase } from "../../application/GenerateGroupInvitationUseCase";
+import { GetGroupMembersUseCase } from "../../application/GetGroupMembers";
 
 import { CreateGroupRequestDto } from "../../application/CrearteGroupUseCase";
 import { CreateGroupResponseDto } from "../../application/CrearteGroupUseCase";
@@ -27,9 +28,13 @@ import { RemoveGroupMemberUseCase } from "../../application/RemoveGroupMemberUse
 import { UpdateGroupInfoUseCase } from "../../application/UpdateGroupDetailsUseCase";
 import { LeaveGroupUseCase } from "../../application/LeaveGroupUseCase";
 import { TransferGroupAdminUseCase } from "../../application/TransferGroupAdminUseCase";
+import { AssignQuizToGroupRequestDto } from "../../application/AssignQuizToGroupUseCase"
+import { AssignQuizToGroupResponseDto } from "../../application/AssignQuizToGroupUseCase"
+import { AssignQuizToGroupUseCase } from "../../application/AssignQuizToGroupUseCase";
+
 
 @Controller("groups")
-@UseGuards(FakeCurrentUserGuard)//currentUser con Header
+@UseGuards(FakeCurrentUserGuard)
 export class GroupsController {
   constructor(
     private readonly createGroupUseCase: CreateGroupUseCase,
@@ -41,6 +46,8 @@ export class GroupsController {
     private readonly removeGroupMemberUseCase: RemoveGroupMemberUseCase,
     private readonly updateGroupInfoUseCase: UpdateGroupInfoUseCase,
     private readonly transferGroupAdminUseCase: TransferGroupAdminUseCase,
+    private readonly getGroupMembersUseCase: GetGroupMembersUseCase,
+    private readonly assignQuizToGroupUseCase: AssignQuizToGroupUseCase,
   ) {}
 
   private getCurrentUserId(req: Request): string {
@@ -66,6 +73,27 @@ export class GroupsController {
 
     return result;
   }
+  @Post(":groupId/quizzes")
+  @HttpCode(HttpStatus.CREATED)
+  async assignQuizToGroup(
+    @Param("groupId") groupId: string,
+    @Body() body: AssignQuizToGroupRequestDto,
+    @Req() req: Request,
+  ): Promise<AssignQuizToGroupResponseDto> {
+    const currentUserId = this.getCurrentUserId(req);
+
+    if (!body.availableUntil) {
+      throw new Error("es necesario proporcionar availableUntil");
+    }
+
+    const availableUntil = new Date(body.availableUntil);
+    return this.assignQuizToGroupUseCase.execute({
+      groupId,
+      quizId: body.quizId,
+      currentUserId,
+      availableUntil,
+    });
+}
 
   @Get()
   async getMyGroups(@Req() req: Request) {
@@ -79,6 +107,15 @@ export class GroupsController {
     const currentUserId = this.getCurrentUserId(req);
 
     return this.getGroupDetailUseCase.execute({
+      groupId: id,
+      currentUserId,
+    });
+  }
+  @Get(":id/members")
+  async getGroupmembers(@Param("id") id: string, @Req() req: Request) {
+    const currentUserId = this.getCurrentUserId(req);
+
+    return this.getGroupMembersUseCase.execute({
       groupId: id,
       currentUserId,
     });
@@ -149,23 +186,15 @@ export class GroupsController {
     @Param("id") id: string,
     @Body() body: { newAdminUserId: string },
     @Req() req: Request,
-) {
-  const currentUserId = this.getCurrentUserId(req);
+  ) {
+    const currentUserId = this.getCurrentUserId(req);
 
-  return this.transferGroupAdminUseCase.execute({
+    return this.transferGroupAdminUseCase.execute({
     groupId: id,
     currentUserId,
     newAdminUserId: body.newAdminUserId,
   });
+  
 }
 
 }
-
-
-
-
-
-
-
-
-

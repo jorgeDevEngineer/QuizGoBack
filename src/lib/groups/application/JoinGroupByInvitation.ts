@@ -16,9 +16,7 @@ export interface JoinGroupByInvitationOutput {
 export class JoinGroupByInvitationUseCase {
   constructor(private readonly groupRepository: GroupRepository) {}
 
-  async execute(
-    input: JoinGroupByInvitationInput,
-  ): Promise<JoinGroupByInvitationOutput> {
+  async execute(input: JoinGroupByInvitationInput,): Promise<JoinGroupByInvitationOutput> {
     const now = input.now ?? new Date();
 
     const userId = UserId.of(input.currentUserId);

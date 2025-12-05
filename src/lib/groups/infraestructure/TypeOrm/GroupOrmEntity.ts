@@ -7,6 +7,8 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { GroupMemberOrmEntity } from "./GroupOrnMember";
+import { GroupQuizAssignmentOrmEntity } from "./GroupQuizAssigmentOrmEntity";
+
 
 @Entity({ name: "groups" })
 export class GroupOrmEntity {
@@ -35,9 +37,19 @@ export class GroupOrmEntity {
   updatedAt!: Date;
 
   @OneToMany(() => GroupMemberOrmEntity, (m) => m.group, {
+  cascade: true,
+  eager: true,
+  orphanedRowAction: "delete",
+})
+members!: GroupMemberOrmEntity[];
+
+@OneToMany(
+  () => GroupQuizAssignmentOrmEntity,
+  (a) => a.group,
+  {
     cascade: true,
     eager: true,
-    orphanedRowAction: "delete",
-  })
-  members!: GroupMemberOrmEntity[];
+  },
+)
+assignments!: GroupQuizAssignmentOrmEntity[];
 }

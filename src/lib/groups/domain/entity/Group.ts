@@ -149,7 +149,7 @@ static createFromdb(
     return [...this._completions];
   }
 
-private isMember(userId: UserId): boolean {
+  private isMember(userId: UserId): boolean {
     return this._members.some((m) => m.userId.value === userId.value);
   }
 

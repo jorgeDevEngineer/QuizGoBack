@@ -9,6 +9,8 @@ import { CreateUser } from "../../aplication/CreateUser";
 import { DeleteUser } from "../../aplication/DeleteUser";
 import { EditUser } from "../../aplication/EditUser";
 import { GetOneUserByUserName } from "../../aplication/GetOneUserByUserName";
+import { EnablePremiumMembership } from "../../aplication/EnablePremiumMembership";
+import { EnableFreeMembership } from "../../aplication/EnableFreeMembership";
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserEntity])],
@@ -52,6 +54,18 @@ import { GetOneUserByUserName } from "../../aplication/GetOneUserByUserName";
       provide: "EditUser",
       useFactory: (repository: TypeOrmUserRepository) =>
         new EditUser(repository),
+      inject: ["UserRepository"],
+    },
+    {
+      provide: "EnablePremiumMembership",
+      useFactory: (repository: TypeOrmUserRepository) =>
+        new EnablePremiumMembership(repository),
+      inject: ["UserRepository"],
+    },
+    {
+      provide: "EnableFreeMembership",
+      useFactory: (repository: TypeOrmUserRepository) =>
+        new EnableFreeMembership(repository),
       inject: ["UserRepository"],
     },
   ],

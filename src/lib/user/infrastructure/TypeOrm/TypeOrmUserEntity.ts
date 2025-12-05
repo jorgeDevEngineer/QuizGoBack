@@ -37,4 +37,13 @@ export class TypeOrmUserEntity {
 
   @Column()
   updatedAt: Date;
+
+  @Column()
+  membershipType: "free" | "premium";
+
+  @Column()
+  membershipStartedAt: Date;
+
+  @Column()
+  membershipExpiresAt: Date;
 }

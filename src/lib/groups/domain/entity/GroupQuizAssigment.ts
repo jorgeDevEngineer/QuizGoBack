@@ -11,25 +11,30 @@ export class GroupQuizAssignment {
     private readonly _assignedBy: UserId,
     private readonly _createdAt: Date,
     private readonly _availableFrom: Date,
-    private readonly _availableUntil: Date | null,
+    private readonly _availableUntil: Date,
     private _isActive: boolean,
   ) {
-    if (
-      this._availableUntil &&
-      this._availableFrom > this._availableUntil
-    ) {
+    if (!_availableFrom) {
+      throw new Error("availableFrom is required");
+    }
+    if (!_availableUntil) {
+      throw new Error("availableUntil is required");
+    }
+    if (this._availableFrom > this._availableUntil) {
       throw new Error(
         "availableFrom must be earlier than or equal to availableUntil.",
       );
     }
+
   }
+  
 
   static create(
     id: GroupQuizAssignmentId,
     quizId: QuizId,
     assignedBy: UserId,
     availableFrom: Date,
-    availableUntil: Date | null = null,
+    availableUntil: Date,
     createdAt: Date = new Date(),
   ): GroupQuizAssignment {
     return new GroupQuizAssignment(
@@ -83,7 +88,7 @@ export class GroupQuizAssignment {
   isAvailableAt(now: Date = new Date()): boolean {
     if (!this._isActive) return false;
     if (now < this._availableFrom) return false;
-    if (this._availableUntil && now > this._availableUntil) return false;
+    if (now > this._availableUntil) return false;
     return true;
   }
 
@@ -95,7 +100,7 @@ export class GroupQuizAssignment {
       assignedBy: this._assignedBy.value,
       createdAt: this._createdAt.toISOString(),
       availableFrom: this._availableFrom.toISOString(),
-      availableUntil: this._availableUntil?.toISOString() ?? null,
+      availableUntil: this._availableUntil.toISOString(),
       isActive: this._isActive,
     };
   }

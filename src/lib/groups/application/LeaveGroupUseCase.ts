@@ -1,6 +1,8 @@
 import { GroupRepository } from "../domain/port/GroupRepository";
 import { GroupId } from "../domain/valueObject/GroupId";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
+import { GroupNotFoundError } from "../domain/GroupNotFoundError";
+import { UserNotMemberOfGroupError } from "../domain/NotMemberGroupError";
 
 export interface LeaveGroupInput {
   groupId: string;
@@ -11,27 +13,6 @@ export interface LeaveGroupInput {
 export interface LeaveGroupOutput {
   groupId: string;
   left: boolean;
-}
-
-export class GroupNotFoundError extends Error {
-  constructor(message = "Group not found") {
-    super(message);
-    this.name = "GroupNotFoundError";
-  }
-}
-
-export class CannotLeaveAsAdminError extends Error {
-  constructor(message = "Admin cannot leave the group without transferring admin role") {
-    super(message);
-    this.name = "CannotLeaveAsAdminError";
-  }
-}
-
-export class UserNotMemberOfGroupError extends Error {
-  constructor(message = "User is not a member of this group") {
-    super(message);
-    this.name = "UserNotMemberOfGroupError";
-  }
 }
 
 export class LeaveGroupUseCase {
@@ -45,18 +26,18 @@ export class LeaveGroupUseCase {
 
     const group = await this.groupRepository.findById(groupId);
     if (!group) {
-      throw new GroupNotFoundError();
+      throw new GroupNotFoundError(input.groupId);
     }
 
     if (group.adminId.value === userId.value) {
-      throw new CannotLeaveAsAdminError();
+      throw new Error("El administrador no puede abandonar el grupo sin transferir el rol de administrador");
     }
 
     const isMember = group.members.some(
       (m) => m.userId.value === userId.value,
     );
     if (!isMember) {
-      throw new UserNotMemberOfGroupError();
+      throw new UserNotMemberOfGroupError(input.currentUserId, input.groupId);
     }
 
     group.removeMember(userId, now);

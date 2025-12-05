@@ -1,8 +1,7 @@
 import { GroupRepository } from "../domain/port/GroupRepository";
 import { GroupId } from "../domain/valueObject/GroupId";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
-import { GroupNotFoundError, UserNotMemberOfGroupError } from "./LeaveGroupUseCase";
-import { NotGroupAdminError } from "./RemoveGroupMemberUseCase";
+import { GroupNotFoundError } from "../domain/GroupNotFoundError";
 
 export interface TransferGroupAdminInput {
   groupId: string;
@@ -17,12 +16,6 @@ export interface TransferGroupAdminOutput {
   newAdminId: string;
 }
 
-export class CannotTransferAdminToNonMemberError extends Error {
-  constructor(message = "New admin must be a member of the group") {
-    super(message);
-    this.name = "CannotTransferAdminToNonMemberError";
-  }
-}
 
 export class TransferGroupAdminUseCase {
   constructor(private readonly groupRepository: GroupRepository) {}
@@ -38,21 +31,21 @@ export class TransferGroupAdminUseCase {
 
     const group = await this.groupRepository.findById(groupId);
     if (!group) {
-      throw new GroupNotFoundError();
+      throw new GroupNotFoundError(input.groupId);
     }
     if (group.adminId.value !== currentAdminId.value) {
-      throw new NotGroupAdminError("Only current admin can transfer admin role");
+      throw new Error("solo el administrador del grupo puede transferir el rol de administrador");
     }
     if (currentAdminId.value === newAdminId.value) {
-      throw new CannotTransferAdminToNonMemberError(
-        "New admin must be different from current admin",
+      throw new Error(
+        "El nuevo administrador debe ser diferente del administrador actual",
       );
     }
     const isMember = group.members.some(
       (m) => m.userId.value === newAdminId.value,
     );
     if (!isMember) {
-      throw new CannotTransferAdminToNonMemberError();
+      throw new Error("El nuevo administrador debe ser un miembro del grupo");
     }
     group.transferAdmin(currentAdminId, newAdminId, now);
 
