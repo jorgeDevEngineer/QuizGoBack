@@ -1,5 +1,5 @@
 import { UserId } from "../valueObject/UserId";
-import { User } from "../entity/User";
+import { User } from "../aggregate/User";
 import { UserName } from "../valueObject/UserName";
 
 export interface UserRepository {

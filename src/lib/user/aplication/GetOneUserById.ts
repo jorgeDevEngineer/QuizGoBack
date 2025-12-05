@@ -1,6 +1,6 @@
 import { UserRepository } from "../domain/port/UserRepository";
 import { UserId } from "../domain/valueObject/UserId";
-import { User } from "../domain/entity/User";
+import { User } from "../domain/aggregate/User";
 import { UserNotFoundError } from "./error/UserNotFoundError";
 
 export class GetOneUserById {
