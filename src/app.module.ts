@@ -23,7 +23,7 @@ import { SinglePlayerGameModule } from "./lib/singlePlayerGame/infrastructure/Ne
           type: "postgres",
           url: configService.get<string>("DATABASE_URL"),
           autoLoadEntities: true,
-          synchronize: false,
+          synchronize: true,
           ssl: isProduction ? { rejectUnauthorized: false } : false,
         };
       },
