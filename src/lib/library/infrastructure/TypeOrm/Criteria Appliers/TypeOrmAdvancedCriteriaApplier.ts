@@ -1,34 +1,31 @@
 import { SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "../../../domain/port/CriteriaApplier";
-import { QueryCriteria } from "../../../domain/valueObject/QueryCriteria";
+import { QuizQueryCriteria } from "../../../domain/valueObject/QuizQueryCriteria";
 
-export class TypeOrmAdvancedCriteriaApplier<Entity>
-  implements CriteriaApplier<SelectQueryBuilder<Entity>>
+export class TypeOrmQuizCriteriaApplier<Entity>
+  implements CriteriaApplier<SelectQueryBuilder<Entity>, QuizQueryCriteria>
 {
   apply(
     qb: SelectQueryBuilder<Entity>,
-    criteria: QueryCriteria,
+    criteria: QuizQueryCriteria,
     alias: string,
   ): SelectQueryBuilder<Entity> {
      // Ordenamiento
-     if (criteria.orderBy === 'recent') {
-        qb.orderBy(`${alias}.createdAt`, 'DESC');
-      } else {
         qb.orderBy(`${alias}.${criteria.orderBy}`, criteria.order);
-      }
+      
   
       // Filtro por status
-      if (criteria.status && criteria.status !== 'all') {
+      if (criteria.status !== 'all') {
         qb.andWhere(`${alias}.status = :status`, { status: criteria.status });
       }
   
       // Filtro por visibility
-      if (criteria.visibility && criteria.visibility !== 'all') {
+      if (criteria.visibility !== 'all') {
         qb.andWhere(`${alias}.visibility = :visibility`, { visibility: criteria.visibility });
       }
   
       // Filtro por categorías
-      if (criteria.categories && criteria.categories.length > 0) {
+      if ( criteria.categories.length > 0) {
         qb.andWhere(`${alias}.category IN (:...categories)`, { categories: criteria.categories });
       }
   

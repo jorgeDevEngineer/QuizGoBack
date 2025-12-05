@@ -22,7 +22,8 @@ import { QuizRepository } from '../../domain/port/QuizRepository';
 import { CriteriaApplier } from '../../domain/port/CriteriaApplier';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { TypeOrmCriteriaApplier } from '../TypeOrm//Criteria Appliers/TypeOrmCriteriaApplier';
-import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier';
+import { TypeOrmQuizCriteriaApplier } from '../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier';
+import { QuizQueryCriteria } from "../../domain/valueObject/QuizQueryCriteria";
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity, TypeOrmSinglePlayerGameEntity])],
@@ -33,13 +34,13 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/Typ
       useClass: TypeOrmCriteriaApplier, // implementación genérica
     },{
       provide: 'AdvancedCriteriaApplier',
-      useClass: TypeOrmAdvancedCriteriaApplier, // implementación avanzada
+      useClass: TypeOrmQuizCriteriaApplier, // implementación avanzada
     },
     {
       provide: 'UserFavoriteQuizRepository',
       useFactory: (
         ormRepo: Repository<TypeOrmUserFavoriteQuizEntity>,
-        criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmUserFavoriteQuizEntity>>,
+        criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmUserFavoriteQuizEntity>, QuizQueryCriteria>,
       ) => new TypeOrmUserFavoriteQuizRepository(ormRepo, criteriaApplier),
       inject: [getRepositoryToken(TypeOrmUserFavoriteQuizEntity), 'CriteriaApplier'],
     },
@@ -47,7 +48,7 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/Typ
       provide: 'QuizRepository',
       useFactory: (
         ormRepo: Repository<TypeOrmQuizEntity>,
-        advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmQuizEntity>>,
+        advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmQuizEntity>, QuizQueryCriteria>,
       ) => new TypeOrmQuizRepository(ormRepo, advancedCriteriaApplier),
       inject: [getRepositoryToken(TypeOrmQuizEntity), 'AdvancedCriteriaApplier'],
     },
@@ -59,7 +60,7 @@ import { TypeOrmAdvancedCriteriaApplier } from '../TypeOrm/Criteria Appliers/Typ
       provide: 'SinglePlayerGameRepository',
       useFactory: (
         ormRepo: Repository<TypeOrmSinglePlayerGameEntity>,
-        advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>>
+        advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>, QuizQueryCriteria>
       ) => new TypeOrmSinglePlayerGameRepository(ormRepo, advancedCriteriaApplier),
       inject: [getRepositoryToken(TypeOrmSinglePlayerGameEntity), 'AdvancedCriteriaApplier'],
     },

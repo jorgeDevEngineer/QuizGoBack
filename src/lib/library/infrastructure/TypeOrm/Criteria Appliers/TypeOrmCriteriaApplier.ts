@@ -1,13 +1,13 @@
 import { SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "../../../domain/port/CriteriaApplier";
-import { QueryCriteria } from "../../../domain/valueObject/QueryCriteria";
+import { QuizQueryCriteria } from "../../../domain/valueObject/QuizQueryCriteria";
 
 export class TypeOrmCriteriaApplier<Entity>
-  implements CriteriaApplier<SelectQueryBuilder<Entity>>
+  implements CriteriaApplier<SelectQueryBuilder<Entity>, QuizQueryCriteria>
 {
   apply(
     qb: SelectQueryBuilder<Entity>,
-    criteria: QueryCriteria,
+    criteria: QuizQueryCriteria,
     alias: string,
   ): SelectQueryBuilder<Entity> {
    // Paginación

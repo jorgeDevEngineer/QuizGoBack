@@ -6,7 +6,7 @@ import { TypeOrmUserFavoriteQuizEntity } from '../Entities/TypeOrmUserFavoriteQu
 import { QuizId } from 'src/lib/kahoot/domain/valueObject/Quiz';
 import { UserId } from 'src/lib/user/domain/valueObject/UserId';
 import { CriteriaApplier } from 'src/lib/library/domain/port/CriteriaApplier';
-import { QueryCriteria } from 'src/lib/library/domain/valueObject/QueryCriteria';
+import { QuizQueryCriteria } from 'src/lib/library/domain/valueObject/QuizQueryCriteria';
 
 export class TypeOrmUserFavoriteQuizRepository
   implements UserFavoriteQuizRepository
@@ -14,7 +14,7 @@ export class TypeOrmUserFavoriteQuizRepository
   constructor(
     @InjectRepository(TypeOrmUserFavoriteQuizEntity)
     private readonly repository: Repository<TypeOrmUserFavoriteQuizEntity>,
-    private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmUserFavoriteQuizEntity>>
+    private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmUserFavoriteQuizEntity>, QuizQueryCriteria>
   ) {}
 
   async addFavoriteQuiz(favorite: UserFavoriteQuiz): Promise<void> {
@@ -35,16 +35,16 @@ export class TypeOrmUserFavoriteQuizRepository
     return this.repository.exists({ where: { user_id: userId.value, quiz_id: quizId.value } });
   }
   
-  async findFavoritesQuizByUser(userId: UserId, criteria: QueryCriteria): Promise<[QuizId[], number]> {
+  async findFavoritesQuizByUser(userId: UserId, criteria: QuizQueryCriteria): Promise<QuizId[]> {
     let qb = this.repository.createQueryBuilder('fav');
     qb.where('fav.user_id = :userId', { userId: userId.value });
 
     // 🔑 aplicar criteria genérica
     qb = this.criteriaApplier.apply(qb, criteria, 'fav');
 
-    const [rows, totalCount] = await qb.getManyAndCount();
+    const rows = await qb.getMany();
     const quizIds = rows.map(row => QuizId.of(row.quiz_id));
 
-    return [quizIds, totalCount];
+    return quizIds;
   }
 }

@@ -1,7 +1,7 @@
 import { QuizRepository } from '../../domain/port/QuizRepository';
 import { Quiz } from 'src/lib/kahoot/domain/entity/Quiz';
 import { UserId } from 'src/lib/user/domain/valueObject/UserId';
-import { QueryParamsDto, QueryParamsInput } from '../DTOs/QueryParamsDTO';
+import { QuizQueryParamsDto, QuizQueryParamsInput } from '../DTOs/QuizQueryParamsDTO';
 import { UserIdDTO } from "../DTOs/UserIdDTO";
 import { QuizResponse, toQuizResponse } from '../Response Types/QuizResponse';
 import { Either } from 'src/lib/shared/Either';
@@ -17,9 +17,9 @@ constructor(private readonly quizRepository: QuizRepository,
   private readonly userRepo: UserRepository
 ) {}
 
-  async run(id: UserIdDTO, queryInput: QueryParamsInput): Promise<Either<HttpException, QueryResponse<QuizResponse>>> {
+  async run(id: UserIdDTO, queryInput: QuizQueryParamsInput): Promise<Either<HttpException, QueryResponse<QuizResponse>>> {
     try{
-      const query = new QueryParamsDto(queryInput);
+      const query = new QuizQueryParamsDto(queryInput);
       const criteria = query.toCriteria();
       // 1. Convertir string a Value Object
       const userId = new UserId(id.userId);

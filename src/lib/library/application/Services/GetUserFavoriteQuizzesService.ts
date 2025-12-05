@@ -1,4 +1,4 @@
-import { QueryParamsDto, QueryParamsInput } from "../DTOs/QueryParamsDTO";
+import { QuizQueryParamsDto, QuizQueryParamsInput } from "../DTOs/QuizQueryParamsDTO";
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { QuizRepository } from "../../domain/port/QuizRepository";
 import { Quiz } from "../../../kahoot/domain/entity/Quiz";
@@ -22,13 +22,12 @@ export class GetUserFavoriteQuizzesService {
 
   async run(
     userId: string,
-    queryInput: QueryParamsInput
+    queryInput: QuizQueryParamsInput
   ): Promise<Either<HttpException, QueryResponse<QuizResponse>>> {
     try{
-      const query = new QueryParamsDto(queryInput);
+      const query = new QuizQueryParamsDto(queryInput);
       const criteria = query.toCriteria();
-      const [favoriteIds, totalCount] =
-      await this.favoritesRepo.findFavoritesQuizByUser(
+      const favoriteIds = await this.favoritesRepo.findFavoritesQuizByUser(
         new UserId(userId),
         criteria
       );
@@ -52,6 +51,8 @@ export class GetUserFavoriteQuizzesService {
         data.push(toQuizResponse(quiz, author));
       }
 
+      const totalCount = favoriteQuizzes.length;
+
       const answer: QueryResponse<QuizResponse> = {
         data,
         pagination: {
@@ -64,6 +65,7 @@ export class GetUserFavoriteQuizzesService {
 
       return Either.makeRight<HttpException, QueryResponse<QuizResponse>>(answer);
     }catch(err){
+      console.error(err);
        return Either.makeLeft(new DomainUnexpectedException());
     }
   }

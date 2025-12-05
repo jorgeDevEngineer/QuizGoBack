@@ -7,7 +7,7 @@ import { GameProgressStatus} from "src/lib/singlePlayerGame/domain/valueObjects/
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "src/lib/library/domain/port/CriteriaApplier";
-import { QueryCriteria } from "src/lib/library/domain/valueObject/QueryCriteria";
+import { QuizQueryCriteria } from "src/lib/library/domain/valueObject/QuizQueryCriteria";
 
 @Injectable()
 export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameRepository {
@@ -15,12 +15,12 @@ export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameReposi
     constructor(
         @InjectRepository(TypeOrmSinglePlayerGameEntity)
         private readonly gameRepo: Repository<TypeOrmSinglePlayerGameEntity>,
-        private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>>
+        private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>, QuizQueryCriteria>
     ) {}
 
     async findInProgressGames(
         playerId: UserId,
-        criteria: QueryCriteria
+        criteria: QuizQueryCriteria
       ): Promise<[SinglePlayerGame[], number]> {
         let qb = this.gameRepo.createQueryBuilder('game');
         qb.where('game.playerId = :playerId', { playerId: playerId.getValue() })
@@ -38,7 +38,7 @@ export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameReposi
       
       async findCompletedGames(
         playerId: UserId,
-        criteria: QueryCriteria
+        criteria: QuizQueryCriteria
       ): Promise<[SinglePlayerGame[], number]> {
         let qb = this.gameRepo.createQueryBuilder('game');
         qb.where('game.playerId = :playerId', { playerId: playerId.getValue() })

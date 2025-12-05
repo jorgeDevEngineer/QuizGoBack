@@ -14,7 +14,7 @@ import {
 import { QueryResponse } from "../Response Types/QueryResponse";
 import { HttpException } from "@nestjs/common";
 import { Either } from "src/lib/shared/Either";
-import { QueryParamsDto, QueryParamsInput } from "../DTOs/QueryParamsDTO";
+import { QuizQueryParamsDto, QuizQueryParamsInput } from "../DTOs/QuizQueryParamsDTO";
 import { NotInProgressQuizzesException } from "../../domain/exceptions/NotInProgressQuizzesException";
 import { QuizzesNotFoundException } from "../../domain/exceptions/QuizzesNotFoundException";
 import { UserNotFoundException } from "../../domain/exceptions/UserNotFoundException";
@@ -30,10 +30,10 @@ export class GetCompletedQuizzesService {
 
   async run(
     id: UserIdDTO,
-    queryInput: QueryParamsInput
+    queryInput: QuizQueryParamsInput
   ): Promise<Either<HttpException, QueryResponse<PlayingQuizResponse>>> {
     try{
-      const query = new QueryParamsDto(queryInput);
+      const query = new QuizQueryParamsDto(queryInput);
       const criteria = query.toCriteria();
       const [inProgressGames, totalCount] =
         await this.singlePlayerRepo.findCompletedGames(

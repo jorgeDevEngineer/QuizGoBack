@@ -29,14 +29,14 @@ import {
   IsCorrect,
 } from '../../../../kahoot/domain/valueObject/Answer';
 import { UserId as UserIdVO } from '../../../../user/domain/valueObject/UserId';
-import { QueryCriteria } from 'src/lib/library/domain/valueObject/QueryCriteria';
+import { QuizQueryCriteria } from 'src/lib/library/domain/valueObject/QuizQueryCriteria';
 import { CriteriaApplier } from 'src/lib/library/domain/port/CriteriaApplier';
 
 export class TypeOrmQuizRepository implements QuizRepository {
   constructor(
     @InjectRepository(TypeOrmQuizEntity)
     private readonly repository: Repository<TypeOrmQuizEntity>,
-    private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmQuizEntity>>
+    private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmQuizEntity>, QuizQueryCriteria>
   ) {}
 
   private mapToDomain(q: TypeOrmQuizEntity): Quiz {
@@ -91,7 +91,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
     return this.mapToDomain(quizEntity);
   }
 
-  async searchByAuthor(authorId: UserIdVO, criteria: QueryCriteria): Promise<[Quiz[], number]> {
+  async searchByAuthor(authorId: UserIdVO, criteria: QuizQueryCriteria): Promise<[Quiz[], number]> {
     let qb = this.repository.createQueryBuilder('quiz');
     qb.where('quiz.userId = :authorId', { authorId: authorId.value });
   
@@ -108,7 +108,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
       return await this.repository.exists({ where: { id: quizId.value } });
     }
 
-    async findByIds(ids: QuizId[], criteria: QueryCriteria): Promise<Quiz[]> {
+    async findByIds(ids: QuizId[], criteria: QuizQueryCriteria): Promise<Quiz[]> {
       let qb = this.repository.createQueryBuilder('quiz');
       qb.where('quiz.id IN (:...ids)', { ids: ids.map(id => id.value) });
   

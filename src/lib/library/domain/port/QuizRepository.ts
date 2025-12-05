@@ -1,7 +1,7 @@
 import { Quiz } from 'src/lib/kahoot/domain/entity/Quiz';
 import { QuizId } from 'src/lib/kahoot/domain/valueObject/Quiz';
 import { UserId } from 'src/lib/user/domain/valueObject/UserId';
-import { QueryCriteria } from '../valueObject/QueryCriteria';
+import { QuizQueryCriteria } from '../valueObject/QuizQueryCriteria';
 
 export interface QuizRepository {
     /**
@@ -9,9 +9,9 @@ export interface QuizRepository {
      * Debe reconstruir el agregado completo (incluyendo preguntas y respuestas).
      */
     find(id: QuizId): Promise<Quiz | null>;
-    searchByAuthor(authorId: UserId, criteria: QueryCriteria): Promise<[Quiz[], number]>;
+    searchByAuthor(authorId: UserId, criteria: QuizQueryCriteria): Promise<[Quiz[], number]>;
     quizExists(quizId: QuizId): Promise<boolean>;
-    findByIds(ids: QuizId[], criteria: QueryCriteria): Promise<Quiz[]>
+    findByIds(ids: QuizId[], criteria: QuizQueryCriteria): Promise<Quiz[]>
 }
 
 /**

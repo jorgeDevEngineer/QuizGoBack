@@ -1,6 +1,6 @@
-import { QueryCriteria } from "../../domain/valueObject/QueryCriteria";
+import { QuizQueryCriteria } from "../../domain/valueObject/QuizQueryCriteria";
 
-export type QueryParamsInput = {
+export type QuizQueryParamsInput = {
   page?: number;
   limit?: number;
 
@@ -15,8 +15,7 @@ export type QueryParamsInput = {
   q?: string;
 };
 
-
-export class QueryParamsDto {
+export class QuizQueryParamsDto {
   // Paginación
   page?: number;
   limit?: number;
@@ -34,7 +33,7 @@ export class QueryParamsDto {
   search?: string;
   q?: string;
 
-  constructor(input: QueryParamsInput = {}) {
+  constructor(input: QuizQueryParamsInput = {}) {
     // Page: default 1
     const rawPage = Number(input.page);
     this.page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
@@ -56,7 +55,7 @@ export class QueryParamsDto {
     this.categories = Array.isArray(input.categories) ? input.categories : [];
 
     // OrderBy: default "recent"
-    this.orderBy = input.orderBy ?? 'recent';
+    this.orderBy = input.orderBy ?? 'createdAt';
 
     // Order: default "asc"
     const normalizedOrder = (input.order ?? 'asc').toString().toUpperCase();
@@ -72,8 +71,8 @@ export class QueryParamsDto {
     this.q = input.q?.trim() || undefined;
   }
 
-  toCriteria(): QueryCriteria {
-    return new QueryCriteria(
+  toCriteria(): QuizQueryCriteria {
+    return new QuizQueryCriteria(
       this.page!,
       this.limit!,
       this.orderBy!,

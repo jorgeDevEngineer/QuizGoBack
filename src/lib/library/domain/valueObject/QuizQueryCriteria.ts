@@ -1,4 +1,4 @@
-export class QueryCriteria {
+export class QuizQueryCriteria {
   constructor(
     public readonly page: number,
     public readonly limit: number,
