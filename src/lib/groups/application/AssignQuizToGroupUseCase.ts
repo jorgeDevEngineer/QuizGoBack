@@ -8,6 +8,7 @@ import { GroupQuizAssignmentId } from "../domain/valueObject/GroupQuizAssigmentI
 import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { GroupNotFoundError } from "../domain/GroupNotFoundError";
 import { UserNotMemberOfGroupError } from "../domain/NotMemberGroupError";
+import { QuizReadService } from "../domain/port/QuizReadService";
 
 export class AssignQuizToGroupRequestDto {
   quizId!: string;
@@ -46,7 +47,8 @@ export interface AssignQuizToGroupOutput {
 }
 
 export class AssignQuizToGroupUseCase {
-  constructor(private readonly groupRepository: GroupRepository) {}
+  constructor(private readonly groupRepository: GroupRepository, private readonly quizReadService: QuizReadService,
+) {}
 
   async execute(input: AssignQuizToGroupInput): Promise<AssignQuizToGroupOutput> {
     const now = input.now ?? new Date();
@@ -70,6 +72,14 @@ export class AssignQuizToGroupUseCase {
     );
     if (!isMember) {
       throw new UserNotMemberOfGroupError(input.currentUserId, input.groupId);
+    }
+    
+    const canUseQuiz = await this.quizReadService.quizBelongsToUser(
+      quizId,
+      userId,
+    );
+    if (!canUseQuiz) {
+      throw new Error('El quiz no existe o no pertenece al usuario');
     }
 
     const assignment = GroupQuizAssignment.create(
