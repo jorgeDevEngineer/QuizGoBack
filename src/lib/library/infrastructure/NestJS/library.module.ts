@@ -24,6 +24,7 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 import { TypeOrmCriteriaApplier } from '../TypeOrm//Criteria Appliers/TypeOrmCriteriaApplier';
 import { TypeOrmQuizCriteriaApplier } from '../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier';
 import { QuizQueryCriteria } from "../../domain/valueObject/QuizQueryCriteria";
+import { GetUserQuizzesDomainService } from '../../domain/services/GetUserQuizzesDomainService';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity, TypeOrmSinglePlayerGameEntity])],
@@ -88,10 +89,16 @@ import { QuizQueryCriteria } from "../../domain/valueObject/QuizQueryCriteria";
       inject: ['UserFavoriteQuizRepository', 'QuizRepository', 'UserRepository'],
     },
     {
-      provide: 'GetAllUserQuizzesService',
-      useFactory: (quizRepository: QuizRepository, userRepo: UserRepository) =>
-        new GetAllUserQuizzesService(quizRepository, userRepo),
+      provide: 'GetUserQuizzesDomainService',
+      useFactory: (quizRepository: QuizRepository, userRepo: UserRepository) => 
+        new GetUserQuizzesDomainService(quizRepository, userRepo),
       inject: ['QuizRepository', 'UserRepository'],
+    },
+    {
+      provide: 'GetAllUserQuizzesService',
+      useFactory: (domainService: GetUserQuizzesDomainService) =>
+        new GetAllUserQuizzesService(domainService),
+      inject: ['GetUserQuizzesDomainService'],
     },
     {
       provide: 'GetInProgressQuizzesService',

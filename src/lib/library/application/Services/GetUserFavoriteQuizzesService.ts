@@ -7,11 +7,11 @@ import { UserRepository } from "src/lib/user/domain/port/UserRepository";
 import { User } from "src/lib/user/domain/aggregate/User";
 import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { QueryResponse } from "../Response Types/QueryResponse";
-import { HttpException } from "@nestjs/common";
 import { Either } from "src/lib/shared/Either";
 import { QuizzesNotFoundException } from "../../domain/exceptions/QuizzesNotFoundException";
 import { UserNotFoundException } from "../../domain/exceptions/UserNotFoundException";
 import { DomainUnexpectedException } from "../../domain/exceptions/DomainUnexpectedException";
+import { DomainException } from "../../domain/exceptions/DomainException";
 
 export class GetUserFavoriteQuizzesService {
   constructor(
@@ -23,7 +23,7 @@ export class GetUserFavoriteQuizzesService {
   async run(
     userId: string,
     queryInput: QuizQueryParamsInput
-  ): Promise<Either<HttpException, QueryResponse<QuizResponse>>> {
+  ): Promise<Either<DomainException, QueryResponse<QuizResponse>>> {
     try{
       const query = new QuizQueryParamsDto(queryInput);
       const criteria = query.toCriteria();
@@ -63,7 +63,7 @@ export class GetUserFavoriteQuizzesService {
         },
       };
 
-      return Either.makeRight<HttpException, QueryResponse<QuizResponse>>(answer);
+      return Either.makeRight<DomainException, QueryResponse<QuizResponse>>(answer);
     }catch(err){
       console.error(err);
        return Either.makeLeft(new DomainUnexpectedException());
