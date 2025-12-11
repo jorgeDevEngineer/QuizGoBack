@@ -9,6 +9,9 @@ import { DomainUnexpectedException } from "../../domain/exceptions/DomainUnexpec
 import { DomainException } from '../../domain/exceptions/DomainException';
 import { GetUserQuizzesDomainService } from '../../domain/services/GetUserQuizzesDomainService';
 
+/**
+ * Obtiene todos los kahoots de un usuario(publicados y drafts).
+ */
 export class GetAllUserQuizzesService {
 constructor(private readonly getQuizDService: GetUserQuizzesDomainService
 ) {}

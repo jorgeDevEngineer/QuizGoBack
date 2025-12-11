@@ -8,6 +8,9 @@ import { QuizQueryParamsDto, QuizQueryParamsInput } from "../DTOs/QuizQueryParam
 import { DomainUnexpectedException } from "../../domain/exceptions/DomainUnexpectedException";
 import { GetCompletedQuizzesDomainService } from "../../domain/services/GetCompletedQuizzesDomainService";
 
+/**
+ * Obtiene los kahoots completados(multipalyer o singleplayer), de un usuario.
+ */
 export class GetCompletedQuizzesService {
   constructor(
     private readonly domainService: GetCompletedQuizzesDomainService

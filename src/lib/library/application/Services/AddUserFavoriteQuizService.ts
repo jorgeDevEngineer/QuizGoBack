@@ -6,6 +6,9 @@ import { DomainUnexpectedException } from "../../domain/exceptions/DomainUnexpec
 import { AddUserFavoriteQuizDomainService } from "../../domain/services/AddUserFavoriteQuizDomainService";
 import { DomainException } from "../../domain/exceptions/DomainException";
 
+/**
+ * Marca como favorito un kahoot para un usuario.
+ */
 export class AddUserFavoriteQuizService {
   constructor(private readonly domainService: AddUserFavoriteQuizDomainService) {}
 

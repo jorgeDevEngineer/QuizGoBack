@@ -7,6 +7,9 @@ import { UserIdDTO } from "../DTOs/UserIdDTO";
 import { DeleteUserFavoriteQuizDomainService } from "../../domain/services/DeleteUserFavoriteQuizDomainService";
 import { DomainException } from "../../domain/exceptions/DomainException";
 
+/**
+ * Elimina como favorito un quiz para un usuario.
+ */
 export class DeleteUserFavoriteQuizService {
     constructor(
       private readonly domainService: DeleteUserFavoriteQuizDomainService

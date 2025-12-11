@@ -9,6 +9,9 @@ import { QuizQueryParamsDto, QuizQueryParamsInput } from "../DTOs/QuizQueryParam
 import { DomainException } from "../../domain/exceptions/DomainException";
 import { GetInProgressQuizzesDomainService } from "../../domain/services/GetInProgressQuizzesDomainService";
 
+/**
+ * Obtiene los kahoots en progreso(solo singleplayer), de un usuario.
+ */
 export class GetInProgressQuizzesService {
   constructor(
     private readonly domainService: GetInProgressQuizzesDomainService

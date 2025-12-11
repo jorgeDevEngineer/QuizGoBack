@@ -8,6 +8,10 @@ import { DomainException } from "../../domain/exceptions/DomainException";
 import { UserIdDTO } from "../DTOs/UserIdDTO";
 import { GetUserFavoriteQuizzesDomainService } from "../../domain/services/GetUserFavoriteQuizzesDomainService";
 
+/**
+ * Obtiene los kahoots favoritos de un usuario.
+ */
+
 export class GetUserFavoriteQuizzesService {
   constructor(
     private readonly domainService: GetUserFavoriteQuizzesDomainService
