@@ -1,6 +1,6 @@
 import { Pagination } from "./Pagination";
 
-export type QueryResponse<T> = {
+export type QueryWithPaginationResponse<T> = {
     data: T[];
     pagination: Pagination;
   }  

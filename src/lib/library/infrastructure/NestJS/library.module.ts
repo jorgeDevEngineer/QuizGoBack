@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { LibraryController } from './library.controller';
-import { AddUserFavoriteQuizService } from '../../application/Services/AddUserFavoriteQuizService';
-import { DeleteUserFavoriteQuizService } from '../../application/Services/DeleteUserFavoriteQuizService';
-import { GetUserFavoriteQuizzesService } from '../../application/Services/GetUserFavoriteQuizzesService';
-import { GetAllUserQuizzesService } from '../../application/Services/GetAllUserQuizzesUseService';
-import { GetInProgressQuizzesService} from '../../application/Services/GetInProgessQuizzesService';
-import { GetCompletedQuizzesService } from '../../application/Services/GetCompletedQuizzesService';
+import { AddUserFavoriteQuizCommandHanlder } from '../../application/Handlers/Commands/AddUserFavoriteQuizCommandHandler';
+import { DeleteUserFavoriteQuizCommandHandler } from '../../application/Handlers/Commands/DeleteUserFavoriteQuizCommandHandler';
+import { GetUserFavoriteQuizzesQueryHandler } from '../../application/Handlers/Querys/GetUserFavoriteQuizzesQueryHandler';
+import { GetAllUserQuizzesQueryHandler } from '../../application/Handlers/Querys/GetAllUserQuizzesQueryHandler';
+import { GetUserInProgressQuizzesQueryHandler} from '../../application/Handlers/Querys/GetUserInProgessQuizzesQueryHandler';
+import { GetUserCompletedQuizzesQueryHandler } from '../../application/Handlers/Querys/GetUserCompletedQuizzesQueryHandler';
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { TypeOrmUserFavoriteQuizRepository } from '../TypeOrm/Repositories/TypeOrmUserFavoriteQuizRepository';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
@@ -83,7 +83,7 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Delet
       provide: 'AddUserFavoriteQuizService',
       useFactory: (domainService: AddUserFavoriteQuizDomainService
       ) =>
-        new AddUserFavoriteQuizService(domainService),
+        new AddUserFavoriteQuizCommandHanlder(domainService),
       inject: ['AddUserFavoriteQuizDomainService'],
     },
     {
@@ -95,7 +95,7 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Delet
     {
       provide: 'DeleteUserFavoriteQuizService',
       useFactory: (domainService: DeleteUserFavoriteQuizDomainService) =>
-        new DeleteUserFavoriteQuizService(domainService),
+        new DeleteUserFavoriteQuizCommandHandler(domainService),
       inject: ['DeleteUserFavoriteQuizDomainService'],
     },
     {
@@ -109,7 +109,7 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Delet
       provide: 'GetUserFavoriteQuizzesService',
       useFactory: (domainService: GetUserFavoriteQuizzesDomainService,
       ) =>
-        new GetUserFavoriteQuizzesService(domainService),
+        new GetUserFavoriteQuizzesQueryHandler(domainService),
       inject: ['GetUserFavoriteQuizzesDomainService'],
     },
     {
@@ -121,7 +121,7 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Delet
     {
       provide: 'GetAllUserQuizzesService',
       useFactory: (domainService: GetUserQuizzesDomainService) =>
-        new GetAllUserQuizzesService(domainService),
+        new GetAllUserQuizzesQueryHandler(domainService),
       inject: ['GetUserQuizzesDomainService'],
     },
     {
@@ -135,7 +135,7 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Delet
     {
       provide: 'GetInProgressQuizzesService',
       useFactory: ( domainService: GetInProgressQuizzesDomainService) =>
-        new GetInProgressQuizzesService(domainService),
+        new GetUserInProgressQuizzesQueryHandler(domainService),
       inject: ['GetInProgressQuizzesDomainService'],
     },
     {
@@ -148,7 +148,7 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Delet
     },
     {
       provide: 'GetCompletedQuizzesService',
-      useFactory: (domainService: GetCompletedQuizzesDomainService) => new GetCompletedQuizzesService(domainService),
+      useFactory: (domainService: GetCompletedQuizzesDomainService) => new GetUserCompletedQuizzesQueryHandler(domainService),
       inject: ['GetCompletedQuizzesDomainService'],
     },
   ],

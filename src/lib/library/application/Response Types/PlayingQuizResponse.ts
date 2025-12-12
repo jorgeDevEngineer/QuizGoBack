@@ -3,11 +3,17 @@ import { QuizResponse } from "./QuizResponse";
 import { Quiz } from "src/lib/kahoot/domain/entity/Quiz";
 import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
 
+/**
+ * Tipo de respuesta para un Quiz en progreso
+ */
 export type PlayingQuizResponse = QuizResponse & {
   gameId: string;
   gameType: string;
 };
 
+/**
+ * Funcion que genera una respuesta de tipo PlayingQuizResponse usando el quiz, el autor, el juego en progreso y el tipo de juego.
+ */
 export function toPlayingQuizResponse(
   quiz: Quiz,
   author: User,
