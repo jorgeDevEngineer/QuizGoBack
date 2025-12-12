@@ -18,24 +18,24 @@ import { GetUserQuizzes } from '../../application/Parameter Objects/GetUserQuizz
 export class LibraryController {
    constructor(
        @Inject('AddUserFavoriteQuizService')
-       private readonly addUserFavoriteQuizService: AddUserFavoriteQuizCommandHanlder,
+       private readonly addUserFavoriteQuizHandler: AddUserFavoriteQuizCommandHanlder,
        @Inject('DeleteUserFavoriteQuizService')
-       private readonly deleteUserFavoriteQuizService: DeleteUserFavoriteQuizCommandHandler,
+       private readonly deleteUserFavoriteQuizHandler: DeleteUserFavoriteQuizCommandHandler,
        @Inject('GetUserFavoriteQuizzesService')
-       private readonly getUserFavoriteQuizzesService: GetUserFavoriteQuizzesQueryHandler,
+       private readonly getUserFavoriteQuizzesHandler: GetUserFavoriteQuizzesQueryHandler,
        @Inject('GetAllUserQuizzesService')
-       private readonly getAllUserQuizzesService: GetAllUserQuizzesQueryHandler,
+       private readonly getAllUserQuizzesHandler: GetAllUserQuizzesQueryHandler,
        @Inject('GetInProgressQuizzesService')
-       private readonly getInProgressQuizzesService: GetUserInProgressQuizzesQueryHandler,
+       private readonly getInProgressQuizzesHandler: GetUserInProgressQuizzesQueryHandler,
        @Inject('GetCompletedQuizzesService')
-       private readonly getCompletedQuizzesService: GetUserCompletedQuizzesQueryHandler,
+       private readonly getCompletedQuizzesHandler: GetUserCompletedQuizzesQueryHandler,
     ){}
 
     @Post('favorites/:quizId')
     @HttpCode(201)
     async addFavorite(@Param('quizId') quizId: string, @Body() dto: UserIdDTO): Promise<void> {
         const command = new AddUserFavoriteQuiz(dto.userId, quizId);
-        const result = await this.addUserFavoriteQuizService.execute(command);
+        const result = await this.addUserFavoriteQuizHandler.execute(command);
         if(result.isLeft()){
             throw result.getLeft();
          }
@@ -46,7 +46,7 @@ export class LibraryController {
     @HttpCode(204)
     async deleteFavorite(@Param('quizId') quizId: string, @Body() dto: UserIdDTO): Promise<void> {
         const command = new DeleteUserFavoriteQuiz(dto.userId, quizId);
-        const result = await this.deleteUserFavoriteQuizService.execute(command);
+        const result = await this.deleteUserFavoriteQuizHandler.execute(command);
         if(result.isLeft()){
             throw result.getLeft();
          }
@@ -58,7 +58,7 @@ export class LibraryController {
     async getFavorites(@Body() dto: UserIdDTO, @Query() queryParams: QuizQueryParamsInput): Promise<
     QueryWithPaginationResponse<QuizResponse>> {
         const command = new GetUserQuizzes(dto.userId, queryParams);
-        const result = await this.getUserFavoriteQuizzesService.execute(command);
+        const result = await this.getUserFavoriteQuizzesHandler.execute(command);
         if(result.isLeft()){
             throw result.getLeft();
          }
@@ -70,7 +70,7 @@ export class LibraryController {
     async getMyCreations(@Body() dto: UserIdDTO, @Query() queryParams: QuizQueryParamsInput): Promise<
     QueryWithPaginationResponse<QuizResponse>> {
         const command = new GetUserQuizzes(dto.userId, queryParams);
-        const result = await this.getAllUserQuizzesService.execute(command);
+        const result = await this.getAllUserQuizzesHandler.execute(command);
         if(result.isLeft()){
             throw result.getLeft();
          }
@@ -82,7 +82,7 @@ export class LibraryController {
     async getInProgressQuizzes(@Body() dto: UserIdDTO, @Query() queryParams: QuizQueryParamsInput): Promise<
     QueryWithPaginationResponse<PlayingQuizResponse>> {
         const command = new GetUserQuizzes(dto.userId, queryParams);
-        const result = await this.getInProgressQuizzesService.execute(command);
+        const result = await this.getInProgressQuizzesHandler.execute(command);
         if(result.isLeft()){
          throw result.getLeft();
          }
@@ -93,7 +93,7 @@ export class LibraryController {
     @HttpCode(200)
     async getCompletedQuizzes(@Body() dto: UserIdDTO, @Query() queryParams: QuizQueryParamsInput): Promise<QueryWithPaginationResponse<PlayingQuizResponse>> {
         const command = new GetUserQuizzes(dto.userId, queryParams);
-        const result = await this.getCompletedQuizzesService.execute(command);
+        const result = await this.getCompletedQuizzesHandler.execute(command);
         if(result.isLeft()){
          throw result.getLeft();
         }

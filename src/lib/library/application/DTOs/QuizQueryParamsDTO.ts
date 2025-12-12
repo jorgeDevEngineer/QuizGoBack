@@ -46,21 +46,19 @@ export class QuizQueryParamsDto {
         : 20;
 
     // Status: default "all"
-    this.status = input.status ?? 'all';
+    this.status = input.status || 'all';
 
     // Visibility: default "all"
-    this.visibility = input.visibility ?? 'all';
+    this.visibility = input.visibility || 'all';
 
     // Categories: default []
     this.categories = Array.isArray(input.categories) ? input.categories : [];
 
     // OrderBy: default "createdAt"
-    console.log("Llega",input.orderBy);
     this.orderBy = input.orderBy || 'createdAt';
-    console.log(this.orderBy);
 
     // Order: default "asc"
-    const normalizedOrder = (input.order ?? 'asc').toString().toUpperCase();
+    const normalizedOrder = (input.order || 'asc').toString().toUpperCase();
     this.order =
       normalizedOrder === 'ASC' || normalizedOrder === 'DESC'
         ? normalizedOrder
