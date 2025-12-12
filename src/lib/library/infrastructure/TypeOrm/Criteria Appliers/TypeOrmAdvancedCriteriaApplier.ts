@@ -11,6 +11,7 @@ export class TypeOrmQuizCriteriaApplier<Entity>
     alias: string,
   ): SelectQueryBuilder<Entity> {
      // Ordenamiento
+       console.log('Applying order by:', criteria.orderBy, criteria.order);
         qb.orderBy(`${alias}.${criteria.orderBy}`, criteria.order);
       
   

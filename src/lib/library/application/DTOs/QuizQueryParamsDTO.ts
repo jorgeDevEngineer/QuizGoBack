@@ -8,7 +8,7 @@ export type QuizQueryParamsInput = {
   visibility?: 'public' | 'private' | 'all';
   categories?: string[];
 
-  orderBy?: 'createdAt' | 'title' | 'likesCount' | 'recent';
+  orderBy?: 'createdAt' | 'title' | 'likesCount';
   order?: 'asc' | 'desc' | 'ASC' | 'DESC';
 
   search?: string;
@@ -26,7 +26,7 @@ export class QuizQueryParamsDto {
   categories?: string[];
 
   // Ordenamiento
-  orderBy?: 'createdAt' | 'title' | 'likesCount' | 'recent';
+  orderBy?: 'createdAt' | 'title' | 'likesCount';
   order?: 'asc' | 'desc' | 'ASC' | 'DESC';
 
   // Búsqueda
@@ -54,8 +54,10 @@ export class QuizQueryParamsDto {
     // Categories: default []
     this.categories = Array.isArray(input.categories) ? input.categories : [];
 
-    // OrderBy: default "recent"
-    this.orderBy = input.orderBy ?? 'createdAt';
+    // OrderBy: default "createdAt"
+    console.log("Llega",input.orderBy);
+    this.orderBy = input.orderBy || 'createdAt';
+    console.log(this.orderBy);
 
     // Order: default "asc"
     const normalizedOrder = (input.order ?? 'asc').toString().toUpperCase();
