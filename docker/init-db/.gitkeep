@@ -1,5 +1,0 @@
-# Este archivo mantiene la carpeta en git
-# Coloca aquí tu archivo de backup:
-# - backup.sql (formato SQL plano: pg_dump -f backup.sql database)
-# - backup.dump (formato custom: pg_dump -Fc -f backup.dump database)
-
