@@ -14,7 +14,7 @@ export class StatisticsController {
     private readonly getUserResults: IHandler<GetUserResults, Either<DomainException, CompletedQuizResponse[]>>
    ){}
 
-   @Get()
+   @Get('kahoots/my-results')
    async getUserQuizResults(@Body() userId: UserIdDTO, @Query() queryParams: CompletedQuizQueryParams): Promise<CompletedQuizResponse[]>{
       const command = new GetUserResults(userId.userId, queryParams);
       const results = await this.getUserResults.execute(command);

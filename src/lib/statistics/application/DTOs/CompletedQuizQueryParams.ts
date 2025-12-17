@@ -28,8 +28,8 @@ export class CompletedQuizQueryParamsDTO {
         ? normalizedOrder
         : 'ASC';
     
-    // OrderBy: default "completionDate"
-    this.orderBy = input.orderBy || 'completionDate';    
+    // OrderBy: default "completedAt"
+    this.orderBy = input.orderBy || 'completedAt';    
   }
 
   toCriteria(){

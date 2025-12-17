@@ -26,7 +26,7 @@ export class GetUserResultsQueryHandler implements IHandler <GetUserResults, Eit
             const result = await this.getUserResultsDomainService.execute(userId, criteria);
             return result;
         } catch (error) {
-            return Either.makeLeft(new DomainUnexpectedException());
+            return Either.makeLeft(new DomainUnexpectedException(error.message));
         }
     }
 }
