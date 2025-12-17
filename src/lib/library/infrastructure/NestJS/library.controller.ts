@@ -8,8 +8,8 @@ import { DeleteUserFavoriteQuiz } from '../../application/Parameter Objects/Dele
 import { AddUserFavoriteQuiz } from '../../application/Parameter Objects/AddUserFavoriteQuiz';
 import { GetUserQuizzes } from '../../application/Parameter Objects/GetUserQuizzes';
 import { IHandler } from '../../../shared/IHandler';
-import { DomainException } from '../../domain/exceptions/DomainException';
-import { Either } from 'src/lib/shared/Either';
+import { DomainException } from '../../../shared/exceptions/DomainException';
+import { Either } from 'src/lib/shared/Type Helpers/Either';
 
 @Controller('library')
 export class LibraryController {

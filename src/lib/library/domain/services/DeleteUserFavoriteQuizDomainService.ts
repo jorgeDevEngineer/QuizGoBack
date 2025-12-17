@@ -1,6 +1,6 @@
-import { Either } from "src/lib/shared/Either";
-import { DomainException } from "../exceptions/DomainException";
-import { UserFavoriteQuizNotFoundException } from "../exceptions/UserFavoriteQuizNotFoundException";
+import { Either } from "src/lib/shared/Type Helpers/Either";
+import { DomainException } from "../../../shared/exceptions/DomainException";
+import { UserFavoriteQuizNotFoundException } from "../../../shared/exceptions/UserFavoriteQuizNotFoundException";
 import { UserFavoriteQuizRepository } from "../port/UserFavoriteQuizRepository";
 import { UserFavoriteQuiz } from "../valueObject/UserFavoriteQuiz";
 

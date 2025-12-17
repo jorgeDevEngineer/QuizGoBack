@@ -1,6 +1,6 @@
 import { SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "../../../domain/port/CriteriaApplier";
-import { QuizQueryCriteria } from "../../../domain/valueObject/QuizQueryCriteria";
+import { QuizQueryCriteria } from "../../../application/Response Types/QuizQueryCriteria";
 
 export class TypeOrmQuizCriteriaApplier<Entity>
   implements CriteriaApplier<SelectQueryBuilder<Entity>, QuizQueryCriteria>

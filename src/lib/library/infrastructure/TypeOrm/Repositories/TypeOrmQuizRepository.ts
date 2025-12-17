@@ -29,7 +29,7 @@ import {
   IsCorrect,
 } from '../../../../kahoot/domain/valueObject/Answer';
 import { UserId as UserIdVO } from '../../../../user/domain/valueObject/UserId';
-import { QuizQueryCriteria } from 'src/lib/library/domain/valueObject/QuizQueryCriteria';
+import { QuizQueryCriteria } from 'src/lib/library/application/Response Types/QuizQueryCriteria';
 import { CriteriaApplier } from 'src/lib/library/domain/port/CriteriaApplier';
 
 export class TypeOrmQuizRepository implements QuizRepository {

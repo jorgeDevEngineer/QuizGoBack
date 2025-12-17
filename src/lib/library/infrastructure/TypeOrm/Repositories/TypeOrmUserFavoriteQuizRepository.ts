@@ -6,7 +6,7 @@ import { TypeOrmUserFavoriteQuizEntity } from '../Entities/TypeOrmUserFavoriteQu
 import { QuizId } from 'src/lib/kahoot/domain/valueObject/Quiz';
 import { UserId } from 'src/lib/user/domain/valueObject/UserId';
 import { CriteriaApplier } from 'src/lib/library/domain/port/CriteriaApplier';
-import { QuizQueryCriteria } from 'src/lib/library/domain/valueObject/QuizQueryCriteria';
+import { QuizQueryCriteria } from 'src/lib/library/application/Response Types/QuizQueryCriteria';
 
 export class TypeOrmUserFavoriteQuizRepository
   implements UserFavoriteQuizRepository

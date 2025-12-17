@@ -23,7 +23,7 @@ import { CriteriaApplier } from '../../domain/port/CriteriaApplier';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { TypeOrmCriteriaApplier } from '../TypeOrm//Criteria Appliers/TypeOrmCriteriaApplier';
 import { TypeOrmQuizCriteriaApplier } from '../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier';
-import { QuizQueryCriteria } from "../../domain/valueObject/QuizQueryCriteria";
+import { QuizQueryCriteria } from "../../application/Response Types/QuizQueryCriteria";
 import { GetUserQuizzesDomainService } from '../../domain/services/GetUserQuizzesDomainService';
 import { GetInProgressQuizzesDomainService } from '../../domain/services/GetInProgressQuizzesDomainService';
 import { GetUserFavoriteQuizzesDomainService } from '../../domain/services/GetUserFavoriteQuizzesDomainService';

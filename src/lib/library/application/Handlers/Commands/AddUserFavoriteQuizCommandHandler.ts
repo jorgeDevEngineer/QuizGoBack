@@ -1,15 +1,17 @@
 import {QuizId} from "src/lib/kahoot/domain/valueObject/Quiz";
 import {UserId} from "src/lib/user/domain/valueObject/UserId";
-import { Either } from "src/lib/shared/Either";
-import { DomainUnexpectedException } from "../../../domain/exceptions/DomainUnexpectedException";
+import { Either } from "src/lib/shared/Type Helpers/Either";
+import { DomainUnexpectedException } from "../../../../shared/exceptions/DomainUnexpectedException";
 import { AddUserFavoriteQuizDomainService } from "../../../domain/services/AddUserFavoriteQuizDomainService";
-import { DomainException } from "../../../domain/exceptions/DomainException";
+import { DomainException } from "../../../../shared/exceptions/DomainException";
 import { AddUserFavoriteQuiz } from "../../Parameter Objects/AddUserFavoriteQuiz";
 import { IHandler } from "src/lib/shared/IHandler";
+import { Injectable } from "@nestjs/common";
 
 /**
  * Command Handler que marca como favorito un kahoot para un usuario.
  */
+@Injectable()
 export class AddUserFavoriteQuizCommandHanlder implements IHandler<AddUserFavoriteQuiz, Either<DomainException, void>> {
   constructor(private readonly domainService: AddUserFavoriteQuizDomainService) {}
 

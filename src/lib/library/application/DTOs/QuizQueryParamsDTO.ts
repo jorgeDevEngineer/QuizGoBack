@@ -1,4 +1,4 @@
-import { QuizQueryCriteria } from "../../domain/valueObject/QuizQueryCriteria";
+import { QuizQueryCriteria } from "../Response Types/QuizQueryCriteria";
 
 export type QuizQueryParamsInput = {
   page?: number;
@@ -15,7 +15,7 @@ export type QuizQueryParamsInput = {
   q?: string;
 };
 
-export class QuizQueryParamsDto {
+export class QuizQueryParamsDTO {
   // Paginación
   page?: number;
   limit?: number;

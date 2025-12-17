@@ -2,15 +2,15 @@ import { QuizId, UserId as UserIdQuizVo} from "src/lib/kahoot/domain/valueObject
 import { User } from "../../../user/domain/aggregate/User";
 import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { UserRepository } from "../../../user/domain/port/UserRepository";
-import { Either } from "src/lib/shared/Either";
+import { Either } from "src/lib/shared/Type Helpers/Either";
 import { PlayingQuizResponse, toPlayingQuizResponse } from "../../application/Response Types/PlayingQuizResponse";
-import { DomainException } from "../exceptions/DomainException";
-import { NotInProgressQuizzesException } from "../exceptions/NotInProgressQuizzesException";
-import { QuizzesNotFoundException } from "../exceptions/QuizzesNotFoundException";
-import { UserNotFoundException } from "../exceptions/UserNotFoundException";
+import { DomainException } from "../../../shared/exceptions/DomainException";
+import { NotInProgressQuizzesException } from "../../../shared/exceptions/NotInProgressQuizzesException";
+import { QuizzesNotFoundException } from "../../../shared/exceptions/QuizzesNotFoundException";
+import { UserNotFoundException } from "../../../shared/exceptions/UserNotFoundException";
 import { QuizRepository } from "../port/QuizRepository";
 import { SinglePlayerGameRepository } from "../port/SinglePlayerRepository";
-import { QuizQueryCriteria } from "../valueObject/QuizQueryCriteria";
+import { QuizQueryCriteria } from "../../application/Response Types/QuizQueryCriteria";
 
 export class GetCompletedQuizzesDomainService {
     constructor(
