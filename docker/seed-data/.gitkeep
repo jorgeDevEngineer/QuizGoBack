@@ -1,0 +1,16 @@
+# Carpeta para archivos SQL con INSERTs
+# 
+# Coloca aquí tus archivos .sql con los datos iniciales
+# Se ejecutan en ORDEN ALFABÉTICO después de que la app cree las tablas
+#
+# Ejemplo de nombrado:
+#   01-users.sql
+#   02-categories.sql
+#   03-quizzes.sql
+#   04-questions.sql
+#   05-answers.sql
+#
+# IMPORTANTE: Los scripts se ejecutan cada vez que levantas los contenedores
+# Para evitar duplicados, usa INSERT ... ON CONFLICT DO NOTHING
+# o crea el archivo .seeded para saltar la ejecución
+
