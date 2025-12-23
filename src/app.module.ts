@@ -18,14 +18,16 @@ import { StatisticsModule } from "./lib/statistics/infrastructure/NestJS/statist
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const isProduction = configService.get("NODE_ENV") === "production";
+        // Controlar SSL y synchronize con variables de entorno independientes
+        const useSSL = configService.get("DATABASE_SSL") === "true";
+        const synchronize = configService.get("DATABASE_SYNCHRONIZE") === "true";
 
         return {
           type: "postgres",
           url: configService.get<string>("DATABASE_URL"),
           autoLoadEntities: true,
-          synchronize: false,
-          ssl: isProduction ? { rejectUnauthorized: false } : false,
+          synchronize,
+          ssl: useSSL ? { rejectUnauthorized: false } : false,
         };
       },
     }),
