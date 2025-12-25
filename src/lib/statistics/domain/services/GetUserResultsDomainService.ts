@@ -11,8 +11,8 @@ import { QuizNotFoundException } from "src/lib/shared/exceptions/QuizNotFoundExc
 
 export class GetUserResultsDomainService {
     constructor(
-        private singlePlayerGameRepository: SinglePlayerGameRepository,
-        private quizRepository: QuizRepository
+        private readonly singlePlayerGameRepository: SinglePlayerGameRepository,
+        private readonly quizRepository: QuizRepository
     ) {}
 
     public async execute(

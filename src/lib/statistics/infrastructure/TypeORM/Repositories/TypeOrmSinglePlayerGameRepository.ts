@@ -3,7 +3,7 @@ import { SinglePlayerGameRepository } from "../../../domain/port/SinglePlayerRep
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { Injectable } from "@nestjs/common";
 import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
-import { GameProgressStatus} from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
+import { GameProgressStatus, SinglePlayerGameId} from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "src/lib/library/domain/port/CriteriaApplier";
@@ -32,4 +32,12 @@ export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameReposi
         const entities = await qb.getMany();
         return entities.map(entity => entity.toDomain());
       }
+
+      async findById(gameId: SinglePlayerGameId): Promise<SinglePlayerGame | null> {
+              const entity = await this.gameRepo.findOne({
+                  where: { gameId: gameId.getId() }
+              });
+      
+              return entity ? entity.toDomain() : null;
+          }
 }

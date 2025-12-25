@@ -12,7 +12,9 @@ import { TypeOrmSinglePlayerGameRepository } from '../TypeORM/Repositories/TypeO
 import { SinglePlayerGameRepository } from '../../domain/port/SinglePlayerRepository';
 import { QuizRepository } from 'src/lib/kahoot/domain/port/QuizRepository';
 import { GetUserResultsDomainService } from '../../domain/services/GetUserResultsDomainService';
-import { GetUserResultsQueryHandler } from '../../application/Handlers/GetUserResultsQueryHanlder';
+import { GetUserResultsQueryHandler } from '../../application/Handlers/GetUserResultsQueryHandler';
+import { GetCompletedQuizSummaryDomainService } from '../../domain/services/GetCompletedQuizSummaryDomainService';
+import { GetCompletedQuizSummaryQueryHandler } from '../../application/Handlers/GetCompletedQuizSummaryQueryHandler';
 
 @Module({
     imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity, TypeOrmSinglePlayerGameEntity])],
@@ -48,6 +50,20 @@ import { GetUserResultsQueryHandler } from '../../application/Handlers/GetUserRe
             new GetUserResultsQueryHandler(dService),
           inject: ['GetUserResultsDomainService'],
         },
+        {
+          provide: 'GetCompletedQuizSummaryDomainService',
+          useFactory: (
+            singleGameRepo: SinglePlayerGameRepository,
+            quizRepo: QuizRepository
+          ) => new GetCompletedQuizSummaryDomainService(singleGameRepo, quizRepo),
+          inject: ['SinglePlayerGameRepository', 'QuizRepository'],
+        },
+        {
+          provide: 'GetCompletedQuizSummaryQueryHandler',
+          useFactory: (dService: GetCompletedQuizSummaryDomainService) => 
+            new GetCompletedQuizSummaryQueryHandler(dService),
+          inject: ['GetCompletedQuizSummaryDomainService'],
+        }
     ],
 
 })

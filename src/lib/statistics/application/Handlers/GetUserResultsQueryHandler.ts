@@ -1,9 +1,8 @@
 import { IHandler } from 'src/lib/shared/IHandler';
 import { GetUserResults } from '../Parameter Objects/GetUserResults';
-import { CompletedQuizResponse } from '../../application/Response Types/CompletedQuizResponse';
+import { CompletedQuizResponse } from '../Response Types/CompletedQuizResponse';
 import { DomainException } from 'src/lib/shared/exceptions/DomainException';
 import { DomainUnexpectedException } from 'src/lib/shared/exceptions/DomainUnexpectedException';
-import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";; 
 import { GetUserResultsDomainService } from '../../domain/services/GetUserResultsDomainService';
 import { Either } from 'src/lib/shared/Type Helpers/Either';
 import { Injectable } from '@nestjs/common';
@@ -18,7 +17,7 @@ export class GetUserResultsQueryHandler implements IHandler <GetUserResults, Eit
     public async execute(
         command: GetUserResults
     ): Promise<Either<DomainException, CompletedQuizResponse[]>> {
-        const userId = UserId.of(command.userId);
+        const userId = command.userId;
         const queryParamsDTO = new CompletedQuizQueryParamsDTO(command.criteria);
         const criteria = queryParamsDTO.toCriteria();
 
