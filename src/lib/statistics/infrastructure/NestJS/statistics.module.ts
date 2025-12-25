@@ -13,7 +13,7 @@ import { SinglePlayerGameRepository } from '../../domain/port/SinglePlayerReposi
 import { QuizRepository } from 'src/lib/kahoot/domain/port/QuizRepository';
 import { GetUserResultsDomainService } from '../../domain/services/GetUserResultsDomainService';
 import { GetUserResultsQueryHandler } from '../../application/Handlers/GetUserResultsQueryHandler';
-import { GetCompletedQuizSummaryDomainService } from '../../domain/Services/GetCompletedQuizSummaryDomainService';
+import { GetCompletedQuizSummaryDomainService } from '../../domain/services/GetCompletedQuizSummaryDomainService';
 import { GetCompletedQuizSummaryQueryHandler } from '../../application/Handlers/GetCompletedQuizSummaryQueryHandler';
 
 @Module({

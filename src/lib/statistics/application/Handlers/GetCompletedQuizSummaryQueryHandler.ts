@@ -1,10 +1,9 @@
 import { IHandler } from 'src/lib/shared/IHandler';
 import { GetCompletedQuizSummary } from '../Parameter Objects/GetCompletedQuizSummary';
-import { GetCompletedQuizSummaryDomainService } from '../../domain/Services/GetCompletedQuizSummaryDomainService';
+import { GetCompletedQuizSummaryDomainService } from '../../domain/services/GetCompletedQuizSummaryDomainService';
 import { QuizPersonalResult } from '../../application/Response Types/QuizPersonalResult';
 import { DomainException } from 'src/lib/shared/exceptions/DomainException';
 import { DomainUnexpectedException } from 'src/lib/shared/exceptions/DomainUnexpectedException';
-import { SinglePlayerGameId} from "../../../singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 import { Either } from 'src/lib/shared/Type Helpers/Either';
 
 export class GetCompletedQuizSummaryQueryHandler implements IHandler <GetCompletedQuizSummary, Either<DomainException, QuizPersonalResult>> {
