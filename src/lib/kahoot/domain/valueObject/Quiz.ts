@@ -85,13 +85,13 @@ export class QuizDescription {
 }
 
 export class QuizStatus {
-    private constructor(public readonly value: 'Draft' | 'Published') {}
+    private constructor(public readonly value: 'draft' | 'published') {}
 
     public static fromString(value: string): QuizStatus {
-        if (value !== 'Draft' && value !== 'Published') {
-            throw new Error(`Invalid QuizStatus, it must be 'Draft' or 'Published'.`);
+        if (value !== 'draft' && value !== 'published') {
+            throw new Error(`Invalid QuizStatus, it must be 'draft' or 'published'.`);
         }
-        return new QuizStatus(value as 'Draft' | 'Published');
+        return new QuizStatus(value as 'draft' | 'published');
     }
 }
 
@@ -123,19 +123,19 @@ export class MediaUrl {
 
 
 // --- VOs de Estado ---
-type VisibilityValue = 'Public' | 'Private';
+type VisibilityValue = 'public' | 'private';
 export class Visibility {
     private constructor(public readonly value: VisibilityValue) {}
 
     public static public(): Visibility {
-        return new Visibility('Public');
+        return new Visibility('public');
     }
     public static private(): Visibility {
-        return new Visibility('Private');
+        return new Visibility('private');
     }
     public static fromString(value: string): Visibility {
-        if (value !== 'Public' && value !== 'Private') {
-            throw new Error("Visibility must be 'Public' or 'Private'.");
+        if (value !== 'public' && value !== 'private') {
+            throw new Error("Visibility must be 'public' or 'private'.");
         }
         return new Visibility(value as VisibilityValue);
     }

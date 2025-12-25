@@ -24,9 +24,9 @@ export class UpdateQuizUseCase {
       throw new Error('Quiz not found');
     }
     
-    const isDraft = request.status === 'Draft';
+    const isdraft = request.status === 'draft';
 
-    if (!isDraft && (!request.title || !request.description || !request.category)) {
+    if (!isdraft && (!request.title || !request.description || !request.category)) {
       throw new Error(
         'Title, description, and category are required for published quizzes.',
       );
@@ -43,12 +43,12 @@ export class UpdateQuizUseCase {
     );
 
     const newQuestions: Question[] = request.questions.map((qData) => {
-      if (!isDraft && !qData.text) {
+      if (!isdraft && !qData.text) {
         throw new Error('Question text is required for published quizzes.');
       }
       
       const answers = qData.answers.map((aData) => {
-        if (!isDraft && !aData.text && !aData.mediaId) {
+        if (!isdraft && !aData.text && !aData.mediaId) {
           throw new Error(
             'Answer text or mediaId is required for published quizzes.',
           );

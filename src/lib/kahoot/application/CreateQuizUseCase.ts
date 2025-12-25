@@ -28,8 +28,8 @@ export interface CreateQuizDto {
   title: string | null;
   description: string | null;
   coverImageId?: string;
-  visibility: 'Public' | 'Private';
-  status: 'Draft' | 'Published';
+  visibility: 'public' | 'private';
+  status: 'draft' | 'published';
   category: string | null;
   themeId: string;
   questions: Array<{
@@ -50,9 +50,9 @@ export class CreateQuizUseCase {
   constructor(private readonly quizRepository: QuizRepository) {}
 
   async run(request: CreateQuizDto): Promise<Quiz> {
-    const isDraft = request.status === 'Draft';
+    const isdraft = request.status === 'draft';
 
-    if (!isDraft && (!request.title || !request.description || !request.category)) {
+    if (!isdraft && (!request.title || !request.description || !request.category)) {
       throw new Error(
         'Title, description, and category are required for published quizzes.',
       );
@@ -60,12 +60,12 @@ export class CreateQuizUseCase {
 
     const questionsEntities: Question[] = (request.questions || []).map(
       (qData) => {
-        if (!isDraft && !qData.text) {
+        if (!isdraft && !qData.text) {
           throw new Error('Question text is required for published quizzes.');
         }
 
         const answersEntities: Answer[] = (qData.answers || []).map((aData) => {
-          if (!isDraft && !aData.text && !aData.mediaId) {
+          if (!isdraft && !aData.text && !aData.mediaId) {
             throw new Error(
               'Answer text or mediaId is required for published quizzes.',
             );
