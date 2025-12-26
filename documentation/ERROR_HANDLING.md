@@ -1,14 +1,14 @@
 
-# Aspecto de Manejo de Errores: Patrón Result y Decorador
+# Guía Definitiva de Manejo de Errores: Patrón Result y Decoradores
 
-Este documento explica la implementación de un sistema robusto para el manejo de errores en la capa de aplicación, utilizando el patrón \`Result\` y un decorador especializado. El objetivo es desacoplar la lógica de negocio de la infraestructura, aumentar la previsibilidad del código y evitar que excepciones inesperadas detengan la aplicación.
+Este documento explica la implementación de un sistema robusto para el manejo de errores en la capa de aplicación. Usamos el patrón \`Result\` y decoradores para desacoplar la lógica de negocio de la infraestructura, aumentar la previsibilidad del código y gestionar los errores de forma centralizada.
 
 ## 1. El Problema: Acoplamiento y Errores Impredecibles
 
-En una arquitectura tradicional, los casos de uso (capa de aplicación) a menudo lanzan excepciones directamente cuando algo sale mal:
+Sin este patrón, los casos de uso a menudo lanzan excepciones HTTP directamente, acoplando la lógica de negocio al framework (NestJS) y haciendo que el contrato de la función sea implícito y frágil.
 
 \`\`\`typescript
-// Mal ejemplo: El caso de uso está acoplado a NestJS
+// Mal ejemplo: El caso de uso está acoplado a la infraestructura.
 import { NotFoundException } from '@nestjs/common';
 
 class GetQuizUseCase {
@@ -23,186 +23,132 @@ class GetQuizUseCase {
 }
 \`\`\`
 
-Esto presenta varios problemas:
-
-- **Acoplamiento Fuerte:** La capa de aplicación ahora depende de la infraestructura (\`@nestjs/common\`). Esto viola los principios de la Arquitectura Limpia.
-- **Contratos Débiles:** La firma \`Promise<Quiz>\` no comunica que la operación puede fallar. El código que llama a este método debe usar un \`try...catch\`, pero no tiene forma de saber qué tipo de errores esperar.
-- **Fragilidad:** Un error no previsto (ej. fallo de conexión a la BD) puede no ser capturado, provocando que la aplicación se detenga con un error 500 no controlado.
-
 ## 2. La Solución: El Objeto \`Result\`
 
-Para solucionar esto, introducimos una clase genérica \`Result\`. Esta clase actúa como un contenedor que representa uno de dos posibles resultados de una operación:
+Introducimos una clase genérica \`Result<T>\` que encapsula el resultado de una operación, que puede ser un éxito (con un valor) o un fallo (con un error).
 
-- **Éxito (\`Ok\`):** La operación fue exitosa y contiene el valor resultante.
-- **Fallo (\`Fail\`):** La operación falló y contiene la información del error.
+- **Éxito:** \`Result.ok<T>(value: T)\`
+- **Fallo:** \`Result.fail<T>(error: string)\`
 
-La implementación se encuentra en \`src/common/domain/result.ts\` y su estructura es la siguiente:
-
-\`\`\`typescript
-export class Result<T> {
-  public isSuccess: boolean;
-  public isFailure: boolean;
-  public error?: string; // El error es una propiedad pública
-  private _value?: T;
-
-  // ... constructor privado ...
-
-  public getValue(): T | undefined { ... }
-
-  public static ok<U>(value?: U): Result<U> { ... }
-
-  public static fail<U>(error: string): Result<U> { ... }
-}
-\`\`\`
-
-## 3. Refactorizando los Casos de Uso
-
-Con la clase \`Result\`, los casos de uso ya no lanzan excepciones. En su lugar, devuelven un \`Result\`.
+Esto fuerza a que la firma del método sea explícita sobre sus posibles resultados.
 
 \`\`\`typescript
-// Buen ejemplo: Caso de uso desacoplado y con un contrato claro.
+// Buen ejemplo: Contrato explícito y sin acoplamiento.
+import { Result } from '../../../common/domain/result'; // <-- Importado desde common
+import { IUseCase } from '../../../common/use-case.interface';
 
 class GetQuizUseCase implements IUseCase<string, Result<Quiz>> {
   async execute(id: string): Promise<Result<Quiz>> {
-    const quiz = await this.quizRepository.find(id);
-    if (!quiz) {
-      // La operación falló, devolvemos un Result.fail
-      return Result.fail<Quiz>('Quiz not found');
-    }
-    // La operación fue exitosa, devolvemos un Result.ok
-    return Result.ok<Quiz>(quiz);
-  }
-}
-\`\`\`
-
-Ahora la firma del método, \`Promise<Result<Quiz>>\`, comunica claramente que la operación puede tener un resultado fallido que debe ser manejado.
-
-## 4. El Decorador \`ErrorHandlingDecorator\`
-
-Para evitar repetir el bloque \`try...catch\` en cada caso de uso y para manejar errores verdaderamente *inesperados* (bugs, fallos de red, etc.), utilizamos un decorador.
-
-Este decorador envuelve la ejecución de un caso de uso. Su lógica es simple:
-
-- Ejecuta el caso de uso.
-- Si el caso de uso crashea con una excepción inesperada, la captura, la registra (log) y la convierte en un \`Result.fail\` genérico.
-
-Se encuentra en \`src/aspects/error-handling/application/decorators/error-handling.decorator.ts\`.
-
-\`\`\`typescript
-export class ErrorHandlingDecorator<TRequest, TResponse> implements IUseCase<TRequest, Result<TResponse>> {
-  constructor(
-    private readonly useCase: IUseCase<TRequest, Result<TResponse>>,
-    private readonly logger: ILoggerPort,
-    private readonly useCaseName: string,
-  ) {}
-
-  async execute(request: TRequest): Promise<Result<TResponse>> {
     try {
-      // Intenta ejecutar el caso de uso original
-      return await this.useCase.execute(request);
+      const quiz = await this.quizRepository.find(id);
+      if (!quiz) {
+        return Result.fail<Quiz>('Quiz not found');
+      }
+      return Result.ok<Quiz>(quiz);
     } catch (error: any) {
-      // Si algo inesperado ocurre...
-      this.logger.error(...);
-      // ...devuelve un error genérico y seguro.
-      return Result.fail<TResponse>('An unexpected technical error occurred.');
+       // Los errores inesperados (ej: fallo de BD) se capturan y se relanzan
+       return Result.fail<Quiz>(error.message);
     }
   }
 }
 \`\`\`
 
-## 5. ¿Cómo Implementar el Aspecto en un Módulo?
+## 3. Decoradores para Centralizar la Lógica Transversal
 
-Para aplicar este sistema de manejo de errores a los casos de uso de un nuevo módulo (por ejemplo, un módulo \`Products\`), sigue estos pasos:
+Para evitar bloques `try...catch` repetitivos y para centralizar el logging, usamos decoradores que "envuelven" la ejecución de los casos de uso.
 
-1.  **Refactoriza TODOS tus casos de uso para que devuelvan \`Result<T>\`**. El decorador de errores espera este tipo de retorno. Si un caso de uso no devuelve un `Result`, la compilación fallará.
+- **`ErrorHandlingDecorator`**: Atrapa cualquier excepción inesperada que pueda ocurrir durante la ejecución de un caso de uso y la convierte en un `Result.fail()` seguro, evitando que la aplicación crashee.
+- **`LoggingUseCaseDecorator`**: Registra (log) el inicio y el final de la ejecución de un caso de uso, incluyendo los parámetros de entrada y si el resultado fue un éxito o un fallo.
 
-2.  **En el archivo del módulo (ej: \`products.module.ts\`), utiliza \`useFactory\` para inyectar el caso de uso decorado.**
+## 4. Pasos para la Implementación en un Módulo
 
+Sigue estos pasos rigurosamente al aplicar el patrón en un módulo nuevo (ej: `ProductsModule`).
 
-> **&#x26a0;&#xfe0f; Importante:** Al usar `useFactory` de esta manera, el token de inyección (`provide`) **debe ser la clase del caso de uso**, no un string. Esto permite que NestJS resuelva el tipo correctamente en los controladores.
+### Paso 1: Refactorizar TODOS los Casos de Uso
 
+**Todos los casos de uso** dentro del módulo deben ser modificados para que devuelvan una `Promise<Result<T>>`. Esta es una condición **innegociable**. Si un solo caso de uso no cumple con este contrato, la inyección de dependencias fallará con errores de tipo.
 
-\`\`\`typescript
+### Paso 2: Configurar los Providers en el Módulo
+
+En el fichero `*.module.ts`, debes usar una `useFactory` para construir y decorar cada caso de uso.
+
+> **&#x26a0;&#xfe0f; Regla de Oro para la Inyección:**
+> El token de inyección (`provide`) **DEBE SER la clase del caso de uso**, no un string. Esto es fundamental para que NestJS pueda inyectar la dependencia correctamente en el constructor del controlador usando `@Inject(NombreDeLaClase)`.
+
+```typescript
+// Ejemplo en `products.module.ts`
+
 import { Module } from '@nestjs/common';
-import { CreateProductUseCase } from './application/CreateProductUseCase';
 import { ProductController } from './infrastructure/NestJs/product.controller';
-import { ILoggerPort } from '../../../aspects/logger/domain/ports/logger.port';
-import { ProductRepository } from './domain/port/ProductRepository';
+
+// Importaciones de Casos de Uso y Decoradores
+import { CreateProductUseCase } from './application/CreateProductUseCase';
 import { ErrorHandlingDecorator } from '../../../aspects/error-handling/application/decorators/error-handling.decorator';
 import { LoggingUseCaseDecorator } from '../../../aspects/logger/application/decorators/logging.decorator';
 
+// Importaciones de Puertos e Inyecciones
+import { ILoggerPort } from '../../../aspects/logger/domain/ports/logger.port';
+import { ProductRepository } from './domain/port/ProductRepository';
+import { TypeOrmProductRepository } from './infrastructure/TypeOrm/TypeOrmProductRepository';
+
 @Module({
-  imports: [/* ... tus imports ... */],
+  imports: [/* ... */],
   controllers: [ProductController],
   providers: [
     {
-      provide: 'ProductRepository', // o tu token de repositorio
+      provide: 'ProductRepository', // Token del repositorio
       useClass: TypeOrmProductRepository,
     },
     {
-      // VITAL: El token es la propia clase del caso de uso
+      // VITAL: El token es la propia CLASE del caso de uso.
       provide: CreateProductUseCase, 
       useFactory: (logger: ILoggerPort, repo: ProductRepository) => {
-        // 1. Crea la instancia original del caso de uso
-        const useCase = new CreateProductUseCase(repo);
-        
-        // 2. Envuelve el caso de uso con el decorador de manejo de errores
-        const withErrorHandling = new ErrorHandlingDecorator(
-          useCase, 
-          logger, 
-          'CreateProductUseCase' // Nombre para los logs
-        );
-
-        // 3. (Opcional) Envuelve el resultado con el decorador de logging
-        return new LoggingUseCaseDecorator(
-          withErrorHandling, 
-          logger, 
-          'CreateProductUseCase'
-        );
+        const useCase = new CreateProductUseCase(repo); // 1. Instancia base
+        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'CreateProductUseCase'); // 2. Decorador de errores
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'CreateProductUseCase'); // 3. Decorador de logging
       },
-      inject: ['ILoggerPort', 'ProductRepository'], // Dependencias para la factory
+      inject: ['ILoggerPort', 'ProductRepository'], // Dependencias de la factory
     },
-    // ... otros providers ...
+    // ... Repetir la estructura para OTROS casos de uso (e.g., UpdateProductUseCase)
   ],
 })
 export class ProductModule {}
-\`\`\`
+```
 
+### Paso 3: Inyectar y Usar en el Controlador
 
+El controlador es ahora muy simple. Su única responsabilidad es ejecutar el caso de uso y mapear el `Result` a una respuesta HTTP.
 
-## 6. Manejo del \`Result\` en el Controlador
+> **&#x2705; Importante:** No necesitas importar el tipo `Result` en el controlador. TypeScript lo infiere automáticamente. Esto mantiene el código limpio y evita errores de rutas relativas.
 
-Finalmente, el controlador recibe el \`Result\` y decide qué hacer. Ahora, el controlador es el único responsable de conocer el protocolo HTTP. El decorador `@Inject()` debe usar la misma clase que usaste como token en el módulo.
+```typescript
+// Ejemplo en `product.controller.ts`
 
-\`\`\`typescript
+import { Controller, Post, Body, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { CreateProductUseCase } from '../application/CreateProductUseCase';
+import { CreateProductDto } from './dto/create-product.dto';
+
 @Controller('products')
 export class ProductController {
   constructor(
-    @Inject(CreateProductUseCase) // Inyecta usando la clase como token
-    private readonly createProductUseCase: CreateProductUseCase
+    // Se inyecta usando la CLASE como token.
+    @Inject(CreateProductUseCase)
+    private readonly createProductUseCase: CreateProductUseCase,
   ) {}
 
   @Post()
   async create(@Body() body: CreateProductDto) {
-    // 1. Ejecuta el caso de uso
     const result = await this.createProductUseCase.execute(body);
 
-    // 2. Comprueba si la operación falló
     if (result.isFailure) {
-      // 3. Si falló, lanza una excepción HTTP apropiada con el error
+      // El controlador traduce el fallo a una respuesta HTTP.
       throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
     }
 
-    // 4. Si fue exitosa, obtén el valor y devuélvelo
-    const product = result.getValue();
-    return product.toPlainObject();
+    // Si hay éxito, devuelve el valor.
+    return result.getValue();
   }
 }
-\`\`\`
+```
 
-## Beneficios Clave
-
-- **Desacoplamiento:** La lógica de negocio no sabe nada sobre HTTP ni NestJS. Podemos cambiar el framework sin tocar los casos de uso.
-- **Robustez y Seguridad:** Los errores inesperados son capturados y manejados de forma segura, evitando que la aplicación se caiga.
-- **Contratos Explícitos:** La firma de un caso de uso deja claro que puede fallar, obligando al desarrollador a manejar ambos escenarios (éxito y fracaso).
-- **Código Más Limpio:** Se elimina la necesidad de bloques \`try...catch\` en los controladores para la lógica de negocio esperada.
+Siguiendo esta guía refinada, el sistema de manejo de errores será consistente, robusto y fácil de mantener en toda la aplicación.
