@@ -12,7 +12,7 @@ import {
 } from '../domain/valueObject/Answer';
 import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 import { CreateQuizDto } from './CreateQuizUseCase';
-import { IUseCase } from '../../../common/interfaces/use-case.interface';
+import { IUseCase } from '../../../common/use-case.interface';
 
 export interface UpdateQuizDto extends CreateQuizDto {
   quizId: string;

@@ -1,5 +1,5 @@
-import { ILoggerPort } from '../../../logger/domain/ports/logger.port';
-import { IUseCase } from '../../../common/interfaces/use-case.interface';
+import { ILoggerPort } from '../../domain/ports/logger.port';
+import { IUseCase } from '../../../../common/use-case.interface';
 
 export class LoggingUseCaseDecorator<TRequest, TResponse> implements IUseCase<TRequest, TResponse> {
   constructor(

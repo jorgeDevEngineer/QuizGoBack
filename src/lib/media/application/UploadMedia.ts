@@ -2,7 +2,7 @@
 import { Media } from '../domain/entity/Media';
 import { MediaRepository } from '../domain/port/MediaRepository';
 import { ImageOptimizer } from '../domain/port/ImageOptimizer';
-import { IUseCase } from '../../../common/interfaces/use-case.interface';
+import { IUseCase } from '../../../common/use-case.interface';
 
 export interface UploadMediaDTO {
   file: Buffer;

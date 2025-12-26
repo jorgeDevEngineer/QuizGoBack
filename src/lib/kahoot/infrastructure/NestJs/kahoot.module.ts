@@ -10,9 +10,9 @@ import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
 import { TypeOrmQuizEntity } from '../TypeOrm/TypeOrmQuizEntity';
 import { TypeOrmQuizRepository } from '../TypeOrm/TypeOrmQuizRepository';
 import { QuizRepository } from '../../domain/port/QuizRepository';
-import { LoggerModule } from '../../../../logger/infrastructure/logger.module';
-import { ILoggerPort } from '../../../../logger/domain/ports/logger.port';
-import { LoggingUseCaseDecorator } from '../../../../logger/application/decorators/logging.decorator';
+import { LoggerModule } from '../../../../aspects/logger/infrastructure/logger.module';
+import { ILoggerPort } from '../../../../aspects/logger/domain/ports/logger.port';
+import { LoggingUseCaseDecorator } from '../../../../aspects/logger/application/decorators/logging.decorator';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity]), LoggerModule],

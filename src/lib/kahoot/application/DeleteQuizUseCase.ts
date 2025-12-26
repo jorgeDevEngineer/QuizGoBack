@@ -1,6 +1,6 @@
 import { QuizRepository } from '../domain/port/QuizRepository';
 import { QuizId } from '../domain/valueObject/Quiz';
-import { IUseCase } from '../../../common/interfaces/use-case.interface';
+import { IUseCase } from '../../../common/use-case.interface';
 
 export class DeleteQuizUseCase implements IUseCase<string, void>{
   constructor(private readonly quizRepository: QuizRepository) {}

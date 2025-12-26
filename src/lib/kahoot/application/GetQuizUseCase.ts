@@ -1,7 +1,7 @@
 import { QuizRepository } from '../domain/port/QuizRepository';
 import { Quiz } from '../domain/entity/Quiz';
 import { QuizId } from '../domain/valueObject/Quiz';
-import { IUseCase } from '../../../common/interfaces/use-case.interface';
+import { IUseCase } from '../../../common/use-case.interface';
 
 export class GetQuizUseCase implements IUseCase<string, Quiz>{
   constructor(private readonly quizRepository: QuizRepository) {}

@@ -1,6 +1,6 @@
 
 import { MediaRepository } from '../domain/port/MediaRepository';
-import { IUseCase } from '../../../common/interfaces/use-case.interface';
+import { IUseCase } from '../../../common/use-case.interface';
 
 // El DTO para la respuesta, que coincide con el nuevo método de la entidad
 export type ListMediaResponseDTO = {
