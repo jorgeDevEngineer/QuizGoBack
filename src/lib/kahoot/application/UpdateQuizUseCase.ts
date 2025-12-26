@@ -12,12 +12,17 @@ import {
 } from '../domain/valueObject/Answer';
 import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 import { CreateQuizDto } from './CreateQuizUseCase';
+import { IUseCase } from '../../../common/interfaces/use-case.interface';
 
-export class UpdateQuizUseCase {
+export interface UpdateQuizDto extends CreateQuizDto {
+  quizId: string;
+}
+
+export class UpdateQuizUseCase implements IUseCase<UpdateQuizDto, Quiz>{
   constructor(private readonly quizRepository: QuizRepository) {}
 
-  async run(quizIdStr: string, request: CreateQuizDto): Promise<Quiz> {
-    const quizId = QuizId.of(quizIdStr);
+  async execute(request: UpdateQuizDto): Promise<Quiz> {
+    const quizId = QuizId.of(request.quizId);
     const quiz = await this.quizRepository.find(quizId);
 
     if (!quiz) {

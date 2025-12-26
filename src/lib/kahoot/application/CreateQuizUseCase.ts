@@ -22,6 +22,7 @@ import {
 } from '../domain/valueObject/Question';
 import { AnswerId, IsCorrect, AnswerText } from '../domain/valueObject/Answer';
 import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
+import { IUseCase } from '../../../common/interfaces/use-case.interface';
 
 export interface CreateQuizDto {
   authorId: string;
@@ -46,10 +47,10 @@ export interface CreateQuizDto {
   }>;
 }
 
-export class CreateQuizUseCase {
+export class CreateQuizUseCase implements IUseCase<CreateQuizDto, Quiz> {
   constructor(private readonly quizRepository: QuizRepository) {}
 
-  async run(request: CreateQuizDto): Promise<Quiz> {
+  async execute(request: CreateQuizDto): Promise<Quiz> {
     const isdraft = request.status === 'draft';
 
     if (!isdraft && (!request.title || !request.description || !request.category)) {

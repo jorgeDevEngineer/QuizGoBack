@@ -1,11 +1,12 @@
 import { QuizRepository } from '../domain/port/QuizRepository';
 import { Quiz } from '../domain/entity/Quiz';
 import { QuizId } from '../domain/valueObject/Quiz';
+import { IUseCase } from '../../../common/interfaces/use-case.interface';
 
-export class GetQuizUseCase {
+export class GetQuizUseCase implements IUseCase<string, Quiz>{
   constructor(private readonly quizRepository: QuizRepository) {}
 
-  async run(id: string): Promise<Quiz> {
+  async execute(id: string): Promise<Quiz> {
     // 1. Convertir string a Value Object
     const quizId = QuizId.of(id);
 
