@@ -4,8 +4,7 @@ import {
     EvaluatedAnswer, 
     GameProgress, 
     GameProgressStatus, 
-    GameScore, 
-    Optional, 
+    GameScore,  
     PlayerAnswer, 
     QuestionResult, 
     QuestionResultJSON, 
@@ -13,6 +12,7 @@ import {
 } from '../../domain/valueObjects/SinglePlayerGameVOs';
 import { QuestionId } from 'src/lib/kahoot/domain/valueObject/Question';
 import { QuizId, UserId } from 'src/lib/kahoot/domain/valueObject/Quiz';
+import { Optional } from "src/lib/shared/Type Helpers/Optional";
 
 @Entity('asyncgame')
 export class TypeOrmSinglePlayerGameEntity {
