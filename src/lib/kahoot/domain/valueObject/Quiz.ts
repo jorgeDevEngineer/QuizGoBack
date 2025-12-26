@@ -1,5 +1,7 @@
 
 import { randomUUID } from 'crypto';
+import { DomainException } from '../../../../common/domain/domain.exception';
+
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function isValidUUID(value: string): boolean {
     return UUID_V4_REGEX.test(value);
@@ -9,7 +11,7 @@ function isValidUUID(value: string): boolean {
 export class QuizId {
     private constructor(public readonly value: string) {
         if (!isValidUUID(value)) {
-            throw new Error(`QuizId does not have a valid UUID v4 format: ${value}`);
+            throw new DomainException(`QuizId does not have a valid UUID v4 format: ${value}`);
         }
     }
     public static of(value: string): QuizId {
@@ -26,7 +28,7 @@ export class QuizId {
 export class UserId {
     private constructor(public readonly value: string) {
         if (!isValidUUID(value)) {
-            throw new Error(`UserId does not have a valid UUID v4 format: ${value}`);
+            throw new DomainException(`UserId does not have a valid UUID v4 format: ${value}`);
         }
     }
     public static of(value: string): UserId {
@@ -43,7 +45,7 @@ export class UserId {
 export class ThemeId {
     private constructor(public readonly value: string) {
         if (!isValidUUID(value)) {
-            throw new Error("ThemeId must be a valid UUID v4.");
+            throw new DomainException("ThemeId must be a valid UUID v4.");
         }
     }
     public static of(value: string): ThemeId {
@@ -65,7 +67,7 @@ export class ThemeId {
 export class QuizTitle {
     private constructor(public readonly value: string) {
         if (value.length < 1 || value.length > 95) {
-            throw new Error("QuizTitle must be between 1 and 95 characters.");
+            throw new DomainException("QuizTitle must be between 1 and 95 characters.");
         }
     }
     public static of(value: string | null): QuizTitle | null {
@@ -76,7 +78,7 @@ export class QuizTitle {
 export class QuizDescription {
     private constructor(public readonly value: string) {
         if (value.length > 500) { 
-            throw new Error("QuizDescription cannot be longer than 500 characters.");
+            throw new DomainException("QuizDescription cannot be longer than 500 characters.");
         }
     }
     public static of(value: string | null): QuizDescription | null {
@@ -89,7 +91,7 @@ export class QuizStatus {
 
     public static fromString(value: string): QuizStatus {
         if (value !== 'draft' && value !== 'published') {
-            throw new Error(`Invalid QuizStatus, it must be 'draft' or 'published'.`);
+            throw new DomainException(`Invalid QuizStatus, it must be 'draft' or 'published'.`);
         }
         return new QuizStatus(value as 'draft' | 'published');
     }
@@ -98,7 +100,7 @@ export class QuizStatus {
 export class QuizCategory {
     private constructor(public readonly value: string) {
         if (value.length < 3 || value.length > 50) {
-            throw new Error("QuizCategory must be between 3 and 50 characters.");
+            throw new DomainException("QuizCategory must be between 3 and 50 characters.");
         }
     }
     public static of(value: string | null): QuizCategory | null {
@@ -112,7 +114,7 @@ export class MediaUrl {
             try {
                 new URL(value);
             } catch (_) {
-                throw new Error(`Invalid URL format for MediaUrl: ${value}`);
+                throw new DomainException(`Invalid URL format for MediaUrl: ${value}`);
             }
         }
     }
@@ -135,7 +137,7 @@ export class Visibility {
     }
     public static fromString(value: string): Visibility {
         if (value !== 'public' && value !== 'private') {
-            throw new Error("Visibility must be 'public' or 'private'.");
+            throw new DomainException("Visibility must be 'public' or 'private'.");
         }
         return new Visibility(value as VisibilityValue);
     }

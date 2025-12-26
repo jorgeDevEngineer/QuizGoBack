@@ -10,7 +10,8 @@ import {
   Post,
   Put,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  BadRequestException
 } from '@nestjs/common';
 import { CreateQuizUseCase, CreateQuiz } from '../../application/CreateQuizUseCase'; 
 import { GetQuizUseCase } from '../../application/GetQuizUseCase';
@@ -18,6 +19,7 @@ import { ListUserQuizzesUseCase } from '../../application/ListUserQuizzesUseCase
 import { UpdateQuizUseCase, UpdateQuizDto } from '../../application/UpdateQuizUseCase';
 import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
 import { IsString, Length } from 'class-validator';
+import { Result } from '../../../../common/domain/result';
 
 export class FindOneParams {
   @IsString()
@@ -40,36 +42,34 @@ export class KahootController {
     private readonly deleteQuizUseCase: DeleteQuizUseCase,
   ) {}
 
+  private handleResult<T>(result: Result<T>) {
+    if (result.isFailure) {
+      if (result.error.toLowerCase().includes('not found')) {
+        throw new NotFoundException(result.error);
+      }
+      throw new BadRequestException(result.error);
+    }
+    return result.getValue();
+  }
+
   @Get('user/:userId')
   async listUserQuizzes(@Param('userId') userId: string) {
     const result = await this.listUserQuizzesUseCase.execute(userId);
-    if (result.isFailure) {
-      // Ahora el caso de uso devuelve un Result, así que podemos manejar el error.
-      throw new HttpException(result.error, HttpStatus.BAD_REQUEST);
-    }
-    const quizzes = result.getValue();
+    const quizzes = this.handleResult(result);
     return quizzes.map((q) => q.toPlainObject());
   }
 
   @Get(':id')
   async getOneById(@Param() params: FindOneParams) {
     const result = await this.getQuizUseCase.execute(params.id);
-
-    if (result.isFailure) {
-      throw new NotFoundException(result.error); // CORRECTED: getError() -> error
-    }
-
-    const quiz = result.getValue();
+    const quiz = this.handleResult(result);
     return quiz.toPlainObject();
   }
 
   @Post()
   async create(@Body() body: CreateQuiz) { 
     const result = await this.createQuizUseCase.execute(body);
-    if (result.isFailure) {
-        throw new HttpException(result.error, HttpStatus.BAD_REQUEST); // CORRECTED: getError() -> error
-    }
-    const quiz = result.getValue();
+    const quiz = this.handleResult(result);
     return quiz.toPlainObject();
   }
 
@@ -80,19 +80,13 @@ export class KahootController {
       quizId: params.id
     };
     const result = await this.updateQuizUseCase.execute(updateQuizDto);
-    if (result.isFailure) {
-        throw new HttpException(result.error, HttpStatus.BAD_REQUEST); // CORRECTED: getError() -> error
-    }
-    const quiz = result.getValue();
+    const quiz = this.handleResult(result);
     return quiz.toPlainObject();
   }
 
   @Delete(':id')
   async delete(@Param() params: FindOneParams) {
     const result = await this.deleteQuizUseCase.execute(params.id);
-    if (result.isFailure) {
-        throw new HttpException(result.error, HttpStatus.BAD_REQUEST); // CORRECTED: getError() -> error
-    }
-    return; 
+    return this.handleResult(result);
   }
 }

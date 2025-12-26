@@ -5,7 +5,7 @@ import { IUseCase } from '../../../common/use-case.interface';
 import { Result } from '../../../common/domain/result';
 import { Question } from '../domain/entity/Question';
 import { Answer } from '../domain/entity/Answer';
-import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media'; // CORRECTED PATH & ALIAS
+import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 import {
     QuizId, UserId, QuizTitle, QuizDescription, Visibility, QuizStatus, 
     QuizCategory, ThemeId
@@ -16,6 +16,7 @@ import {
 import {
     AnswerId, AnswerText, IsCorrect
 } from '../domain/valueObject/Answer';
+import { DomainException } from '../../../common/domain/domain.exception';
 
 // DTOs para la entrada de datos.
 export interface CreateAnswerDto {
@@ -50,7 +51,7 @@ export class CreateQuizUseCase implements IUseCase<CreateQuiz, Result<Quiz>> {
 
   async execute(dto: CreateQuiz): Promise<Result<Quiz>> {
 
-    // 1. Crear Value Objects para la entidad Quiz
+    // 1. Crear Value Objects. DomainExceptions will be thrown on validation failure.
     const authorId = UserId.of(dto.authorId);
     const title = QuizTitle.of(dto.title);
     const description = QuizDescription.of(dto.description);
@@ -60,43 +61,43 @@ export class CreateQuizUseCase implements IUseCase<CreateQuiz, Result<Quiz>> {
     const themeId = ThemeId.of(dto.themeId);
     const coverImageId = dto.coverImageId ? MediaIdVO.of(dto.coverImageId) : null;
 
-    // 2. Crear Entidades Answer y Question a partir del DTO
+    // 2. Build Question and Answer entities from DTOs.
     const questions: Question[] = [];
     for (const qDto of dto.questions) {
         const answers: Answer[] = [];
         for (const aDto of qDto.answers) {
-            const answerId = AnswerId.generate();
-            const isCorrect = IsCorrect.fromBoolean(aDto.isCorrect); // CORRECTED METHOD
-
-            let answer: Answer;
             if (aDto.text && aDto.mediaId) {
-                 return Result.fail<Quiz>('Answer cannot have both text and mediaId');
+                 throw new DomainException('Answer cannot have both text and mediaId');
             }
+            if (!aDto.text && !aDto.mediaId) {
+                throw new DomainException('Answer must have either text or mediaId');
+            }
+
+            const answerId = AnswerId.generate();
+            const isCorrect = IsCorrect.fromBoolean(aDto.isCorrect);
+            let answer: Answer;
+
             if (aDto.text) {
                 answer = Answer.createTextAnswer(answerId, AnswerText.of(aDto.text), isCorrect);
-            } else if (aDto.mediaId) {
-                answer = Answer.createMediaAnswer(answerId, MediaIdVO.of(aDto.mediaId), isCorrect);
             } else {
-                return Result.fail<Quiz>('Answer must have either text or mediaId');
+                answer = Answer.createMediaAnswer(answerId, MediaIdVO.of(aDto.mediaId!), isCorrect);
             }
             answers.push(answer);
         }
 
-        const questionId = QuestionId.generate();
-        const questionText = QuestionText.of(qDto.text);
-        const questionType = QuestionType.fromString(qDto.questionType);
-        const timeLimit = TimeLimit.of(qDto.timeLimit);
-        const points = Points.of(qDto.points);
-        const questionMediaId = qDto.mediaId ? MediaIdVO.of(qDto.mediaId) : null;
-
         const question = Question.create(
-            questionId, questionText, questionMediaId, questionType, 
-            timeLimit, points, answers
+            QuestionId.generate(),
+            QuestionText.of(qDto.text),
+            qDto.mediaId ? MediaIdVO.of(qDto.mediaId) : null,
+            QuestionType.fromString(qDto.questionType),
+            TimeLimit.of(qDto.timeLimit),
+            Points.of(qDto.points),
+            answers
         );
         questions.push(question);
     }
 
-    // 3. Crear la entidad Raíz del Agregado (Quiz)
+    // 3. Create the Aggregate Root (Quiz)
     const quiz = Quiz.create(
         QuizId.generate(),
         authorId,
@@ -110,9 +111,10 @@ export class CreateQuizUseCase implements IUseCase<CreateQuiz, Result<Quiz>> {
         questions
     );
 
-    // 4. Persistir el agregado
+    // 4. Persist the aggregate. Infrastructure errors will bubble up to the decorator.
     await this.quizRepository.save(quiz);
 
+    // If no exceptions were thrown, return a success result.
     return Result.ok<Quiz>(quiz);
   }
 }

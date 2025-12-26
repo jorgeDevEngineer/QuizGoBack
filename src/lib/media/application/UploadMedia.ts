@@ -19,35 +19,33 @@ export class UploadMedia implements IUseCase<UploadMediaDTO, Result<Media>> {
   ) {}
 
   async execute(request: UploadMediaDTO): Promise<Result<Media>> {
-    try {
-      let fileBuffer = request.file;
-      let fileSize = request.size;
-      let thumbnailBuffer: Buffer | null = null;
+    let fileBuffer = request.file;
+    let fileSize = request.size;
+    let thumbnailBuffer: Buffer | null = null;
 
-      const optimizationResult = await this.imageOptimizer.optimize(
-        request.file,
-        request.mimeType,
-      );
+    const optimizationResult = await this.imageOptimizer.optimize(
+      request.file,
+      request.mimeType,
+    );
 
-      if (optimizationResult) {
-        fileBuffer = optimizationResult.buffer;
-        fileSize = optimizationResult.size;
-        thumbnailBuffer = optimizationResult.thumbnailBuffer;
-      }
-
-      const media = Media.create(
-        fileBuffer,
-        request.mimeType,
-        fileSize,
-        request.fileName,
-        thumbnailBuffer,
-      );
-
-      await this.mediaRepository.save(media);
-
-      return Result.ok<Media>(media);
-    } catch (error: any) {
-      return Result.fail<Media>(error.message);
+    if (optimizationResult) {
+      fileBuffer = optimizationResult.buffer;
+      fileSize = optimizationResult.size;
+      thumbnailBuffer = optimizationResult.thumbnailBuffer;
     }
+
+    // DomainExceptions from Media/ValueObjects will bubble up to the decorator
+    const media = Media.create(
+      fileBuffer,
+      request.mimeType,
+      fileSize,
+      request.fileName,
+      thumbnailBuffer,
+    );
+
+    // Infrastructure errors will bubble up to the decorator
+    await this.mediaRepository.save(media);
+
+    return Result.ok<Media>(media);
   }
 }

@@ -2,6 +2,7 @@
 import { AnswerId, AnswerText, IsCorrect} from "../valueObject/Answer";
 import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { QuestionId } from "../valueObject/Question";
+import { DomainException } from "../../../../common/domain/domain.exception";
 
 export class Answer {
   private _question!: QuestionId;
@@ -22,6 +23,9 @@ export class Answer {
     text: AnswerText | null,
     isCorrect: IsCorrect
   ): Answer {
+    if (!text) {
+      throw new DomainException('Text-based answer must have text.');
+    }
     return new Answer(id, isCorrect, text, null);
   }
 
@@ -30,6 +34,9 @@ export class Answer {
     mediaId: MediaIdVO | null, 
     isCorrect: IsCorrect
   ): Answer {
+    if (!mediaId) {
+      throw new DomainException('Media-based answer must have a mediaId.');
+    }
     return new Answer(id, isCorrect, null, mediaId);
   } 
 

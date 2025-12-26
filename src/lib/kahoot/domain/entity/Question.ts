@@ -1,3 +1,4 @@
+
 import {
   QuestionId,
   QuestionText,
@@ -8,6 +9,7 @@ import {
 import { QuizId } from "../valueObject/Quiz";
 import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Answer } from "../entity/Answer";
+import { DomainException } from "../../../../common/domain/domain.exception";
 
 export class Question {
   private _quiz!: QuizId; // Referencia al Quiz padre.
@@ -46,25 +48,23 @@ export class Question {
   ): Question {
     // Validación de número de respuestas (existente)
     if (type.value === "quiz" && (answers.length < 2 || answers.length > 4)) {
-      throw new Error(
+      throw new DomainException(
         'Las preguntas de tipo "quiz" deben tener entre 2 y 4 respuestas.'
       );
     }
 
     if (type.value === "true_false" && answers.length !== 2) {
-      throw new Error(
+      throw new DomainException(
         'Las preguntas de tipo "true_false" deben tener exactamente 2 respuestas.'
       );
     }
     
     // Verificamos que al menos una respuesta sea correcta.
-    // (Asume que la entidad Answer tiene un getter `isCorrect`)
     const hasCorrectAnswer = answers.some(answer => answer.isCorrect.value);
 
     if (!hasCorrectAnswer) {
-      throw new Error('La pregunta debe tener al menos una respuesta correcta.');
+      throw new DomainException('La pregunta debe tener al menos una respuesta correcta.');
     }
-    // --- FIN DE LA NUEVA VALIDACIÓN ---
 
     return new Question(id, text, mediaId, type, timeLimit, points, answers);
   }

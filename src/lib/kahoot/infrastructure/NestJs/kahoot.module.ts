@@ -26,8 +26,8 @@ import { ErrorHandlingDecorator } from '../../../../aspects/error-handling/appli
     {
       provide: CreateQuizUseCase,
       useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
-        const useCase = new CreateQuizUseCase(repo);
-        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'CreateQuizUseCase');
+        const realUseCase = new CreateQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'CreateQuizUseCase');
         return new LoggingUseCaseDecorator(withErrorHandling, logger, 'CreateQuizUseCase');
       },
       inject: ['ILoggerPort', 'QuizRepository'],
@@ -35,8 +35,8 @@ import { ErrorHandlingDecorator } from '../../../../aspects/error-handling/appli
     {
       provide: GetQuizUseCase,
       useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
-        const useCase = new GetQuizUseCase(repo);
-        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'GetQuizUseCase');
+        const realUseCase = new GetQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'GetQuizUseCase');
         return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetQuizUseCase');
       },
       inject: ['ILoggerPort', 'QuizRepository'],
@@ -44,8 +44,8 @@ import { ErrorHandlingDecorator } from '../../../../aspects/error-handling/appli
     {
       provide: ListUserQuizzesUseCase,
       useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
-        const useCase = new ListUserQuizzesUseCase(repo);
-        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'ListUserQuizzesUseCase');
+        const realUseCase = new ListUserQuizzesUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'ListUserQuizzesUseCase');
         return new LoggingUseCaseDecorator(withErrorHandling, logger, 'ListUserQuizzesUseCase');
       },
       inject: ['ILoggerPort', 'QuizRepository'],
@@ -53,8 +53,8 @@ import { ErrorHandlingDecorator } from '../../../../aspects/error-handling/appli
     {
       provide: UpdateQuizUseCase,
       useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
-        const useCase = new UpdateQuizUseCase(repo);
-        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'UpdateQuizUseCase');
+        const realUseCase = new UpdateQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'UpdateQuizUseCase');
         return new LoggingUseCaseDecorator(withErrorHandling, logger, 'UpdateQuizUseCase');
       },
       inject: ['ILoggerPort', 'QuizRepository'],
@@ -62,8 +62,8 @@ import { ErrorHandlingDecorator } from '../../../../aspects/error-handling/appli
     {
       provide: DeleteQuizUseCase,
       useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
-        const useCase = new DeleteQuizUseCase(repo);
-        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'DeleteQuizUseCase');
+        const realUseCase = new DeleteQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'DeleteQuizUseCase');
         return new LoggingUseCaseDecorator(withErrorHandling, logger, 'DeleteQuizUseCase');
       },
       inject: ['ILoggerPort', 'QuizRepository'],

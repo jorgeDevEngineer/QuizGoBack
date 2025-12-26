@@ -1,3 +1,4 @@
+
 import { MediaId, MimeType, FileSize } from '../valueObject/Media';
 
 export class Media {
@@ -82,16 +83,16 @@ export class Media {
     };
   }
 
-  // Nuevo método para obtener solo la vista de lista (sin la imagen completa)
+  // Updated to match the ListMediaResponseDTO
   toListResponse() {
     return {
       id: this.id.value,
+      url: `/media/${this.id.value}`,
       mimeType: this.mimeType.value,
       size: this.size.value,
       originalName: this.originalName,
       createdAt: this.createdAt,
-      // Codifica el thumbnail en base64 para que sea fácil de mostrar en un <img>
-      thumbnail: this.thumbnail ? `data:image/jpeg;base64,${this.thumbnail.toString('base64')}` : null,
+      thumbnailUrl: this.thumbnail ? `data:image/jpeg;base64,${this.thumbnail.toString('base64')}` : null,
     };
   }
 }
