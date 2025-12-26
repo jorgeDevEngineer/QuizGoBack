@@ -1,3 +1,4 @@
+
 import {
   Controller,
   Post,
@@ -51,19 +52,19 @@ export class MediaController {
       mimeType: file.mimetype,
       size: file.size,
     };
-    const media = await this.uploadMedia.run(dto);
+    const media = await this.uploadMedia.execute(dto);
     return media.properties(); // Devuelve las propiedades completas (incluido el thumbnail) al crear
   }
 
   @Get()
   async getAll() {
-    return this.listMedia.run(); // Llama al caso de uso, que ya devuelve el DTO correcto
+    return this.listMedia.execute(); // Llama al caso de uso, que ya devuelve el DTO correcto
   }
 
   @Get(':id')
   async getOne(@Param('id') id: string, @Res() res: Response) {
     try {
-      const result = await this.getMedia.run(id);
+      const result = await this.getMedia.execute(id);
       res.setHeader('Content-Type', result.media.mimeType.value);
       res.send(result.file);
     } catch (err) {
@@ -73,6 +74,6 @@ export class MediaController {
 
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    await this.deleteMedia.run(id);
+    await this.deleteMedia.execute(id);
   }
 }

@@ -1,6 +1,8 @@
+
 import { Media } from '../domain/entity/Media';
 import { MediaRepository } from '../domain/port/MediaRepository';
 import { ImageOptimizer } from '../domain/port/ImageOptimizer';
+import { IUseCase } from '../../../common/interfaces/use-case.interface';
 
 export interface UploadMediaDTO {
   file: Buffer;
@@ -9,13 +11,13 @@ export interface UploadMediaDTO {
   size: number;
 }
 
-export class UploadMedia {
+export class UploadMedia implements IUseCase<UploadMediaDTO, Media> {
   constructor(
     private readonly mediaRepository: MediaRepository,
     private readonly imageOptimizer: ImageOptimizer,
   ) {}
 
-  async run(request: UploadMediaDTO): Promise<Media> {
+  async execute(request: UploadMediaDTO): Promise<Media> {
     let fileBuffer = request.file;
     let fileSize = request.size;
     let thumbnailBuffer: Buffer | null = null;

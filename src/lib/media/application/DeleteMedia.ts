@@ -1,10 +1,12 @@
+
 import { MediaRepository } from '../domain/port/MediaRepository';
 import { MediaId } from '../domain/valueObject/Media';
+import { IUseCase } from '../../../common/interfaces/use-case.interface';
 
-export class DeleteMedia {
+export class DeleteMedia implements IUseCase<string, void> {
   constructor(private readonly mediaRepository: MediaRepository) {}
 
-  async run(id: string): Promise<void> {
+  async execute(id: string): Promise<void> {
     const mediaId = MediaId.of(id);
     await this.mediaRepository.delete(mediaId);
   }
