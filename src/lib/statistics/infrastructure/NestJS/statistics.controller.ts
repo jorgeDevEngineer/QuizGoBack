@@ -4,6 +4,7 @@ import { DomainException } from '../../../shared/exceptions/DomainException';
 import { IHandler } from 'src/lib/shared/IHandler';
 import { GetUserResults } from '../../application/Parameter Objects/GetUserResults';
 import { CompletedQuizResponse } from '../../application/Response Types/CompletedQuizResponse';
+import { QueryWithPaginationResponse } from "../../application/Response Types/QueryWithPaginationResponse";
 import { UserIdDTO } from '../../application/DTOs/UserIdDTO';
 import { CompletedQuizQueryParams } from '../../application/DTOs/CompletedQuizQueryParams';
 import { AttemptIdDTO } from '../../application/DTOs/AttemptIdDTO';
@@ -16,13 +17,15 @@ import { QuizPersonalResult } from '../../application/Response Types/QuizPersona
 export class StatisticsController {
    constructor(
     @Inject('GetUserResultsQueryHandler')
-    private readonly getUserResults: IHandler<GetUserResults, Either<DomainException, CompletedQuizResponse[]>>,
+    private readonly getUserResults: IHandler<GetUserResults, Either<DomainException, 
+    QueryWithPaginationResponse<CompletedQuizResponse>>>,
    @Inject('GetCompletedQuizSummaryQueryHandler')
    private readonly getCompletedQuizSummary: IHandler<GetCompletedQuizSummary, Either<DomainException, QuizPersonalResult>>,
    ){}
 
    @Get('kahoots/my-results')
-   async getUserQuizResults(@Body() userId: UserIdDTO, @Query() queryParams: CompletedQuizQueryParams): Promise<CompletedQuizResponse[]>{
+   async getUserQuizResults(@Body() userId: UserIdDTO, @Query() queryParams: CompletedQuizQueryParams): Promise<
+   QueryWithPaginationResponse<CompletedQuizResponse>>{
       const playerId = UserId.of(userId.userId);
       const command = new GetUserResults(playerId, queryParams);
       const results = await this.getUserResults.execute(command);

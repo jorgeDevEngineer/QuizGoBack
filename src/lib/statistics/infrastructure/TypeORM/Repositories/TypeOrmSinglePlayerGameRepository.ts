@@ -21,7 +21,7 @@ export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameReposi
       async findCompletedGames(
         playerId: UserId,
         criteria: QuizQueryCriteria
-      ): Promise<SinglePlayerGame[]> {
+      ): Promise<{games: SinglePlayerGame[], totalGames: number}> {
         let qb = this.gameRepo.createQueryBuilder('game');
         qb.where('game.playerId = :playerId', { playerId: playerId.getValue() })
           .andWhere('game.status = :status', { status: GameProgressStatus.COMPLETED });
@@ -30,14 +30,15 @@ export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameReposi
         qb = this.criteriaApplier.apply(qb, criteria, 'game');
       
         const entities = await qb.getMany();
-        return entities.map(entity => entity.toDomain());
+        const totalCount = await this.gameRepo.count();
+        const domainData = entities.map(entity => entity.toDomain());
+        return {games: domainData, totalGames: totalCount};
       }
 
       async findById(gameId: SinglePlayerGameId): Promise<SinglePlayerGame | null> {
               const entity = await this.gameRepo.findOne({
                   where: { gameId: gameId.getId() }
               });
-      
               return entity ? entity.toDomain() : null;
           }
 }
