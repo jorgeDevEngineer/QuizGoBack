@@ -2,7 +2,7 @@
 import { ListMediaUseCase, ListMediaResponseDTO } from '../../../src/lib/media/application/ListMediaUseCase';
 import { MediaRepository } from '../../../src/lib/media/domain/port/MediaRepository';
 import { Media } from '../../../src/lib/media/domain/entity/Media';
-import { Result } from '../../../src/common/domain/result';
+import { Result } from '../../../src/lib/shared/Type Helpers/result';
 
 // Mock implementation for a Media entity
 const createMockMedia = (id: string): Media => {

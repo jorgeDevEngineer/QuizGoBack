@@ -2,7 +2,7 @@
 import { AnswerId, AnswerText, IsCorrect} from "../valueObject/Answer";
 import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { QuestionId } from "../valueObject/Question";
-import { DomainException } from "../../../../common/domain/domain.exception";
+import { DomainException } from "../../../shared/exceptions/domain.exception";
 
 export class Answer {
   private _question!: QuestionId;

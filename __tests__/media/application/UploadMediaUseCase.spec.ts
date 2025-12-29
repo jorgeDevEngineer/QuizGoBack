@@ -3,7 +3,7 @@ import { UploadMedia, UploadMediaDTO } from '../../../src/lib/media/application/
 import { MediaRepository } from '../../../src/lib/media/domain/port/MediaRepository';
 import { ImageOptimizer } from '../../../src/lib/media/domain/port/ImageOptimizer';
 import { Media } from '../../../src/lib/media/domain/entity/Media';
-import { Result } from '../../../src/common/domain/result';
+import { Result } from '../../../src/lib/shared/Type Helpers/result';
 
 describe('UploadMedia UseCase (Application Layer)', () => {
   let mediaRepositoryStub: jest.Mocked<MediaRepository>;

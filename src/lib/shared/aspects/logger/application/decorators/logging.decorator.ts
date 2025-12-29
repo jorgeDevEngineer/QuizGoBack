@@ -1,9 +1,9 @@
 import { ILoggerPort } from '../../domain/ports/logger.port';
-import { IUseCase } from '../../../../common/use-case.interface';
+import { IHandler } from 'src/lib/shared/IHandler';
 
-export class LoggingUseCaseDecorator<TRequest, TResponse> implements IUseCase<TRequest, TResponse> {
+export class LoggingUseCaseDecorator<TRequest, TResponse> implements IHandler<TRequest, TResponse> {
   constructor(
-    private readonly useCase: IUseCase<TRequest, TResponse>,
+    private readonly useCase: IHandler<TRequest, TResponse>,
     private readonly logger: ILoggerPort,
     private readonly context: string,
   ) {}

@@ -2,15 +2,15 @@
 import { MediaRepository } from '../domain/port/MediaRepository';
 import { Media } from '../domain/entity/Media';
 import { MediaId } from '../domain/valueObject/Media';
-import { IUseCase } from '../../../common/use-case.interface';
-import { Result } from '../../../common/domain/result';
-import { DomainException } from '../../../common/domain/domain.exception';
+import { Result } from '../../shared/Type Helpers/result';
+import { DomainException } from '../../shared/exceptions/domain.exception';
+import { IHandler } from 'src/lib/shared/IHandler';
 
 // We define the DTO for the response. In this case, it contains the entity
 // and the raw file data for the controller to serve.
 export type GetMediaResponse = { media: Media; file: Buffer };
 
-export class GetMedia implements IUseCase<string, Result<GetMediaResponse>> {
+export class GetMedia implements IHandler<string, Result<GetMediaResponse>> {
   constructor(private readonly mediaRepository: MediaRepository) {}
 
   async execute(id: string): Promise<Result<GetMediaResponse>> {

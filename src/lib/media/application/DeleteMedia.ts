@@ -1,11 +1,11 @@
 
 import { MediaRepository } from '../domain/port/MediaRepository';
 import { MediaId } from '../domain/valueObject/Media';
-import { IUseCase } from '../../../common/use-case.interface';
-import { Result } from '../../../common/domain/result';
-import { DomainException } from '../../../common/domain/domain.exception';
+import { Result } from '../../shared/Type Helpers/result';
+import { DomainException } from '../../shared/exceptions/domain.exception';
+import { IHandler } from 'src/lib/shared/IHandler';
 
-export class DeleteMedia implements IUseCase<string, Result<void>> {
+export class DeleteMedia implements IHandler<string, Result<void>> {
   constructor(private readonly mediaRepository: MediaRepository) {}
 
   async execute(id: string): Promise<Result<void>> {

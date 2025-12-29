@@ -3,7 +3,7 @@ import { Answer } from '../../../../src/lib/kahoot/domain/entity/Answer';
 import { AnswerId, AnswerText, IsCorrect } from '../../../../src/lib/kahoot/domain/valueObject/Answer';
 import { MediaId as MediaIdVO } from '../../../../src/lib/media/domain/valueObject/Media';
 import { QuestionId } from '../../../../src/lib/kahoot/domain/valueObject/Question';
-import { DomainException } from '../../../../src/common/domain/domain.exception';
+import { DomainException } from '../../../../src/lib/shared/exceptions/domain.exception';
 
 describe('Answer Entity (Domain Layer)', () => {
   // ARRANGE: Create real instances of Value Objects for tests

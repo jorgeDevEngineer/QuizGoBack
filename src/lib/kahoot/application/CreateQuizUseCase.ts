@@ -1,8 +1,7 @@
 
 import { QuizRepository } from '../domain/port/QuizRepository';
 import { Quiz } from '../domain/entity/Quiz';
-import { IUseCase } from '../../../common/use-case.interface';
-import { Result } from '../../../common/domain/result';
+import { Result } from '../../shared/Type Helpers/result';
 import { Question } from '../domain/entity/Question';
 import { Answer } from '../domain/entity/Answer';
 import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
@@ -16,7 +15,8 @@ import {
 import {
     AnswerId, AnswerText, IsCorrect
 } from '../domain/valueObject/Answer';
-import { DomainException } from '../../../common/domain/domain.exception';
+import { DomainException } from '../../shared/exceptions/domain.exception';
+import { IHandler } from 'src/lib/shared/IHandler';
 
 // DTOs para la entrada de datos.
 export interface CreateAnswerDto {
@@ -46,7 +46,7 @@ export interface CreateQuiz {
     questions: CreateQuestion[];
 }
 
-export class CreateQuizUseCase implements IUseCase<CreateQuiz, Result<Quiz>> {
+export class CreateQuizUseCase implements IHandler<CreateQuiz, Result<Quiz>> {
   constructor(private readonly quizRepository: QuizRepository) {}
 
   async execute(dto: CreateQuiz): Promise<Result<Quiz>> {

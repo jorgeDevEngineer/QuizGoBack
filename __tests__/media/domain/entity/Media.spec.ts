@@ -1,7 +1,7 @@
 
 import { Media } from '../../../../src/lib/media/domain/entity/Media';
 import { MediaId, MimeType, FileSize } from '../../../../src/lib/media/domain/valueObject/Media';
-import { DomainException } from '../../../../src/common/domain/domain.exception';
+import { DomainException } from '../../../../src/lib/shared/exceptions/domain.exception';
 
 describe('Media Entity (Domain Layer)', () => {
   // ARRANGE: Create mock data for tests

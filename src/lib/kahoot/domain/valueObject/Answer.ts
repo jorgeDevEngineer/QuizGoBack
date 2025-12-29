@@ -1,6 +1,6 @@
 
 import { randomUUID } from "crypto";
-import { DomainException } from "../../../../common/domain/domain.exception";
+import { DomainException } from "../../../shared/exceptions/domain.exception";
 
 const UUID_V4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

@@ -2,8 +2,8 @@
 import { Media } from '../domain/entity/Media';
 import { MediaRepository } from '../domain/port/MediaRepository';
 import { ImageOptimizer } from '../domain/port/ImageOptimizer';
-import { IUseCase } from '../../../common/use-case.interface';
-import { Result } from '../../../common/domain/result';
+import { Result } from '../../shared/Type Helpers/result';
+import { IHandler } from 'src/lib/shared/IHandler';
 
 export interface UploadMediaDTO {
   file: Buffer;
@@ -12,7 +12,7 @@ export interface UploadMediaDTO {
   size: number;
 }
 
-export class UploadMedia implements IUseCase<UploadMediaDTO, Result<Media>> {
+export class UploadMedia implements IHandler<UploadMediaDTO, Result<Media>> {
   constructor(
     private readonly mediaRepository: MediaRepository,
     private readonly imageOptimizer: ImageOptimizer,
