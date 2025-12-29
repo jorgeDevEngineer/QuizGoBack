@@ -9,6 +9,7 @@ import { UserModule } from "./lib/user/infrastructure/NestJS/user.module";
 import { LibraryModule } from "./lib/library/infrastructure/NestJS/library.module";
 import { SinglePlayerGameModule } from "./lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module";
 import { StatisticsModule } from "./lib/statistics/infrastructure/NestJS/statistics.module";
+import { LoggerModule } from "./aspects/logger/infrastructure/logger.module";
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { StatisticsModule } from "./lib/statistics/infrastructure/NestJS/statist
       },
     }),
 
+    LoggerModule,
     KahootModule,
     MediaModule,
     SearchModule,

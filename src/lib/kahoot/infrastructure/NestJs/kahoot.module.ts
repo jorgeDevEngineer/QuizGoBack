@@ -1,3 +1,4 @@
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { KahootController } from './kahoots.controller';
@@ -9,9 +10,13 @@ import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
 import { TypeOrmQuizEntity } from '../TypeOrm/TypeOrmQuizEntity';
 import { TypeOrmQuizRepository } from '../TypeOrm/TypeOrmQuizRepository';
 import { QuizRepository } from '../../domain/port/QuizRepository';
+import { LoggerModule } from '../../../../aspects/logger/infrastructure/logger.module';
+import { ILoggerPort } from '../../../../aspects/logger/domain/ports/logger.port';
+import { LoggingUseCaseDecorator } from '../../../../aspects/logger/application/decorators/logging.decorator';
+import { ErrorHandlingDecorator } from '../../../../aspects/error-handling/application/decorators/error-handling.decorator';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity])],
+  imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity]), LoggerModule],
   controllers: [KahootController],
   providers: [
     {
@@ -19,38 +24,51 @@ import { QuizRepository } from '../../domain/port/QuizRepository';
       useClass: TypeOrmQuizRepository,
     },
     {
-      provide: 'CreateQuizUseCase',
-      useFactory: (repository: QuizRepository) =>
-        new CreateQuizUseCase(repository),
-      inject: ['QuizRepository'],
+      provide: CreateQuizUseCase,
+      useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
+        const realUseCase = new CreateQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'CreateQuizUseCase');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'CreateQuizUseCase');
+      },
+      inject: ['ILoggerPort', 'QuizRepository'],
     },
     {
-      provide: 'GetQuizUseCase',
-      useFactory: (repository: QuizRepository) =>
-        new GetQuizUseCase(repository),
-      inject: ['QuizRepository'],
+      provide: GetQuizUseCase,
+      useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
+        const realUseCase = new GetQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'GetQuizUseCase');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetQuizUseCase');
+      },
+      inject: ['ILoggerPort', 'QuizRepository'],
     },
     {
-      provide: 'ListUserQuizzesUseCase',
-      useFactory: (repository: QuizRepository) =>
-        new ListUserQuizzesUseCase(repository),
-      inject: ['QuizRepository'],
+      provide: ListUserQuizzesUseCase,
+      useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
+        const realUseCase = new ListUserQuizzesUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'ListUserQuizzesUseCase');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'ListUserQuizzesUseCase');
+      },
+      inject: ['ILoggerPort', 'QuizRepository'],
     },
     {
-      provide: 'UpdateQuizUseCase',
-      useFactory: (repository: QuizRepository) =>
-        new UpdateQuizUseCase(repository),
-      inject: ['QuizRepository'],
+      provide: UpdateQuizUseCase,
+      useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
+        const realUseCase = new UpdateQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'UpdateQuizUseCase');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'UpdateQuizUseCase');
+      },
+      inject: ['ILoggerPort', 'QuizRepository'],
     },
     {
-      provide: 'DeleteQuizUseCase',
-      useFactory: (repository: QuizRepository) =>
-        new DeleteQuizUseCase(repository),
-      inject: ['QuizRepository'],
+      provide: DeleteQuizUseCase,
+      useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
+        const realUseCase = new DeleteQuizUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'DeleteQuizUseCase');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'DeleteQuizUseCase');
+      },
+      inject: ['ILoggerPort', 'QuizRepository'],
     },
   ],
-  exports: [ 
-    'QuizRepository', 
-  ],
+  exports: ['QuizRepository'],
 })
 export class KahootModule {}

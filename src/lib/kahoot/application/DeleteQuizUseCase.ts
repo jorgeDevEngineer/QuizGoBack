@@ -1,19 +1,26 @@
-import { QuizRepository } from '../domain/port/QuizRepository';
-import { QuizId } from '../domain/valueObject/Quiz';
-import { QuizNotFoundError } from '../domain/QuizNotFoundError';
 
-export class DeleteQuizUseCase {
+import { QuizRepository } from '../domain/port/QuizRepository';
+import { IUseCase } from '../../../common/use-case.interface';
+import { Result } from '../../../common/domain/result';
+import { QuizId } from '../domain/valueObject/Quiz';
+import { DomainException } from '../../../common/domain/domain.exception';
+
+export class DeleteQuizUseCase implements IUseCase<string, Result<void>> {
   constructor(private readonly quizRepository: QuizRepository) {}
 
-  async run(quizIdStr: string): Promise<void> {
-    const quizId = QuizId.of(quizIdStr);
+  async execute(id: string): Promise<Result<void>> {
+    // DomainExceptions from QuizId.of will bubble up
+    const quizId = QuizId.of(id);
 
-    const quiz = await this.quizRepository.find(quizId);
-
-    if (!quiz) {
-      throw new QuizNotFoundError(`Quiz <${quizIdStr}> not found`);
+    const existingQuiz = await this.quizRepository.find(quizId);
+    if (!existingQuiz) {
+      // Throw a domain exception if the quiz is not found
+      throw new DomainException('Quiz not found');
     }
 
+    // Infrastructure errors from delete will bubble up
     await this.quizRepository.delete(quizId);
+
+    return Result.ok<void>();
   }
 }
