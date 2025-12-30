@@ -54,7 +54,7 @@ export class GetUserFavoriteQuizzesQueryHandler implements IHandler<GetUserFavor
       return Either.makeRight(answer);
     } catch (err) {
       console.error(err);
-      return Either.makeLeft(new DomainUnexpectedException());
+      return Either.makeLeft(new DomainUnexpectedException(err.message));
     }
   }
 }

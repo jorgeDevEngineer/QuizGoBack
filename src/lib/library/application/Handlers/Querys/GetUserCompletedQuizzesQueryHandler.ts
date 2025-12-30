@@ -57,7 +57,7 @@ export class GetUserCompletedQuizzesQueryHandler implements IHandler<GetUserComp
 
       return Either.makeRight(answer);
     } catch (error) {
-      return Either.makeLeft(new DomainUnexpectedException());
+      return Either.makeLeft(new DomainUnexpectedException(error.message));
     }
   }
 }

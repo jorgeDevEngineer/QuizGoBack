@@ -1,3 +1,4 @@
+
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MediaController } from "./media.controller";
@@ -8,11 +9,15 @@ import { UploadMedia } from "../../application/UploadMedia";
 import { GetMedia } from "../../application/GetMedia";
 import { DeleteMedia } from "../../application/DeleteMedia";
 import { ListMediaUseCase } from "../../application/ListMediaUseCase";
-import { IMAGE_OPTIMIZER } from "../../domain/port/ImageOptimizer";
+import { IMAGE_OPTIMIZER, ImageOptimizer } from "../../domain/port/ImageOptimizer";
 import { SharpImageOptimizer } from "../Sharp/SharpImageOptimizer";
+import { LoggerModule } from "../../../shared/aspects/logger/infrastructure/logger.module";
+import { ILoggerPort } from "../../../shared/aspects/logger/domain/ports/logger.port";
+import { LoggingUseCaseDecorator } from "../../../shared/aspects/logger/application/decorators/logging.decorator";
+import { ErrorHandlingDecorator } from "../../../shared/aspects/error-handling/application/decorators/error-handling.decorator";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity])],
+  imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity]), LoggerModule],
   controllers: [MediaController],
   providers: [
     {
@@ -24,28 +29,44 @@ import { SharpImageOptimizer } from "../Sharp/SharpImageOptimizer";
       useClass: SharpImageOptimizer,
     },
     {
-      provide: "UploadMedia",
+      provide: UploadMedia,
       useFactory: (
+        logger: ILoggerPort,
         repository: MediaRepository,
-        imageOptimizer: SharpImageOptimizer
-      ) => new UploadMedia(repository, imageOptimizer),
-      inject: ["MediaRepository", IMAGE_OPTIMIZER],
+        imageOptimizer: ImageOptimizer
+      ) => {
+        const useCase = new UploadMedia(repository, imageOptimizer);
+        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, "UploadMedia");
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, "UploadMedia");
+      },
+      inject: ["ILoggerPort", "MediaRepository", IMAGE_OPTIMIZER],
     },
     {
-      provide: "GetMedia",
-      useFactory: (repository: MediaRepository) => new GetMedia(repository),
-      inject: ["MediaRepository"],
+      provide: GetMedia,
+      useFactory: (logger: ILoggerPort, repository: MediaRepository) => {
+        const useCase = new GetMedia(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, "GetMedia");
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, "GetMedia");
+      },
+      inject: ["ILoggerPort", "MediaRepository"],
     },
     {
-      provide: "DeleteMedia",
-      useFactory: (repository: MediaRepository) => new DeleteMedia(repository),
-      inject: ["MediaRepository"],
+      provide: DeleteMedia,
+      useFactory: (logger: ILoggerPort, repository: MediaRepository) => {
+        const useCase = new DeleteMedia(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, "DeleteMedia");
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, "DeleteMedia");
+      },
+      inject: ["ILoggerPort", "MediaRepository"],
     },
     {
-      provide: "ListMediaUseCase",
-      useFactory: (repository: MediaRepository) =>
-        new ListMediaUseCase(repository),
-      inject: ["MediaRepository"],
+      provide: ListMediaUseCase,
+      useFactory: (logger: ILoggerPort, repository: MediaRepository) => {
+        const useCase = new ListMediaUseCase(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, "ListMediaUseCase");
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, "ListMediaUseCase");
+      },
+      inject: ["ILoggerPort", "MediaRepository"],
     },
   ],
 })

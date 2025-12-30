@@ -30,9 +30,14 @@ import { GetUserFavoriteQuizzesDomainService } from '../../domain/services/Queri
 import { GetUserCompletedQuizzesDomainService } from '../../domain/services/Queries/GetUserCompletedQuizzesDomainService';
 import { AddUserFavoriteQuizDomainService } from '../../domain/services/Commands/AddUserFavoriteQuizDomainService';
 import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Commands/DeleteUserFavoriteQuizDomainService';
+import { ILoggerPort } from 'src/lib/shared/aspects/logger/domain/ports/logger.port';
+import { LoggingUseCaseDecorator } from 'src/lib/shared/aspects/logger/application/decorators/logging.decorator';
+import { ErrorHandlingDecoratorWithEither } from 'src/lib/shared/aspects/error-handling/application/decorators/error-handling-either';
+import { LoggerModule } from 'src/lib/shared/aspects/logger/infrastructure/logger.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity, TypeOrmSinglePlayerGameEntity])],
+  imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity, TypeOrmSinglePlayerGameEntity]), 
+LoggerModule],
   controllers: [LibraryController],
   providers: [
     {
@@ -82,10 +87,13 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Comma
     },
     {
       provide: 'AddUserFavoriteQuizCommandHandler',
-      useFactory: (domainService: AddUserFavoriteQuizDomainService
-      ) =>
-        new AddUserFavoriteQuizCommandHanlder(domainService),
-      inject: ['AddUserFavoriteQuizDomainService'],
+      useFactory: (logger: ILoggerPort, domainService: AddUserFavoriteQuizDomainService) => {
+        const realHandler = new AddUserFavoriteQuizCommandHanlder(domainService);
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'AddUserFavoriteQuizCommandHanlder');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'AddUserFavoriteQuizCommandHandler');
+      },
+      inject: ['ILoggerPort', 'AddUserFavoriteQuizDomainService'],
+
     },
     {
       provide: 'DeleteUserFavoriteQuizDomainService',
@@ -95,9 +103,12 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Comma
     },
     {
       provide: 'DeleteUserFavoriteQuizCommandHandler',
-      useFactory: (domainService: DeleteUserFavoriteQuizDomainService) =>
-        new DeleteUserFavoriteQuizCommandHandler(domainService),
-      inject: ['DeleteUserFavoriteQuizDomainService'],
+      useFactory: (logger: ILoggerPort, domainService: DeleteUserFavoriteQuizDomainService) => {
+        const realHandler = new DeleteUserFavoriteQuizCommandHandler(domainService);
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'DeleteUserFavoriteQuizCommandHandler');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'DeleteUserFavoriteQuizCommandHandler');
+      },
+      inject: ['ILoggerPort', 'DeleteUserFavoriteQuizDomainService'],
     },
     {
       provide: 'GetUserFavoriteQuizzesDomainService',
@@ -108,10 +119,12 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Comma
     },
     {
       provide: 'GetUserFavoriteQuizzesQueryHandler',
-      useFactory: (domainService: GetUserFavoriteQuizzesDomainService,
-      ) =>
-        new GetUserFavoriteQuizzesQueryHandler(domainService),
-      inject: ['GetUserFavoriteQuizzesDomainService'],
+      useFactory: (logger: ILoggerPort, domainService: GetUserFavoriteQuizzesDomainService) => {
+        const realHandler = new GetUserFavoriteQuizzesQueryHandler(domainService);
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetUserFavoriteQuizzesQueryHandler');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetUserFavoriteQuizzesQueryHandler');
+      },
+      inject: ['ILoggerPort', 'GetUserFavoriteQuizzesDomainService'],
     },
     {
       provide: 'GetAllUserQuizzesDomainService',
@@ -135,9 +148,12 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Comma
     },
     {
       provide: 'GetUserInProgressQuizzesQueryHandler',
-      useFactory: ( domainService: GetUserInProgressQuizzesDomainService) =>
-        new GetUserInProgressQuizzesQueryHandler(domainService),
-      inject: ['GetUserInProgressQuizzesDomainService'],
+      useFactory: (logger: ILoggerPort, domainService: GetUserInProgressQuizzesDomainService) => {
+        const realHandler = new GetUserInProgressQuizzesQueryHandler(domainService);
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetUserInProgressQuizzesQueryHandler');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetUserInProgressQuizzesQueryHandler');
+      },
+      inject: ['ILoggerPort', 'GetUserInProgressQuizzesDomainService'],
     },
     {
       provide: 'GetUserCompletedQuizzesDomainService',
@@ -149,8 +165,12 @@ import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Comma
     },
     {
       provide: 'GetUserCompletedQuizzesQueryHandler',
-      useFactory: (domainService: GetUserCompletedQuizzesDomainService) => new GetUserCompletedQuizzesQueryHandler(domainService),
-      inject: ['GetUserCompletedQuizzesDomainService'],
+      useFactory: (logger: ILoggerPort, domainService: GetUserCompletedQuizzesDomainService) => {
+        const realHandler = new GetUserCompletedQuizzesQueryHandler(domainService);
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetUserCompletedQuizzesQueryHandler');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetUserCompletedQuizzesQueryHandler');
+      },
+      inject: ['ILoggerPort', 'GetUserCompletedQuizzesDomainService'],
     },
   ],
 

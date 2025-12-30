@@ -1,13 +1,3 @@
-// 1. Quiz (Raíz del Agregado - Entidad)
-
-// Esta es la entidad principal. Orquesta y valida la lógica de negocio general.
-// _id: QuizId (Value Object)
-// _authorId: UserId (Value Object - ID del agregado User)
-// _title: QuizTitle (Value Object)
-// _description: QuizDescription (Value Object)
-// _visibility: Visibility (Value Object)
-// _coverImage: MediaUrl (Value Object)
-// _questions: Question[] (Lista de Entidades)
 
 import {
   QuizId,
@@ -22,6 +12,7 @@ import {
 import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Question } from "../entity/Question";
 import { QuestionId } from "../valueObject/Question";
+import { DomainException } from "../../../shared/exceptions/domain.exception";
 
 export class Quiz {
   private constructor(
@@ -64,6 +55,9 @@ export class Quiz {
     questions: Question[],
     playCount: number = 0
   ): Quiz {
+    if (questions.length === 0) {
+        throw new DomainException('A quiz must have at least one question.');
+    }
     const createdAt = new Date();
     return new Quiz(
       id,
@@ -130,6 +124,9 @@ export class Quiz {
   }
 
   public replaceQuestions(newQuestions: Question[]): void {
+    if (newQuestions.length === 0) {
+        throw new DomainException('A quiz must have at least one question.');
+    }
     // Asignamos el ID de este quiz a las nuevas preguntas para mantener la referencia
     newQuestions.forEach((q) => q._setQuiz(this._id));
 
@@ -167,6 +164,9 @@ export class Quiz {
   }
 
   public getFirstQuestion(): Question {
+    if(this._questions.length === 0){
+        throw new DomainException("Quiz has no questions.");
+    }
     return this._questions[0];
   }
 
@@ -177,7 +177,7 @@ export class Quiz {
   public getQuestionById(id: QuestionId):Question {
     const question: Question = this._questions.find(question => question.id.equals(id))
     if (!question){
-      throw new Error('No se encontró la pregunta dentro del quiz');
+      throw new DomainException(`Question with id ${id.getValue()} not found in this quiz.`);
     }
     return question;
   }

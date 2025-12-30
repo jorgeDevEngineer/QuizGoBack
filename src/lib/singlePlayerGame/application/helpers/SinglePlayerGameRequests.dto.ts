@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional } from "class-validator";
+import { IsString, IsNumber } from "class-validator";
 
 export class StartGameRequestDto {
   @IsString()
@@ -9,8 +9,7 @@ export class SubmitAnswerRequestDto {
   @IsString()
   slideId: string;
 
-  @IsOptional()
-  answerIndex?: number | number[];
+  answerIndex: number[];
   
   @IsNumber()
   timeElapsedSeconds: number;

@@ -15,9 +15,13 @@ import { GetUserResultsDomainService } from '../../domain/services/GetUserResult
 import { GetUserResultsQueryHandler } from '../../application/Handlers/GetUserResultsQueryHandler';
 import { GetCompletedQuizSummaryDomainService } from '../../domain/services/GetCompletedQuizSummaryDomainService';
 import { GetCompletedQuizSummaryQueryHandler } from '../../application/Handlers/GetCompletedQuizSummaryQueryHandler';
+import { LoggerModule } from 'src/lib/shared/aspects/logger/infrastructure/logger.module';
+import { LoggingUseCaseDecorator } from 'src/lib/shared/aspects/logger/application/decorators/logging.decorator';
+import { ILoggerPort } from 'src/lib/shared/aspects/logger/domain/ports/logger.port';
+import { ErrorHandlingDecoratorWithEither } from 'src/lib/shared/aspects/error-handling/application/decorators/error-handling-either';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity, TypeOrmSinglePlayerGameEntity])],
+    imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity, TypeOrmSinglePlayerGameEntity]), LoggerModule],
     controllers: [StatisticsController],
     providers: [
         {
@@ -46,9 +50,12 @@ import { GetCompletedQuizSummaryQueryHandler } from '../../application/Handlers/
         },
         {
           provide: 'GetUserResultsQueryHandler',
-          useFactory: (dService: GetUserResultsDomainService) => 
-            new GetUserResultsQueryHandler(dService),
-          inject: ['GetUserResultsDomainService'],
+          useFactory: (logger: ILoggerPort, dService: GetUserResultsDomainService) => {
+            const realHandler = new GetUserResultsQueryHandler(dService);
+            const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetUserResultsQueryHandler');
+            return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetUserResultsQueryHandler');
+          },
+          inject: ['ILoggerPort', 'GetUserResultsDomainService'],    
         },
         {
           provide: 'GetCompletedQuizSummaryDomainService',
@@ -60,9 +67,12 @@ import { GetCompletedQuizSummaryQueryHandler } from '../../application/Handlers/
         },
         {
           provide: 'GetCompletedQuizSummaryQueryHandler',
-          useFactory: (dService: GetCompletedQuizSummaryDomainService) => 
-            new GetCompletedQuizSummaryQueryHandler(dService),
-          inject: ['GetCompletedQuizSummaryDomainService'],
+          useFactory: (logger: ILoggerPort, dService: GetCompletedQuizSummaryDomainService) => {
+            const realHandler = new GetCompletedQuizSummaryQueryHandler(dService);
+            const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetCompletedQuizSummaryQueryHandler');
+            return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetCompletedQuizSummaryQueryHandler');
+          },
+          inject: ['ILoggerPort', 'GetCompletedQuizSummaryDomainService'],    
         }
     ],
 

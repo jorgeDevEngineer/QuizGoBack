@@ -4,8 +4,7 @@ import {
     EvaluatedAnswer, 
     GameProgress, 
     GameProgressStatus, 
-    GameScore, 
-    Optional, 
+    GameScore,  
     PlayerAnswer, 
     QuestionResult, 
     QuestionResultJSON, 
@@ -13,6 +12,7 @@ import {
 } from '../../domain/valueObjects/SinglePlayerGameVOs';
 import { QuestionId } from 'src/lib/kahoot/domain/valueObject/Question';
 import { QuizId, UserId } from 'src/lib/kahoot/domain/valueObject/Quiz';
+import { Optional } from "src/lib/shared/Type Helpers/Optional";
 
 @Entity('asyncgame')
 export class TypeOrmSinglePlayerGameEntity {
@@ -52,7 +52,7 @@ export class TypeOrmSinglePlayerGameEntity {
             
             const playerAnswer = PlayerAnswer.create(
                 QuestionId.of(questionResultJson.questionId),
-                new Optional<number | number[]>(questionResultJson.answerIndex),
+                questionResultJson.answerIndex,
                 questionResultJson.timeUsedMs
             );
 
@@ -99,7 +99,7 @@ export class TypeOrmSinglePlayerGameEntity {
 
             return {
                 questionId: result.getQuestionId().getValue(),
-                answerIndex: playerAnswer.getAnswer().hasValue() ? playerAnswer.getAnswer().getValue() : null,
+                answerIndex: playerAnswer.getAnswer(),
                 timeUsedMs: playerAnswer.getTimeUsed(),
                 wasCorrect: evaluatedAnswer.getWasCorrect(),
                 pointsEarned: evaluatedAnswer.getPointsEarned()

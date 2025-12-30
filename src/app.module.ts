@@ -9,6 +9,7 @@ import { UserModule } from "./lib/user/infrastructure/NestJS/user.module";
 import { LibraryModule } from "./lib/library/infrastructure/NestJS/library.module";
 import { SinglePlayerGameModule } from "./lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module";
 import { StatisticsModule } from "./lib/statistics/infrastructure/NestJS/statistics.module";
+import { LoggerModule } from "./lib/shared/aspects/logger/infrastructure/logger.module";
 import { BackofficeModule } from "./lib/backoffice/infrastructure/NestJs/backoffice.module";
 
 @Module({
@@ -33,6 +34,7 @@ import { BackofficeModule } from "./lib/backoffice/infrastructure/NestJs/backoff
       },
     }),
 
+    LoggerModule,
     KahootModule,
     MediaModule,
     SearchModule,

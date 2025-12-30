@@ -1,39 +1,10 @@
 import { randomUUID } from "crypto";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
+import { Optional } from "src/lib/shared/Type Helpers/Optional";
 
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function isValidUUID(value: string): boolean {
     return UUID_V4_REGEX.test(value);
-}
-
-/**
- * El viejo y confiable Optional, nunca falla
- */
-export class Optional<T> {
-
-    private value: T | undefined;
-    private assigned: boolean;
-
-    public constructor(value?:T){
-        if(value){
-            this.value = value;
-            this.assigned = true;
-        } else {
-            this.value = undefined;
-            this.assigned = false;
-        }
-    }
-
-    public hasValue(): boolean {
-        return this.assigned;
-    }
-
-    public getValue(): T {
-        if (!this.hasValue()){
-            throw new Error('pelaste');
-        }
-        return this.value as T;
-    }
 }
 
 /**
@@ -140,15 +111,15 @@ export class PlayerAnswer {
 
     private constructor( 
         private readonly questionId: QuestionId,
-        private readonly answerIndex: Optional<number | number[]>,
+        private readonly answerIndex: number[],
         private readonly timeUsedMs: number           
     ) {}
 
-    public static create(questionId: QuestionId, answerIndex: Optional<number | number[]>, timeUsedMs: number): PlayerAnswer {
+    public static create(questionId: QuestionId, answerIndex: number[], timeUsedMs: number): PlayerAnswer {
         return new PlayerAnswer(questionId, answerIndex, timeUsedMs);
     }
 
-    public getAnswer(): Optional<number | number[]> {
+    public getAnswer(): number[] {
         return this.answerIndex;
     }
 
@@ -219,7 +190,7 @@ export class QuestionResult {
  */
 export interface QuestionResultJSON {
   questionId: string;
-  answerIndex: number | number[] | null;
+  answerIndex: number[];
   timeUsedMs: number;
   wasCorrect: boolean;
   pointsEarned: number;

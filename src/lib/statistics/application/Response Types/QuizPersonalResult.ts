@@ -29,7 +29,7 @@ function getAnswerTextOrMedia(questionResult: QuestionResult, kahoot: Quiz): Opt
     if (!question) {
         throw new Error(`Question with ID ${questionId.getValue()} not found in Kahoot ${kahoot.id.getValue()}`);
     }
-    const answersIndex = questionResult.getPlayerAnswer().getAnswer().hasValue() ? questionResult.getPlayerAnswer().getAnswer().getValue() : [];
+    const answersIndex = questionResult.getPlayerAnswer().getAnswer();
     const results: string[] = [];
     let isText: boolean = false;
     if(Array.isArray(answersIndex) && answersIndex.length == 0){
