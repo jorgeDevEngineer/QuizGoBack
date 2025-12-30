@@ -19,7 +19,7 @@ import { ListUserQuizzesUseCase } from '../../application/ListUserQuizzesUseCase
 import { UpdateQuizUseCase, UpdateQuizDto } from '../../application/UpdateQuizUseCase';
 import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
 import { IsString, Length } from 'class-validator';
-import { Result } from '../../../../common/domain/result';
+import { Result } from '../../../shared/Type Helpers/result';
 
 export class FindOneParams {
   @IsString()

@@ -5,6 +5,7 @@ import { SinglePlayerGameId } from "src/lib/singlePlayerGame/domain/valueObjects
 
 export interface SinglePlayerGameRepository {
 
-    findCompletedGames(playerId: UserId, criteria: CompletedQuizQueryCriteria):Promise<SinglePlayerGame[] | null>;
+    findCompletedGames(playerId: UserId, criteria: CompletedQuizQueryCriteria):Promise<{games: SinglePlayerGame[], totalGames:number
+    } | null>;
     findById(id: SinglePlayerGameId): Promise<SinglePlayerGame | null>;
 }

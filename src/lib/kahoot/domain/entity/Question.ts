@@ -9,7 +9,7 @@ import {
 import { QuizId } from "../valueObject/Quiz";
 import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Answer } from "../entity/Answer";
-import { DomainException } from "../../../../common/domain/domain.exception";
+import { DomainException } from "../../../shared/exceptions/domain.exception";
 
 export class Question {
   private _quiz!: QuizId; // Referencia al Quiz padre.

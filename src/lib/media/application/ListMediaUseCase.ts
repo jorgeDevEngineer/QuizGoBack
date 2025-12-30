@@ -1,8 +1,8 @@
 
 import { MediaRepository } from '../domain/port/MediaRepository';
-import { IUseCase } from '../../../common/use-case.interface';
-import { Result } from '../../../common/domain/result';
+import { Result } from '../../shared/Type Helpers/result';
 import { Media } from '../domain/entity/Media';
+import { IHandler } from 'src/lib/shared/IHandler';
 
 // We define the DTO for the response of the use case.
 // This prevents leaking domain entities to the presentation layer.
@@ -17,7 +17,7 @@ export type ListMediaResponseDTO = {
 }[];
 
 
-export class ListMediaUseCase implements IUseCase<void, Result<ListMediaResponseDTO>> {
+export class ListMediaUseCase implements IHandler<void, Result<ListMediaResponseDTO>> {
   constructor(private readonly mediaRepository: MediaRepository) {}
 
   async execute(): Promise<Result<ListMediaResponseDTO>> {

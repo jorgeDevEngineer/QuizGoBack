@@ -1,12 +1,12 @@
 
 import { QuizRepository } from '../domain/port/QuizRepository';
 import { Quiz } from '../domain/entity/Quiz';
-import { IUseCase } from '../../../common/use-case.interface';
-import { Result } from '../../../common/domain/result';
+import { Result } from '../../shared/Type Helpers/result';
 import { QuizId } from '../domain/valueObject/Quiz';
-import { DomainException } from '../../../common/domain/domain.exception';
+import { DomainException } from '../../shared/exceptions/domain.exception';
+import { IHandler } from 'src/lib/shared/IHandler';
 
-export class GetQuizUseCase implements IUseCase<string, Result<Quiz>> {
+export class GetQuizUseCase implements IHandler<string, Result<Quiz>> {
   constructor(private readonly quizRepository: QuizRepository) {}
 
   async execute(id: string): Promise<Result<Quiz>> {

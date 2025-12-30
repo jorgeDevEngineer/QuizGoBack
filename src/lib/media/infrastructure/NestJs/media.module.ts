@@ -11,10 +11,10 @@ import { DeleteMedia } from "../../application/DeleteMedia";
 import { ListMediaUseCase } from "../../application/ListMediaUseCase";
 import { IMAGE_OPTIMIZER, ImageOptimizer } from "../../domain/port/ImageOptimizer";
 import { SharpImageOptimizer } from "../Sharp/SharpImageOptimizer";
-import { LoggerModule } from "../../../../aspects/logger/infrastructure/logger.module";
-import { ILoggerPort } from "../../../../aspects/logger/domain/ports/logger.port";
-import { LoggingUseCaseDecorator } from "../../../../aspects/logger/application/decorators/logging.decorator";
-import { ErrorHandlingDecorator } from "../../../../aspects/error-handling/application/decorators/error-handling.decorator";
+import { LoggerModule } from "../../../shared/aspects/logger/infrastructure/logger.module";
+import { ILoggerPort } from "../../../shared/aspects/logger/domain/ports/logger.port";
+import { LoggingUseCaseDecorator } from "../../../shared/aspects/logger/application/decorators/logging.decorator";
+import { ErrorHandlingDecorator } from "../../../shared/aspects/error-handling/application/decorators/error-handling.decorator";
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity]), LoggerModule],

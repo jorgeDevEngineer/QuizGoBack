@@ -2,7 +2,7 @@
 import { ListUserQuizzesUseCase } from '../../../src/lib/kahoot/application/ListUserQuizzesUseCase';
 import { QuizRepository } from '../../../src/lib/kahoot/domain/port/QuizRepository';
 import { Quiz } from '../../../src/lib/kahoot/domain/entity/Quiz';
-import { DomainException } from '../../../src/common/domain/domain.exception';
+import { DomainException } from '../../../src/lib/shared/exceptions/domain.exception';
 // Correcting the import path for UserId
 import { UserId } from '../../../src/lib/user/domain/valueObject/UserId';
 
