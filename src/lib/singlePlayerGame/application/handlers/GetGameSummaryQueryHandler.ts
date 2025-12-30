@@ -1,13 +1,14 @@
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
-import { GetGameSummaryCommand } from "../helpers/SinglePlayerGameCommands";
-import { GameSummaryResponseDto } from "../helpers/SinglePlayerGameResponses.dto";
+import { GetGameSummaryQuery } from "../parameterObjects/GetGameSummaryQuery";
+import { GameSummaryResponseDto } from "../dtos/SinglePlayerGameResponses.dto";
 import { SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
+import { IHandler } from "src/lib/shared/IHandler";
 
-export class GetGameSummaryUseCase {
+export class GetGameSummaryQueryHandler implements IHandler<GetGameSummaryQuery, GameSummaryResponseDto> {
 
     constructor(private readonly gameRepo:SinglePlayerGameRepository) {}
 
-    async execute(command: GetGameSummaryCommand): Promise<GameSummaryResponseDto> {
+    async execute(command: GetGameSummaryQuery): Promise<GameSummaryResponseDto> {
 
         const game = await this.gameRepo.findById(SinglePlayerGameId.of(command.attemptId));
         if (!game) {

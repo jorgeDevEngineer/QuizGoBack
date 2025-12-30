@@ -7,10 +7,10 @@ import { TypeOrmSinglePlayerGameRepository } from "../TypeOrm/TypeOrmSinglePlaye
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { SinglePlayerEvaluationService } from "../../domain/services/SinglePlayerEvaluationService";
-import { StartSinglePlayerGameUseCase } from "../../application/useCases/StartSinglePlayerGameUseCase";
-import { SubmitGameAnswerUseCase } from "../../application/useCases/SubmitGameAnswerUseCase";
-import { GetGameSummaryUseCase } from "../../application/useCases/GetGameSummaryUseCase";
-import { GetGameProgressUseCase } from "../../application/useCases/GetGameProgressUseCase";
+import { StartSinglePlayerGameCommandHandler } from "../../application/handlers/StartSinglePlayerGameCommandHandler";
+import { SubmitGameAnswerCommandHandler } from "../../application/handlers/SubmitGameAnswerCommandHandler";
+import { GetGameProgressQueryHandler } from "../../application/handlers/GetGameProgressQueryHandler";
+import { GetGameSummaryQueryHandler } from "../../application/handlers/GetGameSummaryQueryHandler";
 
 @Module({
     imports: [
@@ -24,28 +24,28 @@ import { GetGameProgressUseCase } from "../../application/useCases/GetGameProgre
             useClass: TypeOrmSinglePlayerGameRepository
         },
         {
-            provide: 'StartSinglePlayerGameUseCase',
+            provide: 'StartSinglePlayerGameCommandHandler',
             useFactory: (
                 gameRepo: SinglePlayerGameRepository,
                 quizRepo: QuizRepository,
-            ) => new StartSinglePlayerGameUseCase(gameRepo, quizRepo),
+            ) => new StartSinglePlayerGameCommandHandler(gameRepo, quizRepo),
             inject: ['SinglePlayerGameRepository', 'QuizRepository'],
         },
         {
-            provide: 'GetGameProgressUseCase',
+            provide: 'GetGameProgressQueryHandler',
             useFactory: (
                 gameRepo: SinglePlayerGameRepository,
                 quizRepo: QuizRepository,
-            ) => new GetGameProgressUseCase(gameRepo, quizRepo),
+            ) => new GetGameProgressQueryHandler(gameRepo, quizRepo),
             inject: ['SinglePlayerGameRepository', 'QuizRepository'],
         },
         {
-            provide: 'SubmitGameAnswerUseCase',
+            provide: 'SubmitGameAnswerCommandHandler',
             useFactory: (
                 gameRepo: SinglePlayerGameRepository,
                 quizRepo: QuizRepository,
                 evaluationService: SinglePlayerEvaluationService,
-            ) => new SubmitGameAnswerUseCase(gameRepo, quizRepo, evaluationService),
+            ) => new SubmitGameAnswerCommandHandler(gameRepo, quizRepo, evaluationService),
             inject: [
                 'SinglePlayerGameRepository', 
                 'QuizRepository', 
@@ -53,10 +53,10 @@ import { GetGameProgressUseCase } from "../../application/useCases/GetGameProgre
             ],
         },
         {
-            provide: 'GetGameSummaryUseCase',
+            provide: 'GetGameSummaryQueryHandler',
             useFactory: (
                 gameRepo: SinglePlayerGameRepository,
-            ) => new GetGameSummaryUseCase(gameRepo),
+            ) => new GetGameSummaryQueryHandler(gameRepo),
             inject: ['SinglePlayerGameRepository'],
         },
         SinglePlayerEvaluationService,

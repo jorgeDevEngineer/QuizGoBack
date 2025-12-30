@@ -1,12 +1,13 @@
-import { StartSinglePlayerGameCommand } from "../helpers/SinglePlayerGameCommands";
-import { StartGameResponseDto } from "../helpers/SinglePlayerGameResponses.dto";
+import { StartSinglePlayerGameCommand } from "../parameterObjects/StartSinglePlayerGameCommand";
+import { StartGameResponseDto } from "../dtos/SinglePlayerGameResponses.dto";
 import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { SinglePlayerGame } from "../../domain/aggregates/SinglePlayerGame";
 import { SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
+import { IHandler } from "src/lib/shared/IHandler";
 
-export class StartSinglePlayerGameUseCase {
+export class StartSinglePlayerGameCommandHandler implements IHandler<StartSinglePlayerGameCommand, StartGameResponseDto>{
 
     constructor(
         private readonly gameRepo: SinglePlayerGameRepository,

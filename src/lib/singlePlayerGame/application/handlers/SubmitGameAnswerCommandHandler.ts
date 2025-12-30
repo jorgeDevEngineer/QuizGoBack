@@ -1,13 +1,14 @@
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
-import { SubmitAnswerCommand } from "../helpers/SinglePlayerGameCommands";
-import { AnswerEvaluationResponseDto } from "../helpers/SinglePlayerGameResponses.dto";
+import { SubmitGameAnswerCommand } from "../parameterObjects/SubmitGameAnswerCommand";
+import { SubmitGameAnswerResponseDto } from "../dtos/SinglePlayerGameResponses.dto";
 import { SinglePlayerEvaluationService } from "../../domain/services/SinglePlayerEvaluationService";
 import { PlayerAnswer, SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
 import { Optional } from "src/lib/shared/Type Helpers/Optional";
+import { IHandler } from "src/lib/shared/IHandler";
 
-export class SubmitGameAnswerUseCase {
+export class SubmitGameAnswerCommandHandler implements IHandler<SubmitGameAnswerCommand, SubmitGameAnswerResponseDto> {
 
     constructor(
         private readonly gameRepo: SinglePlayerGameRepository,
@@ -15,7 +16,7 @@ export class SubmitGameAnswerUseCase {
         private readonly evaluationService: SinglePlayerEvaluationService
     ) {}
 
-    async execute(command: SubmitAnswerCommand): Promise<AnswerEvaluationResponseDto> {
+    async execute(command: SubmitGameAnswerCommand): Promise<SubmitGameAnswerResponseDto> {
 
         const game = await this.gameRepo.findById(SinglePlayerGameId.of(command.attemptId));
         if (!game) {

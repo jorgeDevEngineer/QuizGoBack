@@ -5,7 +5,7 @@ export class StartGameRequestDto {
   kahootId: string; 
 }
 
-export class SubmitAnswerRequestDto {
+export class SubmitGameAnswerRequestDto {
   @IsString()
   slideId: string;
 
