@@ -111,15 +111,15 @@ export class PlayerAnswer {
 
     private constructor( 
         private readonly questionId: QuestionId,
-        private readonly answerIndex: Optional<number | number[]>,
+        private readonly answerIndex: number[],
         private readonly timeUsedMs: number           
     ) {}
 
-    public static create(questionId: QuestionId, answerIndex: Optional<number | number[]>, timeUsedMs: number): PlayerAnswer {
+    public static create(questionId: QuestionId, answerIndex: number[], timeUsedMs: number): PlayerAnswer {
         return new PlayerAnswer(questionId, answerIndex, timeUsedMs);
     }
 
-    public getAnswer(): Optional<number | number[]> {
+    public getAnswer(): number[] {
         return this.answerIndex;
     }
 
@@ -190,7 +190,7 @@ export class QuestionResult {
  */
 export interface QuestionResultJSON {
   questionId: string;
-  answerIndex: number | number[] | null;
+  answerIndex: number[];
   timeUsedMs: number;
   wasCorrect: boolean;
   pointsEarned: number;

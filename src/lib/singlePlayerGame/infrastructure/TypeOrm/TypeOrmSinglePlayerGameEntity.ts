@@ -52,7 +52,7 @@ export class TypeOrmSinglePlayerGameEntity {
             
             const playerAnswer = PlayerAnswer.create(
                 QuestionId.of(questionResultJson.questionId),
-                new Optional<number | number[]>(questionResultJson.answerIndex),
+                questionResultJson.answerIndex,
                 questionResultJson.timeUsedMs
             );
 
@@ -99,7 +99,7 @@ export class TypeOrmSinglePlayerGameEntity {
 
             return {
                 questionId: result.getQuestionId().getValue(),
-                answerIndex: playerAnswer.getAnswer().hasValue() ? playerAnswer.getAnswer().getValue() : null,
+                answerIndex: playerAnswer.getAnswer(),
                 timeUsedMs: playerAnswer.getTimeUsed(),
                 wasCorrect: evaluatedAnswer.getWasCorrect(),
                 pointsEarned: evaluatedAnswer.getPointsEarned()

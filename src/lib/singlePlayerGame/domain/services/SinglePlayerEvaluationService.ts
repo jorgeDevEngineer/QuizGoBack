@@ -28,17 +28,55 @@ export class SinglePlayerEvaluationService {
     }
 
     private isAnswerCorrect(question:Question, playerAnswer:PlayerAnswer): boolean {
-        if (playerAnswer.getAnswer().hasValue()){
-            const answerIndex = playerAnswer.getAnswer().getValue();
-            if(question.type.getValue() === 'multiple') {
-                //Hay que implementar esto
-                return true;
-            } else {
-                return question.getAnswers()[(answerIndex as number)-1].isCorrect.getValue();
-            }
+        const answerIndex = playerAnswer.getAnswer();
+        if (answerIndex.length === 0){
+            //No respondió nada
+            return false;
+        } 
+        let isCorrect = true;
+        if (question.type.getValue() === 'multiple') {
+            //Más de una respuesta correcta, tipo multiple, solo es correcta si me marcaron TODAS las correctas y NINGUNA incorrecta
+            isCorrect = this.multipleAnswerEvaluation(question, playerAnswer);
         } else {
+            //Una sola respuesta correcta, tipo quiz y verdadero o falso
+            isCorrect = question.getAnswers()[answerIndex[0]-1].isCorrect.getValue();
+        }
+        return isCorrect;
+    }
+
+    private multipleAnswerEvaluation(question: Question, playerAnswer: PlayerAnswer): boolean {
+        const selectedIndexes = playerAnswer.getAnswer();
+        const answers = question.getAnswers();
+        
+        for (const selectedIndex of selectedIndexes) {
+            const answer = answers[selectedIndex - 1];
+            if (!answer.isCorrect.getValue()) {
+                return false;
+            }
+        }
+        
+        const allCorrectIndexes: number[] = [];
+        
+        for (let i = 0; i < answers.length; i++) {
+            if (answers[i].isCorrect.getValue()) {
+                allCorrectIndexes.push(i + 1); 
+            }
+        }
+        
+        if (selectedIndexes.length !== allCorrectIndexes.length) {
             return false;
         }
+        
+        const sortedSelected = [...selectedIndexes].sort((a, b) => a - b);
+        const sortedCorrect = [...allCorrectIndexes].sort((a, b) => a - b);
+        
+        for (let i = 0; i < sortedSelected.length; i++) {
+            if (sortedSelected[i] !== sortedCorrect[i]) {
+                return false;
+            }
+        }
+        
+        return true; 
     }
 
     private calculatePoints(question:Question, isCorrect:boolean, timeUsed:number): number {

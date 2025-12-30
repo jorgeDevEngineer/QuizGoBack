@@ -33,7 +33,7 @@ export class SubmitGameAnswerUseCase {
         const timeUsedMs = (command.timeElapsedSeconds || 0) * 1000;
         const playerAnswer = PlayerAnswer.create(
             QuestionId.of(command.slideId),
-            new Optional<number | number[]>(command.answerIndex),
+            command.answerIndex,
             timeUsedMs
         );
 
