@@ -3,8 +3,9 @@ import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { SubmitAnswerCommand } from "../helpers/SinglePlayerGameCommands";
 import { AnswerEvaluationResponseDto } from "../helpers/SinglePlayerGameResponses.dto";
 import { SinglePlayerEvaluationService } from "../../domain/services/SinglePlayerEvaluationService";
-import { Optional, PlayerAnswer, SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
+import { PlayerAnswer, SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
+import { Optional } from "src/lib/shared/Type Helpers/Optional";
 
 export class SubmitGameAnswerUseCase {
 
@@ -32,7 +33,7 @@ export class SubmitGameAnswerUseCase {
         const timeUsedMs = (command.timeElapsedSeconds || 0) * 1000;
         const playerAnswer = PlayerAnswer.create(
             QuestionId.of(command.slideId),
-            new Optional<number | number[]>(command.answerIndex),
+            command.answerIndex,
             timeUsedMs
         );
 

@@ -2,7 +2,7 @@
 import { GetQuizUseCase } from '../../../src/lib/kahoot/application/GetQuizUseCase';
 import { QuizRepository } from '../../../src/lib/kahoot/domain/port/QuizRepository';
 import { Quiz } from '../../../src/lib/kahoot/domain/entity/Quiz';
-import { DomainException } from '../../../src/common/domain/domain.exception';
+import { DomainException } from '../../../src/lib/shared/exceptions/domain.exception';
 import { QuizId } from '../../../src/lib/kahoot/domain/valueObject/Quiz';
 
 // A helper to create a realistic, non-mocked entity for stubbing.

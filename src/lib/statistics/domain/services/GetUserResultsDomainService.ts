@@ -8,6 +8,8 @@ import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";;
 import { QuizRepository } from "../../../kahoot/domain/port/QuizRepository";
 import { QuizId } from "../../../kahoot/domain/valueObject/Quiz";
 import { QuizNotFoundException } from "src/lib/shared/exceptions/QuizNotFoundException";
+import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
+import { Quiz } from "src/lib/kahoot/domain/entity/Quiz";
 
 export class GetUserResultsDomainService {
     constructor(
@@ -18,15 +20,15 @@ export class GetUserResultsDomainService {
     public async execute(
         userId: UserId,
         criteria: CompletedQuizQueryCriteria
-    ): Promise<Either<DomainException, CompletedQuizResponse[]>> {
+    ): Promise<Either<DomainException, {games: SinglePlayerGame[], quizzes: Quiz[], totalGames: number}>> {
 
-        const completedQuizzes = await this.singlePlayerGameRepository.findCompletedGames(userId, criteria);
+        const { games: completedQuizzes, totalGames } = await this.singlePlayerGameRepository.findCompletedGames(userId, criteria);
 
         if (completedQuizzes.length === 0) {
             return Either.makeLeft(new QuizzesNotFoundException("El usuario no ha completado nigun kahoot."));
         }
 
-        const results: CompletedQuizResponse[] = [];
+        const quizzes: Quiz[] = [];
 
        for (const quiz of completedQuizzes) {
         const quizId = QuizId.of(quiz.getQuizId().getValue());
@@ -36,8 +38,9 @@ export class GetUserResultsDomainService {
                 return Either.makeLeft(new QuizNotFoundException());
             }
 
-        results.push(toSingleCompletedQuizResponse(quiz, quizData));
+        quizzes.push(quizData);
         }
-        return Either.makeRight(results);
+
+        return Either.makeRight({games: completedQuizzes, quizzes, totalGames});
     }
 }

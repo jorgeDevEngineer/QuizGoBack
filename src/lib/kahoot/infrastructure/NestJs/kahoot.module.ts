@@ -10,10 +10,10 @@ import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
 import { TypeOrmQuizEntity } from '../TypeOrm/TypeOrmQuizEntity';
 import { TypeOrmQuizRepository } from '../TypeOrm/TypeOrmQuizRepository';
 import { QuizRepository } from '../../domain/port/QuizRepository';
-import { LoggerModule } from '../../../../aspects/logger/infrastructure/logger.module';
-import { ILoggerPort } from '../../../../aspects/logger/domain/ports/logger.port';
-import { LoggingUseCaseDecorator } from '../../../../aspects/logger/application/decorators/logging.decorator';
-import { ErrorHandlingDecorator } from '../../../../aspects/error-handling/application/decorators/error-handling.decorator';
+import { LoggerModule } from '../../../shared/aspects/logger/infrastructure/logger.module';
+import { ILoggerPort } from '../../../shared/aspects/logger/domain/ports/logger.port';
+import { LoggingUseCaseDecorator } from '../../../shared/aspects/logger/application/decorators/logging.decorator';
+import { ErrorHandlingDecorator } from '../../../shared/aspects/error-handling/application/decorators/error-handling.decorator';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity]), LoggerModule],

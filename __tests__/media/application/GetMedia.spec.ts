@@ -3,8 +3,8 @@ import { GetMedia, GetMediaResponse } from '../../../src/lib/media/application/G
 import { MediaRepository } from '../../../src/lib/media/domain/port/MediaRepository';
 import { Media } from '../../../src/lib/media/domain/entity/Media';
 import { MediaId } from '../../../src/lib/media/domain/valueObject/Media';
-import { Result } from '../../../src/common/domain/result';
-import { DomainException } from '../../../src/common/domain/domain.exception';
+import { Result } from '../../../src/lib/shared/Type Helpers/result';
+import { DomainException } from '../../../src/lib/shared/exceptions/domain.exception';
 
 // Helper to create a dummy Media object for stubbing
 const createDummyMedia = (id: string): Media => {

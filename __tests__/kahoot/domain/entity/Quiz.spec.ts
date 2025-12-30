@@ -20,7 +20,7 @@ import {
   Points,
 } from '../../../../src/lib/kahoot/domain/valueObject/Question';
 import { AnswerId, AnswerText, IsCorrect } from '../../../../src/lib/kahoot/domain/valueObject/Answer';
-import { DomainException } from '../../../../src/common/domain/domain.exception';
+import { DomainException } from '../../../../src/lib/shared/exceptions/domain.exception';
 
 // Helper function to create a valid question with real domain objects
 const createValidQuestion = (text: string, questionUuid: string): Question => {

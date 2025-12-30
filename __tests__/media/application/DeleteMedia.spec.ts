@@ -3,8 +3,8 @@ import { DeleteMedia } from '../../../src/lib/media/application/DeleteMedia';
 import { MediaRepository } from '../../../src/lib/media/domain/port/MediaRepository';
 import { Media } from '../../../src/lib/media/domain/entity/Media';
 import { MediaId } from '../../../src/lib/media/domain/valueObject/Media';
-import { Result } from '../../../src/common/domain/result';
-import { DomainException } from '../../../src/common/domain/domain.exception';
+import { Result } from '../../../src/lib/shared/Type Helpers/result';
+import { DomainException } from '../../../src/lib/shared/exceptions/domain.exception';
 
 const validMediaId = '123e4567-e89b-42d3-a456-426614174003';
 const dummyMedia = { id: MediaId.of(validMediaId) } as jest.Mocked<Media>;

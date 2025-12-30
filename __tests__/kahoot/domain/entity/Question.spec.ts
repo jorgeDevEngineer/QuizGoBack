@@ -11,7 +11,7 @@ import {
 import { AnswerId, AnswerText, IsCorrect } from '../../../../src/lib/kahoot/domain/valueObject/Answer';
 import { QuizId } from '../../../../src/lib/kahoot/domain/valueObject/Quiz';
 import { MediaId as MediaIdVO } from '../../../../src/lib/media/domain/valueObject/Media';
-import { DomainException } from '../../../../src/common/domain/domain.exception';
+import { DomainException } from '../../../../src/lib/shared/exceptions/domain.exception';
 
 // Helper to create mock answers for tests
 const createMockAnswer = (isCorrect: boolean): Answer => {

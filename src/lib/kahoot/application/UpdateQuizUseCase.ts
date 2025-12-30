@@ -12,16 +12,16 @@ import {
 } from '../domain/valueObject/Answer';
 import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 import { CreateQuiz, CreateQuestion as CreateQuestionDto, CreateAnswerDto } from './CreateQuizUseCase'; // CORRECTED IMPORT
-import { IUseCase } from '../../../common/use-case.interface';
-import { Result } from '../../../common/domain/result';
-import { DomainException } from '../../../common/domain/domain.exception';
+import { Result } from '../../shared/Type Helpers/result';
+import { DomainException } from '../../shared/exceptions/domain.exception';
+import { IHandler } from 'src/lib/shared/IHandler';
 
 // The Update DTO extends the Create DTO and adds the ID of the quiz to be updated.
 export interface UpdateQuizDto extends CreateQuiz {
   quizId: string;
 }
 
-export class UpdateQuizUseCase implements IUseCase<UpdateQuizDto, Result<Quiz>>{
+export class UpdateQuizUseCase implements IHandler<UpdateQuizDto, Result<Quiz>>{
   constructor(private readonly quizRepository: QuizRepository) {}
 
   async execute(request: UpdateQuizDto): Promise<Result<Quiz>> {
