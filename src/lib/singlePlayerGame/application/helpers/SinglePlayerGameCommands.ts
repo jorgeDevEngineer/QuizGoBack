@@ -9,8 +9,8 @@ export class SubmitAnswerCommand {
   constructor(
     public readonly attemptId: string,
     public readonly slideId: string,
-    public readonly answerIndex?: number | number[],
-    public readonly timeElapsedSeconds?: number
+    public readonly answerIndex: number[],
+    public readonly timeElapsedSeconds: number
   ) {}
 }
 

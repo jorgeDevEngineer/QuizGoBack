@@ -1,9 +1,10 @@
 import { GetGameProgressCommand } from "../helpers/SinglePlayerGameCommands";
 import { GameProgressResponseDto } from "../helpers/SinglePlayerGameResponses.dto";
-import { Optional, SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
+import { Optional } from "src/lib/shared/Type Helpers/Optional";
 
 export class GetGameProgressUseCase {
 
