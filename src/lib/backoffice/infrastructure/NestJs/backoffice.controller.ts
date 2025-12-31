@@ -7,10 +7,12 @@ import {
     Param,
     Patch,
     Query,
+    Delete,
   } from '@nestjs/common';
   import { IsString, Length } from 'class-validator';
   import { SearchUsersUseCase } from '../../application/SearchUsersUseCase';
   import { BlockUserUseCase } from '../../application/BlockUserUseCase';
+  import { DeleteUserUseCase } from '../../application/DeleteUserUseCase';
 
 
 export class FindOneParams {
@@ -24,6 +26,7 @@ export class BackofficeController {
     constructor(
         private readonly searchUsersUseCase: SearchUsersUseCase,
         private readonly blockUserUseCase: BlockUserUseCase,
+        private readonly deleteUserUseCase: DeleteUserUseCase,
     ){}
 
     @Get('users')
@@ -58,7 +61,17 @@ export class BackofficeController {
             const result = await this.blockUserUseCase.run(userId);
             return result;
         } catch (e) {
-            throw new Error(e.message);
+            throw new InternalServerErrorException(e.message);
+        }
+    }
+
+    @Delete('users/:userId')
+    async deleteUser(@Param('userId') userId: string) {
+        try {
+            const result = await this.deleteUserUseCase.run(userId);
+            return result;
+        } catch (e) {
+            throw new InternalServerErrorException(e.message);
         }
     }
 }

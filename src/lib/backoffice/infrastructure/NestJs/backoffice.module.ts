@@ -5,6 +5,7 @@ import { SearchUsersUseCase } from '../../application/SearchUsersUseCase';
 import { TypeOrmUserRepository } from '../TypeOrm/TypeOrmUserRepository';
 import { TypeOrmUserEntity } from '../TypeOrm/TypeOrmUserEntity';
 import { BlockUserUseCase } from '../../application/BlockUserUseCase';
+import { DeleteUserUseCase } from '../../application/DeleteUserUseCase';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserEntity])],
@@ -12,11 +13,12 @@ import { BlockUserUseCase } from '../../application/BlockUserUseCase';
   providers: [
     SearchUsersUseCase,
     BlockUserUseCase,
+    DeleteUserUseCase,
     {
       provide: 'UserRepository',
       useClass: TypeOrmUserRepository,
     }
   ],
-  exports: [SearchUsersUseCase, BlockUserUseCase],
+  exports: [SearchUsersUseCase, BlockUserUseCase, DeleteUserUseCase],
 })
 export class BackofficeModule {}
