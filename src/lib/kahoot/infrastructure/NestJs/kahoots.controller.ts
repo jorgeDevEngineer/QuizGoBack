@@ -69,13 +69,6 @@ export class KahootController {
     return quizzes.map((q) => q.toPlainObject());
   }
 
-  @Get(':id')
-  async getOneById(@Param() params: FindOneParams) {
-    const result = await this.getQuizUseCase.execute(params.id);
-    const quiz = this.handleResult(result);
-    return quiz.toPlainObject();
-  }
-
   @Post()
   async create(@Body() body: CreateQuiz) { 
     const result = await this.createQuizUseCase.execute(body);
@@ -98,5 +91,12 @@ export class KahootController {
   async delete(@Param() params: FindOneParams) {
     const result = await this.deleteQuizUseCase.execute(params.id);
     return this.handleResult(result);
+  }
+
+  @Get(':id')
+  async getOneById(@Param() params: FindOneParams) {
+    const result = await this.getQuizUseCase.execute(params.id);
+    const quiz = this.handleResult(result);
+    return quiz.toPlainObject();
   }
 }
