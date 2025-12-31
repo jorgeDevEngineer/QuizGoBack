@@ -14,6 +14,7 @@ import { LoggerModule } from '../../../shared/aspects/logger/infrastructure/logg
 import { ILoggerPort } from '../../../shared/aspects/logger/domain/ports/logger.port';
 import { LoggingUseCaseDecorator } from '../../../shared/aspects/logger/application/decorators/logging.decorator';
 import { ErrorHandlingDecorator } from '../../../shared/aspects/error-handling/application/decorators/error-handling.decorator';
+import { GetAllKahootsUseCase } from '../../application/GetAllKahootsUseCase';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity]), LoggerModule],
@@ -65,6 +66,15 @@ import { ErrorHandlingDecorator } from '../../../shared/aspects/error-handling/a
         const realUseCase = new DeleteQuizUseCase(repo);
         const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'DeleteQuizUseCase');
         return new LoggingUseCaseDecorator(withErrorHandling, logger, 'DeleteQuizUseCase');
+      },
+      inject: ['ILoggerPort', 'QuizRepository'],
+    },
+    {
+      provide: GetAllKahootsUseCase,
+      useFactory: (logger: ILoggerPort, repo: QuizRepository) => {
+        const realUseCase = new GetAllKahootsUseCase(repo);
+        const withErrorHandling = new ErrorHandlingDecorator(realUseCase, logger, 'GetAllKahootsUseCase');
+        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetAllKahootsUseCase');
       },
       inject: ['ILoggerPort', 'QuizRepository'],
     },

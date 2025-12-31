@@ -45,7 +45,7 @@ export class GameProgressResponseDto {
   nextSlide?: SlideResponseDto;
 }
 
-export class AnswerEvaluationResponseDto {
+export class SubmitGameAnswerResponseDto {
   @IsBoolean()
   wasCorrect: boolean;
 

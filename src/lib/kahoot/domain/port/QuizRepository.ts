@@ -24,7 +24,7 @@ export interface QuizRepository {
      * (Opcional) Busca todos los Quizzes creados por un autor específico.
      * Útil para el dashboard del profesor/usuario.
      */
-    searchByAuthor(authorId: UserId): Promise<Quiz[]>;
+    searchByAuthor(authorId?: UserId): Promise<Quiz[]>;
 }
 
 /**

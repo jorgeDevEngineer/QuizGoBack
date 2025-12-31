@@ -11,32 +11,33 @@ import {
     HttpStatus
 } from "@nestjs/common";
 import { 
-    AnswerEvaluationResponseDto, 
+    SubmitGameAnswerResponseDto, 
     GameProgressResponseDto, 
     GameSummaryResponseDto, 
     StartGameResponseDto 
-} from "../../application/helpers/SinglePlayerGameResponses.dto";;
-import { StartGameRequestDto, SubmitAnswerRequestDto } from "../../application/helpers/SinglePlayerGameRequests.dto";
-import { StartSinglePlayerGameUseCase } from "../../application/useCases/StartSinglePlayerGameUseCase";
-import { SubmitGameAnswerUseCase } from "../../application/useCases/SubmitGameAnswerUseCase";
-import { GetGameSummaryUseCase } from "../../application/useCases/GetGameSummaryUseCase";
-import { GetGameProgressUseCase } from "../../application/useCases/GetGameProgressUseCase";
+} from "../../application/dtos/SinglePlayerGameResponses.dto";;
+import { StartGameRequestDto, SubmitGameAnswerRequestDto } from "../../application/dtos/SinglePlayerGameRequests.dto";
+import { IHandler } from "src/lib/shared/IHandler";
+import { StartSinglePlayerGameCommand } from "../../application/parameterObjects/StartSinglePlayerGameCommand";
+import { SubmitGameAnswerCommand } from "../../application/parameterObjects/SubmitGameAnswerCommand";
+import { GetGameProgressQuery } from "../../application/parameterObjects/GetGameProgressQuery";
+import { GetGameSummaryQuery } from "../../application/parameterObjects/GetGameSummaryQuery";
 
 @Controller('attempts')
 export class SinglePlayerGameController {
 
     constructor(
-        @Inject('StartSinglePlayerGameUseCase')
-        private readonly StartSinglePlayerGameUseCase: StartSinglePlayerGameUseCase,
+        @Inject('StartSinglePlayerGameCommandHandler')
+        private readonly StartSinglePlayerGameHandler: IHandler<StartSinglePlayerGameCommand, StartGameResponseDto>,
 
-        @Inject('GetGameProgressUseCase')
-        private readonly GetGameProgressUseCase: GetGameProgressUseCase,
+        @Inject('GetGameProgressQueryHandler')
+        private readonly GetGameProgressHandler: IHandler<GetGameProgressQuery, GameProgressResponseDto>,
 
-        @Inject('SubmitGameAnswerUseCase')
-        private readonly SubmitGameAnswerUseCase: SubmitGameAnswerUseCase,
+        @Inject('SubmitGameAnswerCommandHandler')
+        private readonly SubmitGameAnswerHandler: IHandler<SubmitGameAnswerCommand, SubmitGameAnswerResponseDto>,
 
-        @Inject('GetGameSummaryUseCase')
-        private readonly GetGameSummaryUseCase: GetGameSummaryUseCase
+        @Inject('GetGameSummaryQueryHandler')
+        private readonly GetGameSummaryHandler: IHandler<GetGameSummaryQuery, GameSummaryResponseDto> 
     ) {}
 
     //Mientras no esté hecho el modulo de autentición
@@ -64,7 +65,7 @@ export class SinglePlayerGameController {
 
         try {
             const playerId = this.extractUserIdFromToken(authHeader);
-            return await this.StartSinglePlayerGameUseCase.execute({
+            return await this.StartSinglePlayerGameHandler.execute({
                 kahootId: body.kahootId,
                 playerId
             });
@@ -87,7 +88,7 @@ export class SinglePlayerGameController {
         }
 
         try {
-            return await this.GetGameProgressUseCase.execute({ attemptId });
+            return await this.GetGameProgressHandler.execute({ attemptId });
         } catch (error) {
             if (error.message === `No se encontró la partida de id ${attemptId}`) {
                 throw new HttpException(`Partida de id ${attemptId} no encontrada`, HttpStatus.NOT_FOUND);
@@ -100,16 +101,16 @@ export class SinglePlayerGameController {
     @Post(':attemptId/answer')
     async submitAnswer(
         @Param('attemptId') attemptId: string,
-        @Body() body: SubmitAnswerRequestDto,
+        @Body() body: SubmitGameAnswerRequestDto,
         @Headers('authorization') authHeader?: string
-    ): Promise<AnswerEvaluationResponseDto> {
+    ): Promise<SubmitGameAnswerResponseDto> {
 
         if (!authHeader) {
             throw new UnauthorizedException('No se encuentra el header de autorización');
         }
 
         try {
-            return await this.SubmitGameAnswerUseCase.execute({
+            return await this.SubmitGameAnswerHandler.execute({
                 attemptId,
                 slideId: body.slideId,
                 answerIndex: body.answerIndex,
@@ -142,7 +143,7 @@ export class SinglePlayerGameController {
 
 
         try {
-            return await this.GetGameSummaryUseCase.execute({ attemptId });
+            return await this.GetGameSummaryHandler.execute({ attemptId });
         } catch (error) {
             if (error.message === `No se encontró la partida de id ${attemptId}`) {
                 throw new HttpException(`Quiz de id ${attemptId} no encontrado`, HttpStatus.NOT_FOUND);

@@ -20,6 +20,7 @@ import { UpdateQuizUseCase, UpdateQuizDto } from '../../application/UpdateQuizUs
 import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
 import { IsString, Length } from 'class-validator';
 import { Result } from '../../../shared/Type Helpers/result';
+import { GetAllKahootsUseCase } from '../../application/GetAllKahootsUseCase';
 
 export class FindOneParams {
   @IsString()
@@ -40,6 +41,8 @@ export class KahootController {
     private readonly updateQuizUseCase: UpdateQuizUseCase,
     @Inject(DeleteQuizUseCase)
     private readonly deleteQuizUseCase: DeleteQuizUseCase,
+    @Inject(GetAllKahootsUseCase)
+    private readonly getAllKahootsUseCase: GetAllKahootsUseCase,
   ) {}
 
   private handleResult<T>(result: Result<T>) {
@@ -52,18 +55,18 @@ export class KahootController {
     return result.getValue();
   }
 
+  @Get('all')
+  async getAllKahoots() {
+    const result = await this.getAllKahootsUseCase.execute();
+    const quizzes = this.handleResult(result);
+    return quizzes.map((q) => q.toPlainObject());
+  }
+
   @Get('user/:userId')
   async listUserQuizzes(@Param('userId') userId: string) {
     const result = await this.listUserQuizzesUseCase.execute(userId);
     const quizzes = this.handleResult(result);
     return quizzes.map((q) => q.toPlainObject());
-  }
-
-  @Get(':id')
-  async getOneById(@Param() params: FindOneParams) {
-    const result = await this.getQuizUseCase.execute(params.id);
-    const quiz = this.handleResult(result);
-    return quiz.toPlainObject();
   }
 
   @Post()
@@ -88,5 +91,12 @@ export class KahootController {
   async delete(@Param() params: FindOneParams) {
     const result = await this.deleteQuizUseCase.execute(params.id);
     return this.handleResult(result);
+  }
+
+  @Get(':id')
+  async getOneById(@Param() params: FindOneParams) {
+    const result = await this.getQuizUseCase.execute(params.id);
+    const quiz = this.handleResult(result);
+    return quiz.toPlainObject();
   }
 }

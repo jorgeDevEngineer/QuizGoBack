@@ -1,3 +1,4 @@
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -5,27 +6,36 @@ import { Media } from '../../domain/entity/Media';
 import { MediaRepository } from '../../domain/port/MediaRepository';
 import { TypeOrmMediaEntity } from './TypeOrmMediaEntity';
 import { MediaId } from '../../domain/valueObject/Media';
+import { DynamicMongoAdapter } from '../../../shared/infrastructure/database/dynamic-mongo.adapter';
 
 @Injectable()
 export class TypeOrmMediaRepository implements MediaRepository {
   constructor(
     @InjectRepository(TypeOrmMediaEntity)
-    private readonly mediaRepository: Repository<TypeOrmMediaEntity>,
+    private readonly pgRepository: Repository<TypeOrmMediaEntity>,
+    private readonly mongoAdapter: DynamicMongoAdapter,
   ) {}
 
+  // Example of how you might use the adapter
+  async getMongoDbInstance() {
+    // The name 'media' should be consistent with what you use in the AdminController
+    const db = await this.mongoAdapter.getConnection('media');
+    return db;
+  }
+
   async save(media: Media): Promise<void> {
-    const entity = this.mediaRepository.create(media.properties());
-    await this.mediaRepository.save(entity);
+    const entity = this.pgRepository.create(media.properties());
+    await this.pgRepository.save(entity);
   }
 
   async findById(id: MediaId): Promise<Media | null> {
-    const entity = await this.mediaRepository.findOne({ where: { id: id.value } });
+    const entity = await this.pgRepository.findOne({ where: { id: id.value } });
     return entity ? Media.fromPrimitives(entity) : null;
   }
 
   async findAll(): Promise<Media[]> {
     // Excluimos la columna 'data' (imagen completa) para optimizar
-    const entities = await this.mediaRepository.find({
+    const entities = await this.pgRepository.find({
       select: ['id', 'thumbnail', 'mimeType', 'size', 'originalName', 'createdAt'],
     });
     
@@ -34,6 +44,6 @@ export class TypeOrmMediaRepository implements MediaRepository {
   }
 
   async delete(id: MediaId): Promise<void> {
-    await this.mediaRepository.delete(id.value);
+    await this.pgRepository.delete(id.value);
   }
 }

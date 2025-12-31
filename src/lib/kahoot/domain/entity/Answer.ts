@@ -52,7 +52,7 @@ export class Answer {
       id: this._id.value,
       questionId: this._question.value,
       text: this._text ? this._text.value : null,
-      mediaId: this._mediaId ? `${process.env.BASE_URL}/media/${this._mediaId.value}` : null,
+      mediaId: this._mediaId ? this._mediaId.value : null,
       isCorrect: this._isCorrect.value,
     };
   }

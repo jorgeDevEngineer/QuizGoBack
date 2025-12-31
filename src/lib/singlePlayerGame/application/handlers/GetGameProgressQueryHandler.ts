@@ -1,19 +1,20 @@
-import { GetGameProgressCommand } from "../helpers/SinglePlayerGameCommands";
-import { GameProgressResponseDto } from "../helpers/SinglePlayerGameResponses.dto";
+import { GetGameProgressQuery } from "../parameterObjects/GetGameProgressQuery";
+import { GameProgressResponseDto } from "../dtos/SinglePlayerGameResponses.dto";
 import { SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
 import { Optional } from "src/lib/shared/Type Helpers/Optional";
+import { IHandler } from "src/lib/shared/IHandler";
 
-export class GetGameProgressUseCase {
+export class GetGameProgressQueryHandler implements IHandler<GetGameProgressQuery, GameProgressResponseDto>{
 
     constructor(
         private readonly gameRepo: SinglePlayerGameRepository,
         private readonly quizRepo: QuizRepository
     ) {}
 
-    async execute(command: GetGameProgressCommand): Promise<GameProgressResponseDto> {
+    async execute(command: GetGameProgressQuery): Promise<GameProgressResponseDto> {
 
         const game = await this.gameRepo.findById(SinglePlayerGameId.of(command.attemptId));
         if (!game) {
