@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsUUID } from "class-validator";
-import { SinglePlayerGameId} from "../../../singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 
 export class AttemptIdDTO {
     constructor(attemptId: string) {

@@ -11,6 +11,7 @@ import { StartSinglePlayerGameCommandHandler } from "../../application/handlers/
 import { SubmitGameAnswerCommandHandler } from "../../application/handlers/SubmitGameAnswerCommandHandler";
 import { GetGameProgressQueryHandler } from "../../application/handlers/GetGameProgressQueryHandler";
 import { GetGameSummaryQueryHandler } from "../../application/handlers/GetGameSummaryQueryHandler";
+import { CryptoUuidGenerator } from "src/lib/shared/infrastructure/adapters/CryptoUuidGenerator";
 
 @Module({
     imports: [
@@ -24,12 +25,17 @@ import { GetGameSummaryQueryHandler } from "../../application/handlers/GetGameSu
             useClass: TypeOrmSinglePlayerGameRepository
         },
         {
+            provide: 'UuidGenerator',
+            useClass: CryptoUuidGenerator
+        },
+        {
             provide: 'StartSinglePlayerGameCommandHandler',
             useFactory: (
                 gameRepo: SinglePlayerGameRepository,
                 quizRepo: QuizRepository,
-            ) => new StartSinglePlayerGameCommandHandler(gameRepo, quizRepo),
-            inject: ['SinglePlayerGameRepository', 'QuizRepository'],
+                uuidGenerator: CryptoUuidGenerator,
+            ) => new StartSinglePlayerGameCommandHandler(gameRepo, quizRepo, uuidGenerator),
+            inject: ['SinglePlayerGameRepository', 'QuizRepository', 'UuidGenerator'],
         },
         {
             provide: 'GetGameProgressQueryHandler',

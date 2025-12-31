@@ -1,6 +1,6 @@
 import { GetGameProgressQuery } from "../parameterObjects/GetGameProgressQuery";
 import { GameProgressResponseDto } from "../dtos/SinglePlayerGameResponses.dto";
-import { SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
