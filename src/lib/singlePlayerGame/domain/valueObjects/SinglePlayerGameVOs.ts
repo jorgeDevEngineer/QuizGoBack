@@ -1,33 +1,4 @@
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
-import { UuidGenerator } from "src/lib/shared/domain/ports/UuuidGenerator";
-
-/**
- * Encapsula un identificador para una Partida de un Kahoot (UUID v4).
- */
-export class SinglePlayerGameId {
-
-    private static readonly UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-    private constructor(private readonly gameId: string) {
-        if (!SinglePlayerGameId.UUID_V4_REGEX.test(gameId)) {
-            throw new Error(`SinglePlayerGameId does not have valid UUID v4 format: ${gameId}`);
-        }
-    }
-
-    public static of(gameId: string): SinglePlayerGameId {
-        return new SinglePlayerGameId(gameId);
-    }
-
-    public static generate(uuidGenerator: UuidGenerator): SinglePlayerGameId {
-        const generatedId = uuidGenerator.generate();
-        return new SinglePlayerGameId(generatedId);
-    }
-
-    public getId(): string {
-        return this.gameId;
-    }
-}
-
 
 /**
  * Enum para los estados de una Partida, en progreso o completada

@@ -3,7 +3,8 @@ import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlay
 import { TypeOrmSinglePlayerGameEntity } from "./TypeOrmSinglePlayerGameEntity";
 import { Injectable } from "@nestjs/common";
 import { SinglePlayerGame } from "../../domain/aggregates/SinglePlayerGame";
-import { GameProgressStatus, SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
+import { GameProgressStatus } from "../../domain/valueObjects/SinglePlayerGameVOs";
 import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { Repository } from "typeorm";
 

@@ -2,7 +2,7 @@ import { StartSinglePlayerGameCommand } from "../parameterObjects/StartSinglePla
 import { StartGameResponseDto } from "../dtos/SinglePlayerGameResponses.dto";
 import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { SinglePlayerGame } from "../../domain/aggregates/SinglePlayerGame";
-import { SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { IHandler } from "src/lib/shared/IHandler";

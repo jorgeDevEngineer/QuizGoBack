@@ -1,7 +1,7 @@
 import { SinglePlayerGame } from "../../../singlePlayerGame/domain/aggregates/SinglePlayerGame"
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { CompletedQuizQueryCriteria } from "../../application/Response Types/CompletedQuizQueryCriteria";
-import { SinglePlayerGameId } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 
 export interface SinglePlayerGameRepository {
 

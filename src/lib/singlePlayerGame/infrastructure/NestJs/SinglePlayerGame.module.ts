@@ -11,7 +11,6 @@ import { StartSinglePlayerGameCommandHandler } from "../../application/handlers/
 import { SubmitGameAnswerCommandHandler } from "../../application/handlers/SubmitGameAnswerCommandHandler";
 import { GetGameProgressQueryHandler } from "../../application/handlers/GetGameProgressQueryHandler";
 import { GetGameSummaryQueryHandler } from "../../application/handlers/GetGameSummaryQueryHandler";
-import { UuidGenerator } from "src/lib/shared/domain/ports/UuuidGenerator";
 import { CryptoUuidGenerator } from "src/lib/shared/infrastructure/adapters/CryptoUuidGenerator";
 
 @Module({

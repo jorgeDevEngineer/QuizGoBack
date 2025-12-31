@@ -10,7 +10,7 @@ import { CompletedQuizQueryParams } from '../../application/DTOs/CompletedQuizQu
 import { AttemptIdDTO } from '../../application/DTOs/AttemptIdDTO';
 import { GetCompletedQuizSummary } from '../../application/Parameter Objects/GetCompletedQuizSummary';
 import { UserId } from 'src/lib/kahoot/domain/valueObject/Quiz';
-import { SinglePlayerGameId } from 'src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs';
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { QuizPersonalResult } from '../../application/Response Types/QuizPersonalResult';
 
 @Controller('reports')

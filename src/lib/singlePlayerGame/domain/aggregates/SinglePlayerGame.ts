@@ -1,5 +1,5 @@
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import {
-    SinglePlayerGameId,
     GameProgress,
     GameScore,
     QuestionResult
