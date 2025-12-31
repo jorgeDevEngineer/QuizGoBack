@@ -8,12 +8,16 @@ import {
     Patch,
     Query,
     Delete,
+    Post,
+    Body,
+    BadRequestException,
   } from '@nestjs/common';
   import { IsString, Length } from 'class-validator';
   import { SearchUsersUseCase } from '../../application/SearchUsersUseCase';
   import { BlockUserUseCase } from '../../application/BlockUserUseCase';
   import { DeleteUserUseCase } from '../../application/DeleteUserUseCase';
-
+  import { SendNotificationUseCase } from '../../application/SendNotificationUseCase';
+  import { NotificationDto } from '../../application/SendNotificationUseCase';
 
 export class FindOneParams {
     @IsString()
@@ -27,6 +31,7 @@ export class BackofficeController {
         private readonly searchUsersUseCase: SearchUsersUseCase,
         private readonly blockUserUseCase: BlockUserUseCase,
         private readonly deleteUserUseCase: DeleteUserUseCase,
+        private readonly sendNotificationUseCase: SendNotificationUseCase,
     ){}
 
     @Get('users')
@@ -72,6 +77,16 @@ export class BackofficeController {
             return result;
         } catch (e) {
             throw new InternalServerErrorException(e.message);
+        }
+    }
+
+    @Post('admin/notifications')
+    async sendNotification(@Body() body: NotificationDto) {
+        try {
+            const result = await this.sendNotificationUseCase.run(body);
+            return result;
+        } catch (e) {
+            throw new BadRequestException(e.message);
         }
     }
 }
