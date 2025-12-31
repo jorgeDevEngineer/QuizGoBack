@@ -25,7 +25,7 @@ export class User {
   membership: Membership;
   readonly createdAt: UserDate;
   updatedAt: UserDate;
-  status: string
+  status: string// Default: 'Active';
   constructor(
     userName: UserName,
     email: UserEmail,
@@ -40,7 +40,7 @@ export class User {
     membership?: Membership,
     createdAt?: UserDate,
     updatedAt?: UserDate,
-    status?: string
+    Status?: string
   ) {
     this.userName = userName;
     this.email = email;
@@ -57,7 +57,7 @@ export class User {
       : Membership.createFreeMembership();
     this.createdAt = createdAt ? createdAt : new UserDate(new Date());
     this.updatedAt = updatedAt ? updatedAt : new UserDate(this.createdAt.value);
-    this.status = status ? status : 'Active';
+    this.status = Status ? Status : 'Active';
   }
 
   toPlainObject() {
@@ -74,6 +74,7 @@ export class User {
       membership: this.membership.toPlainObject(),
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
+      status: this.status,
     };
   }
 
@@ -90,4 +91,5 @@ export class User {
     this.membership = Membership.createFreeMembership();
     this.updatedAt = new UserDate(new Date());
   }
+
 }

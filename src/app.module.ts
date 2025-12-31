@@ -12,6 +12,7 @@ import { LibraryModule } from "./lib/library/infrastructure/NestJS/library.modul
 import { SinglePlayerGameModule } from "./lib/singlePlayerGame/infrastructure/NestJs/SinglePlayerGame.module";
 import { StatisticsModule } from "./lib/statistics/infrastructure/NestJS/statistics.module";
 import { LoggerModule } from "./lib/shared/aspects/logger/infrastructure/logger.module";
+import { BackofficeModule } from "./lib/backoffice/infrastructure/NestJs/backoffice.module";
 import { DatabaseModule } from "./lib/shared/infrastructure/database/database.module";
 import { AdminModule } from "./lib/admin/infrastructure/admin.module";
 
@@ -54,6 +55,7 @@ import { AdminModule } from "./lib/admin/infrastructure/admin.module";
     UserModule,
     SinglePlayerGameModule,
     StatisticsModule,
+    BackofficeModule,
   ],
 })
 export class AppModule {}
