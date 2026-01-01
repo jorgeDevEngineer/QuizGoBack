@@ -1,7 +1,7 @@
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QuizRepository } from '../../../domain/port/QuizRepository';
-import { Quiz } from '../../../../kahoot/domain/entity/Quiz';
+import { QuizRepository } from '../../../../domain/port/QuizRepository';
+import { Quiz } from '../../../../../kahoot/domain/entity/Quiz';
 import {
   QuizId,
   UserId,
@@ -11,28 +11,28 @@ import {
   ThemeId,
   QuizStatus,
   QuizCategory,
-} from '../../../../kahoot/domain/valueObject/Quiz';
-import { TypeOrmQuizEntity } from '../../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
-import { Question } from '../../../../kahoot/domain/entity/Question';
-import { Answer } from '../../../../kahoot/domain/entity/Answer';
+} from '../../../../../kahoot/domain/valueObject/Quiz';
+import { TypeOrmQuizEntity } from '../../../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
+import { Question } from '../../../../../kahoot/domain/entity/Question';
+import { Answer } from '../../../../../kahoot/domain/entity/Answer';
 import {
   QuestionId,
   QuestionText,
   QuestionType,
   TimeLimit,
   Points,
-} from '../../../../kahoot/domain/valueObject/Question';
-import { MediaId as MediaIdVO } from '../../../../media/domain/valueObject/Media';
+} from '../../../../../kahoot/domain/valueObject/Question';
+import { MediaId as MediaIdVO } from '../../../../../media/domain/valueObject/Media';
 import {
   AnswerId,
   AnswerText,
   IsCorrect,
-} from '../../../../kahoot/domain/valueObject/Answer';
-import { UserId as UserIdVO } from '../../../../user/domain/valueObject/UserId';
+} from '../../../../../kahoot/domain/valueObject/Answer';
+import { UserId as UserIdVO } from '../../../../../user/domain/valueObject/UserId';
 import { QuizQueryCriteria } from 'src/lib/library/application/Response Types/QuizQueryCriteria';
 import { CriteriaApplier } from 'src/lib/library/domain/port/CriteriaApplier';
 
-export class TypeOrmQuizRepository implements QuizRepository {
+export class TypeOrmPostgresQuizRepository implements QuizRepository {
   constructor(
     @InjectRepository(TypeOrmQuizEntity)
     private readonly repository: Repository<TypeOrmQuizEntity>,
