@@ -1,203 +1,312 @@
-import { Module } from '@nestjs/common';
-import { LibraryController } from './library.controller';
-import { AddUserFavoriteQuizCommandHanlder } from '../../application/Handlers/Commands/AddUserFavoriteQuizCommandHandler';
-import { DeleteUserFavoriteQuizCommandHandler } from '../../application/Handlers/Commands/DeleteUserFavoriteQuizCommandHandler';
-import { GetUserFavoriteQuizzesQueryHandler } from '../../application/Handlers/Querys/GetUserFavoriteQuizzesQueryHandler';
-import { GetAllUserQuizzesQueryHandler } from '../../application/Handlers/Querys/GetAllUserQuizzesQueryHandler';
-import { GetUserInProgressQuizzesQueryHandler} from '../../application/Handlers/Querys/GetUserInProgessQuizzesQueryHandler';
-import { GetUserCompletedQuizzesQueryHandler } from '../../application/Handlers/Querys/GetUserCompletedQuizzesQueryHandler';
+import { Module } from "@nestjs/common";
+import { LibraryController } from "./library.controller";
+import { AddUserFavoriteQuizCommandHanlder } from "../../application/Handlers/Commands/AddUserFavoriteQuizCommandHandler";
+import { DeleteUserFavoriteQuizCommandHandler } from "../../application/Handlers/Commands/DeleteUserFavoriteQuizCommandHandler";
+import { GetUserFavoriteQuizzesQueryHandler } from "../../application/Handlers/Querys/GetUserFavoriteQuizzesQueryHandler";
+import { GetAllUserQuizzesQueryHandler } from "../../application/Handlers/Querys/GetAllUserQuizzesQueryHandler";
+import { GetUserInProgressQuizzesQueryHandler } from "../../application/Handlers/Querys/GetUserInProgessQuizzesQueryHandler";
+import { GetUserCompletedQuizzesQueryHandler } from "../../application/Handlers/Querys/GetUserCompletedQuizzesQueryHandler";
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
-import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmUserFavoriteQuizEntity } from '../TypeOrm/Entities/TypeOrmUserFavoriteQuizEntity';
-import { TypeOrmQuizEntity } from '../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity';
-import { UserRepository } from '../../../user/domain/port/UserRepository';
-import { TypeOrmUserEntity } from '../../../user/infrastructure/TypeOrm//TypeOrmUserEntity';
-import { SinglePlayerGameRepository} from '../../domain/port/SinglePlayerRepository';
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { TypeOrmPostgresUserFavoriteQuizEntity } from "../TypeOrm/Postgres/Entities/TypeOrmPostgresUserFavoriteQuizEntity";
+import { TypeOrmQuizEntity } from "../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
+import { UserRepository } from "../../../user/domain/port/UserRepository";
+import { TypeOrmUserEntity } from "../../../user/infrastructure/TypeOrm//TypeOrmUserEntity";
+import { SinglePlayerGameRepository } from "../../domain/port/SinglePlayerRepository";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
-import { QuizRepository } from '../../domain/port/QuizRepository';
-import { CriteriaApplier } from '../../domain/port/CriteriaApplier';
-import { Repository, SelectQueryBuilder } from 'typeorm';
-import { TypeOrmCriteriaApplier } from '../TypeOrm//Criteria Appliers/TypeOrmCriteriaApplier';
-import { TypeOrmQuizCriteriaApplier } from '../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier';
+import { QuizRepository } from "../../domain/port/QuizRepository";
+import { CriteriaApplier } from "../../domain/port/CriteriaApplier";
+import { DataSource, SelectQueryBuilder } from "typeorm";
+import { TypeOrmCriteriaApplier } from "../TypeOrm//Criteria Appliers/TypeOrmCriteriaApplier";
+import { TypeOrmQuizCriteriaApplier } from "../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier";
 import { QuizQueryCriteria } from "../../application/Response Types/QuizQueryCriteria";
-import { GetAllUserQuizzesDomainService } from '../../domain/services/Queries/GetAllUserQuizzesDomainService';
-import { GetUserInProgressQuizzesDomainService } from '../../domain/services/Queries/GetUserInProgressQuizzesDomainService';
-import { GetUserFavoriteQuizzesDomainService } from '../../domain/services/Queries/GetUserFavoriteQuizzesDomainService';
-import { GetUserCompletedQuizzesDomainService } from '../../domain/services/Queries/GetUserCompletedQuizzesDomainService';
-import { AddUserFavoriteQuizDomainService } from '../../domain/services/Commands/AddUserFavoriteQuizDomainService';
-import { DeleteUserFavoriteQuizDomainService } from '../../domain/services/Commands/DeleteUserFavoriteQuizDomainService';
-import { ILoggerPort } from 'src/lib/shared/aspects/logger/domain/ports/logger.port';
-import { LoggingUseCaseDecorator } from 'src/lib/shared/aspects/logger/application/decorators/logging.decorator';
-import { ErrorHandlingDecoratorWithEither } from 'src/lib/shared/aspects/error-handling/application/decorators/error-handling-either';
-import { LoggerModule } from 'src/lib/shared/aspects/logger/infrastructure/logger.module';
-import { LibraryRepositoryBuilder } from '../TypeOrm/libraryBuilder';
+import { GetAllUserQuizzesDomainService } from "../../domain/services/Queries/GetAllUserQuizzesDomainService";
+import { GetUserInProgressQuizzesDomainService } from "../../domain/services/Queries/GetUserInProgressQuizzesDomainService";
+import { GetUserFavoriteQuizzesDomainService } from "../../domain/services/Queries/GetUserFavoriteQuizzesDomainService";
+import { GetUserCompletedQuizzesDomainService } from "../../domain/services/Queries/GetUserCompletedQuizzesDomainService";
+import { AddUserFavoriteQuizDomainService } from "../../domain/services/Commands/AddUserFavoriteQuizDomainService";
+import { DeleteUserFavoriteQuizDomainService } from "../../domain/services/Commands/DeleteUserFavoriteQuizDomainService";
+import { ILoggerPort } from "src/lib/shared/aspects/logger/domain/ports/logger.port";
+import { LoggingUseCaseDecorator } from "src/lib/shared/aspects/logger/application/decorators/logging.decorator";
+import { ErrorHandlingDecoratorWithEither } from "src/lib/shared/aspects/error-handling/application/decorators/error-handling-either";
+import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logger.module";
+import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmUserFavoriteQuizEntity, TypeOrmQuizEntity, TypeOrmUserEntity, TypeOrmSinglePlayerGameEntity]), 
-LoggerModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      TypeOrmPostgresUserFavoriteQuizEntity,
+      TypeOrmQuizEntity,
+      TypeOrmUserEntity,
+      TypeOrmSinglePlayerGameEntity,
+    ]),
+    LoggerModule,
+  ],
   controllers: [LibraryController],
   providers: [
     {
-      provide: 'CriteriaApplier',
+      provide: "CriteriaApplier",
       useClass: TypeOrmCriteriaApplier, // implementación genérica
     },
     {
-      provide: 'AdvancedCriteriaApplier',
+      provide: "AdvancedCriteriaApplier",
       useClass: TypeOrmQuizCriteriaApplier, // implementación avanzada
     },
-   // Builder configurado con el motor desde variable de entorno
-   {
-    provide: 'LibraryRepositoryBuilder',
-    useFactory: (
-      quizRepo: Repository<TypeOrmQuizEntity>,
-      userRepo: Repository<TypeOrmUserEntity>,
-      userFavRepo: Repository<TypeOrmUserFavoriteQuizEntity>,
-      singleGameRepo: Repository<TypeOrmSinglePlayerGameEntity>,
-    ) => {
-      const dbType: 'postgres' | 'mongo' =
-        (process.env.LIBRARY_DB_TYPE as 'postgres' | 'mongo') || 'postgres';
-
-      return new LibraryRepositoryBuilder(dbType)
-        .withQuizRepo(quizRepo)
-        .withUserRepo(userRepo)
-        .withUserFavoriteRepo(userFavRepo)
-        .withSinglePlayerGameRepo(singleGameRepo);
-    },
-    inject: [
-      getRepositoryToken(TypeOrmQuizEntity),
-      getRepositoryToken(TypeOrmUserEntity),
-      getRepositoryToken(TypeOrmUserFavoriteQuizEntity),
-      getRepositoryToken(TypeOrmSinglePlayerGameEntity),
-    ],
-  },
-
-  // Repositorios construidos con sus criteria appliers correspondientes
-  {
-    provide: 'UserFavoriteQuizRepository',
-    useFactory: (
-      builder: LibraryRepositoryBuilder,
-      criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmUserFavoriteQuizEntity>, QuizQueryCriteria>,
-    ) => builder.buildUserFavoriteQuizRepository(criteriaApplier),
-    inject: ['LibraryRepositoryBuilder', 'CriteriaApplier'],
-  },
-  {
-    provide: 'QuizRepository',
-    useFactory: (
-      builder: LibraryRepositoryBuilder,
-      advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmQuizEntity>, QuizQueryCriteria>,
-    ) => builder.buildQuizRepository(advancedCriteriaApplier),
-    inject: ['LibraryRepositoryBuilder', 'AdvancedCriteriaApplier'],
-  },
-  {
-    provide: 'UserRepository',
-    useFactory: (builder: LibraryRepositoryBuilder) => builder.buildUserRepository(),
-    inject: ['LibraryRepositoryBuilder'],
-  },
-  {
-    provide: 'SinglePlayerGameRepository',
-    useFactory: (
-      builder: LibraryRepositoryBuilder,
-      advancedCriteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>, QuizQueryCriteria>,
-    ) => builder.buildSinglePlayerGameRepository(advancedCriteriaApplier),
-    inject: ['LibraryRepositoryBuilder', 'AdvancedCriteriaApplier'],
-  },
+    // Builder configurado con el motor desde variable de entorno
     {
-      provide: 'AddUserFavoriteQuizDomainService',
-      useFactory: (userFavoriteRepository: UserFavoriteQuizRepository,
+      provide: "LibraryRepositoryBuilder",
+      useFactory: (dataSource: DataSource) => {
+        const dbType: "postgres" | "mongo" =
+          (process.env.LIBRARY_DB_TYPE as "postgres" | "mongo") || "postgres";
+        return new LibraryRepositoryBuilder(dbType, dataSource)
+          .withEntity("Quiz")
+          .withEntity("User")
+          .withEntity("UserFavoriteQuiz")
+          .withEntity("SinglePlayerGame");
+      },
+      inject: [DataSource],
+    },
+
+    // Repositorios construidos con sus criteria appliers correspondientes
+    {
+      provide: "UserFavoriteQuizRepository",
+      useFactory: (
+        builder: LibraryRepositoryBuilder,
+        criteriaApplier: CriteriaApplier<
+          SelectQueryBuilder<TypeOrmPostgresUserFavoriteQuizEntity>,
+          QuizQueryCriteria
+        >
+      ) => builder.buildUserFavoriteQuizRepository(criteriaApplier),
+      inject: ["LibraryRepositoryBuilder", "CriteriaApplier"],
+    },
+    {
+      provide: "QuizRepository",
+      useFactory: (
+        builder: LibraryRepositoryBuilder,
+        advancedCriteriaApplier: CriteriaApplier<
+          SelectQueryBuilder<TypeOrmQuizEntity>,
+          QuizQueryCriteria
+        >
+      ) => builder.buildQuizRepository(advancedCriteriaApplier),
+      inject: ["LibraryRepositoryBuilder", "AdvancedCriteriaApplier"],
+    },
+    {
+      provide: "UserRepository",
+      useFactory: (builder: LibraryRepositoryBuilder) =>
+        builder.buildUserRepository(),
+      inject: ["LibraryRepositoryBuilder"],
+    },
+    {
+      provide: "SinglePlayerGameRepository",
+      useFactory: (
+        builder: LibraryRepositoryBuilder,
+        advancedCriteriaApplier: CriteriaApplier<
+          SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>,
+          QuizQueryCriteria
+        >
+      ) => builder.buildSinglePlayerGameRepository(advancedCriteriaApplier),
+      inject: ["LibraryRepositoryBuilder", "AdvancedCriteriaApplier"],
+    },
+    {
+      provide: "AddUserFavoriteQuizDomainService",
+      useFactory: (
+        userFavoriteRepository: UserFavoriteQuizRepository,
         quizRepository: QuizRepository,
         userRepository: UserRepository
       ) =>
-        new AddUserFavoriteQuizDomainService(userFavoriteRepository, quizRepository, userRepository),
-      inject: ['UserFavoriteQuizRepository', 'QuizRepository', 'UserRepository'],
+        new AddUserFavoriteQuizDomainService(
+          userFavoriteRepository,
+          quizRepository,
+          userRepository
+        ),
+      inject: [
+        "UserFavoriteQuizRepository",
+        "QuizRepository",
+        "UserRepository",
+      ],
     },
     {
-      provide: 'AddUserFavoriteQuizCommandHandler',
-      useFactory: (logger: ILoggerPort, domainService: AddUserFavoriteQuizDomainService) => {
-        const realHandler = new AddUserFavoriteQuizCommandHanlder(domainService);
-        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'AddUserFavoriteQuizCommandHanlder');
-        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'AddUserFavoriteQuizCommandHandler');
+      provide: "AddUserFavoriteQuizCommandHandler",
+      useFactory: (
+        logger: ILoggerPort,
+        domainService: AddUserFavoriteQuizDomainService
+      ) => {
+        const realHandler = new AddUserFavoriteQuizCommandHanlder(
+          domainService
+        );
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(
+          realHandler,
+          logger,
+          "AddUserFavoriteQuizCommandHanlder"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "AddUserFavoriteQuizCommandHandler"
+        );
       },
-      inject: ['ILoggerPort', 'AddUserFavoriteQuizDomainService'],
-
+      inject: ["ILoggerPort", "AddUserFavoriteQuizDomainService"],
     },
     {
-      provide: 'DeleteUserFavoriteQuizDomainService',
+      provide: "DeleteUserFavoriteQuizDomainService",
       useFactory: (repository: UserFavoriteQuizRepository) =>
         new DeleteUserFavoriteQuizDomainService(repository),
-      inject: ['UserFavoriteQuizRepository'],
+      inject: ["UserFavoriteQuizRepository"],
     },
     {
-      provide: 'DeleteUserFavoriteQuizCommandHandler',
-      useFactory: (logger: ILoggerPort, domainService: DeleteUserFavoriteQuizDomainService) => {
-        const realHandler = new DeleteUserFavoriteQuizCommandHandler(domainService);
-        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'DeleteUserFavoriteQuizCommandHandler');
-        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'DeleteUserFavoriteQuizCommandHandler');
+      provide: "DeleteUserFavoriteQuizCommandHandler",
+      useFactory: (
+        logger: ILoggerPort,
+        domainService: DeleteUserFavoriteQuizDomainService
+      ) => {
+        const realHandler = new DeleteUserFavoriteQuizCommandHandler(
+          domainService
+        );
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(
+          realHandler,
+          logger,
+          "DeleteUserFavoriteQuizCommandHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "DeleteUserFavoriteQuizCommandHandler"
+        );
       },
-      inject: ['ILoggerPort', 'DeleteUserFavoriteQuizDomainService'],
+      inject: ["ILoggerPort", "DeleteUserFavoriteQuizDomainService"],
     },
     {
-      provide: 'GetUserFavoriteQuizzesDomainService',
-      useFactory: (favoritesRepo: UserFavoriteQuizRepository,
+      provide: "GetUserFavoriteQuizzesDomainService",
+      useFactory: (
+        favoritesRepo: UserFavoriteQuizRepository,
         userRepo: UserRepository,
-        quizRepo: QuizRepository) => new GetUserFavoriteQuizzesDomainService(favoritesRepo, quizRepo, userRepo),
-      inject: ['UserFavoriteQuizRepository', 'UserRepository', 'QuizRepository'],
+        quizRepo: QuizRepository
+      ) =>
+        new GetUserFavoriteQuizzesDomainService(
+          favoritesRepo,
+          quizRepo,
+          userRepo
+        ),
+      inject: [
+        "UserFavoriteQuizRepository",
+        "UserRepository",
+        "QuizRepository",
+      ],
     },
     {
-      provide: 'GetUserFavoriteQuizzesQueryHandler',
-      useFactory: (logger: ILoggerPort, domainService: GetUserFavoriteQuizzesDomainService) => {
-        const realHandler = new GetUserFavoriteQuizzesQueryHandler(domainService);
-        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetUserFavoriteQuizzesQueryHandler');
-        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetUserFavoriteQuizzesQueryHandler');
+      provide: "GetUserFavoriteQuizzesQueryHandler",
+      useFactory: (
+        logger: ILoggerPort,
+        domainService: GetUserFavoriteQuizzesDomainService
+      ) => {
+        const realHandler = new GetUserFavoriteQuizzesQueryHandler(
+          domainService
+        );
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(
+          realHandler,
+          logger,
+          "GetUserFavoriteQuizzesQueryHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "GetUserFavoriteQuizzesQueryHandler"
+        );
       },
-      inject: ['ILoggerPort', 'GetUserFavoriteQuizzesDomainService'],
+      inject: ["ILoggerPort", "GetUserFavoriteQuizzesDomainService"],
     },
     {
-      provide: 'GetAllUserQuizzesDomainService',
-      useFactory: (quizRepository: QuizRepository, userRepo: UserRepository) => 
+      provide: "GetAllUserQuizzesDomainService",
+      useFactory: (quizRepository: QuizRepository, userRepo: UserRepository) =>
         new GetAllUserQuizzesDomainService(quizRepository, userRepo),
-      inject: ['QuizRepository', 'UserRepository'],
+      inject: ["QuizRepository", "UserRepository"],
     },
     {
-      provide: 'GetAllUserQuizzesQueryHandler',
+      provide: "GetAllUserQuizzesQueryHandler",
       useFactory: (domainService: GetAllUserQuizzesDomainService) =>
         new GetAllUserQuizzesQueryHandler(domainService),
-      inject: ['GetAllUserQuizzesDomainService'],
+      inject: ["GetAllUserQuizzesDomainService"],
     },
     {
-      provide: 'GetUserInProgressQuizzesDomainService',
-      useFactory: (singlePlayerRepo: SinglePlayerGameRepository,
+      provide: "GetUserInProgressQuizzesDomainService",
+      useFactory: (
+        singlePlayerRepo: SinglePlayerGameRepository,
         quizRepo: QuizRepository,
-        userRepo: UserRepository) =>
-        new GetUserInProgressQuizzesDomainService(singlePlayerRepo, quizRepo, userRepo),
-      inject: ['SinglePlayerGameRepository', 'QuizRepository', 'UserRepository'],
+        userRepo: UserRepository
+      ) =>
+        new GetUserInProgressQuizzesDomainService(
+          singlePlayerRepo,
+          quizRepo,
+          userRepo
+        ),
+      inject: [
+        "SinglePlayerGameRepository",
+        "QuizRepository",
+        "UserRepository",
+      ],
     },
     {
-      provide: 'GetUserInProgressQuizzesQueryHandler',
-      useFactory: (logger: ILoggerPort, domainService: GetUserInProgressQuizzesDomainService) => {
-        const realHandler = new GetUserInProgressQuizzesQueryHandler(domainService);
-        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetUserInProgressQuizzesQueryHandler');
-        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetUserInProgressQuizzesQueryHandler');
+      provide: "GetUserInProgressQuizzesQueryHandler",
+      useFactory: (
+        logger: ILoggerPort,
+        domainService: GetUserInProgressQuizzesDomainService
+      ) => {
+        const realHandler = new GetUserInProgressQuizzesQueryHandler(
+          domainService
+        );
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(
+          realHandler,
+          logger,
+          "GetUserInProgressQuizzesQueryHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "GetUserInProgressQuizzesQueryHandler"
+        );
       },
-      inject: ['ILoggerPort', 'GetUserInProgressQuizzesDomainService'],
+      inject: ["ILoggerPort", "GetUserInProgressQuizzesDomainService"],
     },
     {
-      provide: 'GetUserCompletedQuizzesDomainService',
-      useFactory: (quizRepository: QuizRepository,
+      provide: "GetUserCompletedQuizzesDomainService",
+      useFactory: (
+        quizRepository: QuizRepository,
         userRepo: UserRepository,
-        singlePlayerRepo: SinglePlayerGameRepository) =>
-        new GetUserCompletedQuizzesDomainService(quizRepository, userRepo, singlePlayerRepo),
-      inject: ['QuizRepository', 'UserRepository', 'SinglePlayerGameRepository'],
+        singlePlayerRepo: SinglePlayerGameRepository
+      ) =>
+        new GetUserCompletedQuizzesDomainService(
+          quizRepository,
+          userRepo,
+          singlePlayerRepo
+        ),
+      inject: [
+        "QuizRepository",
+        "UserRepository",
+        "SinglePlayerGameRepository",
+      ],
     },
     {
-      provide: 'GetUserCompletedQuizzesQueryHandler',
-      useFactory: (logger: ILoggerPort, domainService: GetUserCompletedQuizzesDomainService) => {
-        const realHandler = new GetUserCompletedQuizzesQueryHandler(domainService);
-        const withErrorHandling = new ErrorHandlingDecoratorWithEither(realHandler, logger, 'GetUserCompletedQuizzesQueryHandler');
-        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'GetUserCompletedQuizzesQueryHandler');
+      provide: "GetUserCompletedQuizzesQueryHandler",
+      useFactory: (
+        logger: ILoggerPort,
+        domainService: GetUserCompletedQuizzesDomainService
+      ) => {
+        const realHandler = new GetUserCompletedQuizzesQueryHandler(
+          domainService
+        );
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(
+          realHandler,
+          logger,
+          "GetUserCompletedQuizzesQueryHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "GetUserCompletedQuizzesQueryHandler"
+        );
       },
-      inject: ['ILoggerPort', 'GetUserCompletedQuizzesDomainService'],
+      inject: ["ILoggerPort", "GetUserCompletedQuizzesDomainService"],
     },
   ],
-
 })
 export class LibraryModule {}

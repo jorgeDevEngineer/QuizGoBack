@@ -1,24 +1,24 @@
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserFavoriteQuizRepository } from '../../../domain/port/UserFavoriteQuizRepository';
-import { UserFavoriteQuiz } from '../../../domain/valueObject/UserFavoriteQuiz';
-import { TypeOrmUserFavoriteQuizEntity } from '../Entities/TypeOrmUserFavoriteQuizEntity';
+import { UserFavoriteQuizRepository } from '../../../../domain/port/UserFavoriteQuizRepository';
+import { UserFavoriteQuiz } from '../../../../domain/valueObject/UserFavoriteQuiz';
+import { TypeOrmPostgresUserFavoriteQuizEntity } from '../Entities/TypeOrmPostgresUserFavoriteQuizEntity';
 import { QuizId } from 'src/lib/kahoot/domain/valueObject/Quiz';
 import { UserId } from 'src/lib/user/domain/valueObject/UserId';
 import { CriteriaApplier } from 'src/lib/library/domain/port/CriteriaApplier';
 import { QuizQueryCriteria } from 'src/lib/library/application/Response Types/QuizQueryCriteria';
 
-export class TypeOrmUserFavoriteQuizRepository
+export class TypeOrmPostgresUserFavoriteQuizRepository
   implements UserFavoriteQuizRepository
 {
   constructor(
-    @InjectRepository(TypeOrmUserFavoriteQuizEntity)
-    private readonly repository: Repository<TypeOrmUserFavoriteQuizEntity>,
-    private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmUserFavoriteQuizEntity>, QuizQueryCriteria>
+    @InjectRepository(TypeOrmPostgresUserFavoriteQuizEntity)
+    private readonly repository: Repository<TypeOrmPostgresUserFavoriteQuizEntity>,
+    private readonly criteriaApplier: CriteriaApplier<SelectQueryBuilder<TypeOrmPostgresUserFavoriteQuizEntity>, QuizQueryCriteria>
   ) {}
 
   async addFavoriteQuiz(favorite: UserFavoriteQuiz): Promise<void> {
-    const entity = new TypeOrmUserFavoriteQuizEntity();
+    const entity = new TypeOrmPostgresUserFavoriteQuizEntity();
     entity.user_id = favorite.userId.value;
     entity.quiz_id = favorite.quizId.value;
     await this.repository.save(entity);

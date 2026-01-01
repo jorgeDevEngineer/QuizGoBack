@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('user_favorite_quizzes')
-export class TypeOrmUserFavoriteQuizEntity {
+export class TypeOrmPostgresUserFavoriteQuizEntity {
   @PrimaryColumn('uuid')
   user_id: string;
 
