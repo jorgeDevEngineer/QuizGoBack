@@ -17,8 +17,8 @@ import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastr
 import { QuizRepository } from "../../domain/port/QuizRepository";
 import { CriteriaApplier } from "../../domain/port/CriteriaApplier";
 import { DataSource, SelectQueryBuilder } from "typeorm";
-import { TypeOrmCriteriaApplier } from "../TypeOrm//Criteria Appliers/TypeOrmCriteriaApplier";
-import { TypeOrmQuizCriteriaApplier } from "../TypeOrm/Criteria Appliers/TypeOrmAdvancedCriteriaApplier";
+import { TypeOrmPostgresCriteriaApplier } from "../TypeOrm/Criteria Appliers/Postgres/TypeOrmPostgresCriteriaApplier";
+import { TypeOrmPostgresQuizCriteriaApplier } from "../TypeOrm/Criteria Appliers/Postgres/TypeOrmPostgresAdvancedCriteriaApplier";
 import { QuizQueryCriteria } from "../../application/Response Types/QuizQueryCriteria";
 import { GetAllUserQuizzesDomainService } from "../../domain/services/Queries/GetAllUserQuizzesDomainService";
 import { GetUserInProgressQuizzesDomainService } from "../../domain/services/Queries/GetUserInProgressQuizzesDomainService";
@@ -46,11 +46,11 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
   providers: [
     {
       provide: "CriteriaApplier",
-      useClass: TypeOrmCriteriaApplier, // implementación genérica
+      useClass: TypeOrmPostgresCriteriaApplier, // implementación genérica
     },
     {
       provide: "AdvancedCriteriaApplier",
-      useClass: TypeOrmQuizCriteriaApplier, // implementación avanzada
+      useClass: TypeOrmPostgresQuizCriteriaApplier, // implementación avanzada
     },
     // Builder configurado con el motor desde variable de entorno
     {
