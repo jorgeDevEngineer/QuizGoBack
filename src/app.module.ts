@@ -24,7 +24,7 @@ import { AdminModule } from "./lib/admin/infrastructure/admin.module";
         DATABASE_URL_POSTGRES: Joi.string().required(),
         DATABASE_URL_MONGO: Joi.string().required(),
         DATABASE_SSL: Joi.boolean().default(false),
-        DATABASE_SYNCHRONIZE: Joi.boolean().default(false),
+        DATABASE_SYNCHRONIZE: Joi.boolean(),
       }),
     }),
 
@@ -33,7 +33,7 @@ import { AdminModule } from "./lib/admin/infrastructure/admin.module";
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const useSSL = configService.get("DATABASE_SSL") === "true";
-        const synchronize = configService.get("DATABASE_SYNCHRONIZE") === "true";
+        const synchronize = configService.get("DATABASE_SYNCHRONIZE") === true;
 
         return {
           type: "postgres",
