@@ -47,7 +47,6 @@ export class TypeOrmUserEntity {
   @Column({ nullable: true })
   membershipExpiresAt: Date;
 
-
   @Column()
-  status: 'Active' | 'Blocked';
+  status: "Active" | "Blocked";
 }

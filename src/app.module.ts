@@ -1,7 +1,7 @@
 import { Module, OnApplicationBootstrap } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import * as Joi from 'joi';
+import * as Joi from "joi";
 import { KahootModule } from "./lib/kahoot/infrastructure/NestJs/kahoot.module";
 import { MediaModule } from "./lib/media/infrastructure/NestJs/media.module";
 import { SearchModule } from "./lib/search/infrastructure/NestJs/search.module";
@@ -33,14 +33,18 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         // Obtenemos las configuraciones del entorno
-        const useSSL = configService.get("DATABASE_SSL") === "true" || configService.get("DATABASE_SSL") === true;
-        const synchronize = configService.get("DATABASE_SYNCHRONIZE") === "true" || configService.get("DATABASE_SYNCHRONIZE") === true;
+        const useSSL =
+          configService.get("DATABASE_SSL") === "true" ||
+          configService.get("DATABASE_SSL") === true;
+        const synchronize =
+          configService.get("DATABASE_SYNCHRONIZE") === "true" ||
+          configService.get("DATABASE_SYNCHRONIZE") === true;
 
         return {
           type: "postgres",
           url: configService.get<string>("DATABASE_URL_POSTGRES"),
           autoLoadEntities: true,
-          synchronize: synchronize, // ¡CORREGIDO! Ya no es true fijo
+          synchronize: synchronize,
           ssl: useSSL ? { rejectUnauthorized: false } : false,
         };
       },
@@ -62,12 +66,12 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
 export class AppModule implements OnApplicationBootstrap {
   constructor(
     private readonly mongoAdapter: DynamicMongoAdapter,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   async onApplicationBootstrap() {
-    const mongoUrl = this.configService.get<string>('DATABASE_URL_MONGO');
-    await this.mongoAdapter.reconnect('kahoot', mongoUrl);
-    await this.mongoAdapter.reconnect('media', mongoUrl);
+    const mongoUrl = this.configService.get<string>("DATABASE_URL_MONGO");
+    await this.mongoAdapter.reconnect("kahoot", mongoUrl);
+    await this.mongoAdapter.reconnect("media", mongoUrl);
   }
 }

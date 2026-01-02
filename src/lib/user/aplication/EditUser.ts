@@ -12,6 +12,7 @@ import { UserTheme } from "../domain/valueObject/UserTheme";
 import { UserLanguage } from "../domain/valueObject/UserLanguaje";
 import { UserGameStreak } from "../domain/valueObject/UserGameStreak";
 import { UserNotFoundError } from "./error/UserNotFoundError";
+import { UserStatus } from "../domain/valueObject/UserStatus";
 
 export class EditUser {
   constructor(private readonly userRepository: UserRepository) {}
@@ -26,7 +27,8 @@ export class EditUser {
     name: string,
     theme: string,
     language: string,
-    gameStreak: number
+    gameStreak: number,
+    status: "Active" | "Blocked"
   ): Promise<void> {
     const existing = await this.userRepository.getOneById(new UserId(id));
     if (!existing) {
@@ -52,7 +54,8 @@ export class EditUser {
       new UserGameStreak(gameStreak),
       existing.membership,
       existing.createdAt,
-      new UserDate(new Date())
+      new UserDate(new Date()),
+      new UserStatus(status)
     );
     await this.userRepository.edit(user);
   }
