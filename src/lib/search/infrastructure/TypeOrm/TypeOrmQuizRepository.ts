@@ -24,7 +24,7 @@ import {
   TimeLimit,
   Points,
 } from '../../domain/valueObject/Question';
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
+import { MediaId as MediaIdVO } from '../../../media/domain/value-object/MediaId';
 import {
   AnswerId,
   AnswerText,

@@ -5,6 +5,7 @@ import { QuizPersonalResult, toQuizPersonalResult } from '../../application/Resp
 import { DomainException } from 'src/lib/shared/exceptions/DomainException';
 import { DomainUnexpectedException } from 'src/lib/shared/exceptions/DomainUnexpectedException';
 import { Either } from 'src/lib/shared/Type Helpers/Either';
+import { Quiz } from '../../../kahoot/domain/entity/Quiz';
 
 export class GetCompletedQuizSummaryQueryHandler implements IHandler <GetCompletedQuizSummary, Either<DomainException, QuizPersonalResult>> {
     constructor(

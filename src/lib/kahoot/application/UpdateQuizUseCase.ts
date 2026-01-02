@@ -6,9 +6,7 @@ import { Answer } from '../domain/entity/Answer';
 import { QuizId, UserId, QuizTitle, QuizDescription, Visibility, ThemeId, QuizStatus, QuizCategory } from '../domain/valueObject/Quiz';
 import { QuestionId, QuestionText, QuestionType, TimeLimit, Points } from '../domain/valueObject/Question';
 import { AnswerId, IsCorrect, AnswerText } from '../domain/valueObject/Answer';
-import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 import { Result } from '../../shared/Type Helpers/result';
-import { DomainException } from '../../shared/exceptions/domain.exception';
 import { IHandler } from 'src/lib/shared/IHandler';
 
 // Interfaces para el DTO de actualización...
@@ -23,7 +21,7 @@ export class UpdateQuizUseCase implements IHandler<UpdateQuiz, Result<Quiz>> {
 
       const quiz = await this.quizRepository.find(quizId);
       if (!quiz) {
-        return Result.fail<Quiz>('Quiz not found'); // <-- CORREGIDO
+        return Result.fail<Quiz>('Quiz not found');
       }
 
       // ... (resto del mapeo)
@@ -33,17 +31,24 @@ export class UpdateQuizUseCase implements IHandler<UpdateQuiz, Result<Quiz>> {
       const status = QuizStatus.fromString(request.status || quiz.toPlainObject().status);
       const category = QuizCategory.of(request.category || quiz.toPlainObject().category);
       const themeId = ThemeId.of(request.themeId || quiz.toPlainObject().themeId);
-      const coverImageId = request.coverImageId ? MediaIdVO.of(request.coverImageId) : null;
+      const coverImageId = request.coverImageId; // ANTES: MediaIdVO.of(request.coverImageId)
 
       const newQuestions = request.questions.map(qData => {
         const questionId = qData.id ? QuestionId.of(qData.id) : QuestionId.generate();
         const answers = (qData.answers || []).map(aData => {
           const answerId = aData.id ? AnswerId.of(aData.id) : AnswerId.generate();
-          return Answer.createTextAnswer(answerId, AnswerText.of(aData.text), IsCorrect.fromBoolean(aData.isCorrect));
+          // Asumiendo que las respuestas actualizadas también pueden ser de texto o media
+          if (aData.text) {
+            return Answer.createTextAnswer(answerId, AnswerText.of(aData.text), IsCorrect.fromBoolean(aData.isCorrect));
+          } else if (aData.mediaId) {
+            return Answer.createMediaAnswer(answerId, aData.mediaId, IsCorrect.fromBoolean(aData.isCorrect));
+          }
+          // Necesitas manejar el caso de que no haya ni texto ni mediaId si es posible
+          throw new Error('Answer must have either text or mediaId');
         });
 
         return Question.create(
-          questionId, QuestionText.of(qData.text), qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
+          questionId, QuestionText.of(qData.text), qData.mediaId, // ANTES: qData.mediaId ? MediaIdVO.of(qData.mediaId) : null
           QuestionType.fromString(qData.type), TimeLimit.of(qData.timeLimit), Points.of(qData.points), answers
         );
       });
@@ -56,7 +61,7 @@ export class UpdateQuizUseCase implements IHandler<UpdateQuiz, Result<Quiz>> {
       return Result.ok(quiz);
 
     } catch (e) {
-      return Result.fail<Quiz>(e.message); // <-- CORREGIDO
+      return Result.fail<Quiz>(e.message);
     }
   }
 }

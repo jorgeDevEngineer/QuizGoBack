@@ -9,7 +9,6 @@ import {
   QuizStatus,
   QuizCategory,
 } from "../valueObject/Quiz";
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Question } from "../entity/Question";
 import { QuestionId } from "../valueObject/Question";
 import { DomainException } from "../../../shared/exceptions/domain.exception";
@@ -24,7 +23,7 @@ export class Quiz {
     private _status: QuizStatus,
     private _category: QuizCategory,
     private _themeId: ThemeId,
-    private _coverImageId: MediaIdVO | null,
+    private _coverImageId: string | null, // ANTES: MediaIdVO | null
     private readonly _createdAt: Date,
     private _playCount: number,
     private _questions: Question[] = []
@@ -35,7 +34,7 @@ export class Quiz {
   public static create(
     id: QuizId, authorId: UserId, title: QuizTitle, description: QuizDescription,
     visibility: Visibility, status: QuizStatus, category: QuizCategory, themeId: ThemeId,
-    coverImageId: MediaIdVO | null, questions: Question[], playCount: number = 0
+    coverImageId: string | null, questions: Question[], playCount: number = 0 // ANTES: MediaIdVO | null
   ): Quiz {
     if (questions.length === 0) {
         throw new DomainException('A quiz must have at least one question.');
@@ -47,14 +46,14 @@ export class Quiz {
   public static fromDb(
     id: QuizId, authorId: UserId, title: QuizTitle, description: QuizDescription,
     visibility: Visibility, status: QuizStatus, category: QuizCategory, themeId: ThemeId,
-    coverImageId: MediaIdVO | null, createdAt: Date, playCount: number, questions: Question[]
+    coverImageId: string | null, createdAt: Date, playCount: number, questions: Question[] // ANTES: MediaIdVO | null
   ): Quiz {
     return new Quiz(id, authorId, title, description, visibility, status, category, themeId, coverImageId, createdAt, playCount, questions);
   }
 
   public update(
     authorId: UserId, title: QuizTitle, description: QuizDescription, visibility: Visibility,
-    status: QuizStatus, category: QuizCategory, themeId: ThemeId, coverImageId: MediaIdVO | null,
+    status: QuizStatus, category: QuizCategory, themeId: ThemeId, coverImageId: string | null, // ANTES: MediaIdVO | null
     newQuestions: Question[]
   ): void {
     if (!this._authorId.equals(authorId)) {
@@ -118,7 +117,7 @@ export class Quiz {
       status: this._status.value,
       category: this._category.value,
       themeId: this._themeId.value,
-      coverImageId: this._coverImageId ? this._coverImageId.value : null,
+      coverImageId: this._coverImageId, // ANTES: this._coverImageId ? this._coverImageId.value : null
       createdAt: this._createdAt,
       playCount: this._playCount,
       questions: this._questions.map((q) => q.toPlainObject()),

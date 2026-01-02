@@ -1,6 +1,5 @@
 
 import { AnswerId, AnswerText, IsCorrect} from "../valueObject/Answer";
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { QuestionId } from "../valueObject/Question";
 import { DomainException } from "../../../shared/exceptions/domain.exception";
 
@@ -11,7 +10,7 @@ export class Answer {
     private readonly _id: AnswerId,
     private readonly _isCorrect: IsCorrect,
     private readonly _text: AnswerText | null,
-    private readonly _mediaId: MediaIdVO | null
+    private readonly _mediaId: string | null // ANTES: MediaIdVO | null
   ) {}
 
   _setQuestion(question: QuestionId) {
@@ -31,7 +30,7 @@ export class Answer {
 
   public static createMediaAnswer(
     id: AnswerId,
-    mediaId: MediaIdVO | null, 
+    mediaId: string | null, // ANTES: MediaIdVO | null
     isCorrect: IsCorrect
   ): Answer {
     if (!mediaId) {
@@ -52,7 +51,7 @@ export class Answer {
       id: this._id.value,
       questionId: this._question.value,
       text: this._text ? this._text.value : null,
-      mediaId: this._mediaId ? this._mediaId.value : null,
+      mediaId: this._mediaId, // ANTES: this._mediaId ? this._mediaId.value : null
       isCorrect: this._isCorrect.value,
     };
   }
@@ -61,7 +60,7 @@ export class Answer {
     return this._text;
   }
 
-  public getMediaId(): MediaIdVO | null{
+  public getMediaId(): string | null { // ANTES: MediaIdVO | null
     return this._mediaId;
   }
   

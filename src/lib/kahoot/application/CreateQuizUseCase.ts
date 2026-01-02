@@ -4,7 +4,6 @@ import { Quiz } from '../domain/entity/Quiz';
 import { Result } from '../../shared/Type Helpers/result';
 import { Question } from '../domain/entity/Question';
 import { Answer } from '../domain/entity/Answer';
-import { MediaId as MediaIdVO } from '../../media/domain/valueObject/Media';
 import {
     QuizId, UserId, QuizTitle, QuizDescription, Visibility, QuizStatus, 
     QuizCategory, ThemeId
@@ -43,7 +42,7 @@ export class CreateQuizUseCase implements IHandler<CreateQuiz, Result<Quiz>> {
     const status = QuizStatus.fromString(dto.status);
     const category = QuizCategory.of(dto.category);
     const themeId = ThemeId.of(dto.themeId);
-    const coverImageId = dto.coverImageId ? MediaIdVO.of(dto.coverImageId) : null;
+    const coverImageId = dto.coverImageId; // ANTES: MediaIdVO.of(dto.coverImageId)
 
     const questions: Question[] = [];
     for (const qDto of dto.questions) {
@@ -60,7 +59,7 @@ export class CreateQuizUseCase implements IHandler<CreateQuiz, Result<Quiz>> {
             if (aDto.text) {
                 answer = Answer.createTextAnswer(answerId, AnswerText.of(aDto.text), isCorrect);
             } else {
-                answer = Answer.createMediaAnswer(answerId, MediaIdVO.of(aDto.mediaId!), isCorrect);
+                answer = Answer.createMediaAnswer(answerId, aDto.mediaId!, isCorrect); // ANTES: MediaIdVO.of(aDto.mediaId!)
             }
             answers.push(answer);
         }
@@ -68,7 +67,7 @@ export class CreateQuizUseCase implements IHandler<CreateQuiz, Result<Quiz>> {
         const question = Question.create(
             QuestionId.generate(),
             QuestionText.of(qDto.text),
-            qDto.mediaId ? MediaIdVO.of(qDto.mediaId) : null,
+            qDto.mediaId, // ANTES: qDto.mediaId ? MediaIdVO.of(qDto.mediaId) : null
             QuestionType.fromString(qDto.type),
             TimeLimit.of(qDto.timeLimit),
             Points.of(qDto.points),

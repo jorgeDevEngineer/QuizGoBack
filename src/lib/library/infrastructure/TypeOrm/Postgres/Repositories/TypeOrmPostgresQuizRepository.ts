@@ -22,7 +22,6 @@ import {
   TimeLimit,
   Points,
 } from '../../../../../kahoot/domain/valueObject/Question';
-import { MediaId as MediaIdVO } from '../../../../../media/domain/valueObject/Media';
 import {
   AnswerId,
   AnswerText,
@@ -51,14 +50,14 @@ export class TypeOrmPostgresQuizRepository implements QuizRepository {
         }
         return Answer.createMediaAnswer(
           AnswerId.of(aData.id),
-          aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
+          aData.mediaId,
           IsCorrect.fromBoolean(aData.isCorrect),
         );
       });
       return Question.create(
         QuestionId.of(qData.id),
         QuestionText.of(qData.text),
-        qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
+        qData.mediaId,
         QuestionType.fromString(qData.type),
         TimeLimit.of(qData.timeLimit),
         Points.of(qData.points),
@@ -75,7 +74,7 @@ export class TypeOrmPostgresQuizRepository implements QuizRepository {
       QuizStatus.fromString(q.status),
       QuizCategory.of(q.category),
       ThemeId.of(q.themeId),
-      q.coverImageId ? MediaIdVO.of(q.coverImageId) : null,
+      q.coverImageId,
       q.createdAt,
       q.playCount,
       questions,

@@ -23,11 +23,11 @@ export type QuizPersonalResult = {
     questionResults: questionData[]
 }
 
-function getAnswerTextOrMedia(questionResult: QuestionResult, kahoot: Quiz): Optional<{results: string[], isText: boolean}> {
+function getAnswerTextOrMedia(questionResult: QuestionResult, quiz: Quiz): Optional<{results: string[], isText: boolean}> {
     const questionId = questionResult.getQuestionId();
-    const question = kahoot.getQuestionById(questionId);
+    const question = quiz.getQuestionById(questionId);
     if (!question) {
-        throw new Error(`Question with ID ${questionId.getValue()} not found in Kahoot ${kahoot.id.getValue()}`);
+        throw new Error(`Question with ID ${questionId.getValue()} not found in Quiz ${quiz.id.getValue()}`);
     }
     const answersIndex = questionResult.getPlayerAnswer().getAnswer();
     const results: string[] = [];
@@ -41,8 +41,9 @@ function getAnswerTextOrMedia(questionResult: QuestionResult, kahoot: Quiz): Opt
             if(answer.getText()){
                 isText = true;
                 results.push(answer.getText()!.getValue());
+            } else if (answer.getMediaId()) {
+                results.push(answer.getMediaId()!);
             }
-            results.push(answer.getMediaId().value);
         });
       return new Optional({results: results, isText: isText});    
     }
@@ -51,8 +52,8 @@ function getAnswerTextOrMedia(questionResult: QuestionResult, kahoot: Quiz): Opt
         if(answer.getText()){
             isText = true;
             results.push(answer.getText()!.getValue());
-        }else{
-            results.push(answer.getMediaId().value);
+        }else if (answer.getMediaId()){
+            results.push(answer.getMediaId()!);
         }  
         return new Optional({results: results, isText: isText});
     }
@@ -63,10 +64,10 @@ function calculateAverageTime(questionResults: questionData[]): number {
     return Math.round(totalTime / questionResults.length);
 }
 
-export function toQuizPersonalResult(kahoot: Quiz, game: SinglePlayerGame): QuizPersonalResult {
+export function toQuizPersonalResult(quiz: Quiz, game: SinglePlayerGame): QuizPersonalResult {
     const answeredQuestions = game.getQuestionsResults();
     const questionResults: questionData[] = answeredQuestions.map((questionResult, index) => {
-        const answerDataOpt = getAnswerTextOrMedia(questionResult, kahoot);
+        const answerDataOpt = getAnswerTextOrMedia(questionResult, quiz);
         let answerText: string[] = [];
         let answerMediaId: string[] = [];
         if(answerDataOpt.hasValue()){
@@ -79,7 +80,7 @@ export function toQuizPersonalResult(kahoot: Quiz, game: SinglePlayerGame): Quiz
         }
         return {
             questionIndex: index + 1,
-            questionText: kahoot.getQuestionById(questionResult.getQuestionId())?.text.getValue() || '',
+            questionText: quiz.getQuestionById(questionResult.getQuestionId())?.text.getValue() || '',
             isCorrect: questionResult.getEvaluatedAnswer().getWasCorrect(),
             answerText: answerText,
             answerMediaId: answerMediaId,
@@ -87,12 +88,12 @@ export function toQuizPersonalResult(kahoot: Quiz, game: SinglePlayerGame): Quiz
         };
     });
     return {
-        kahootId: kahoot.id.getValue(),
-        title: kahoot.toPlainObject().title,
+        kahootId: quiz.id.getValue(),
+        title: quiz.toPlainObject().title,
         userId: game.getPlayerId().getValue(),
         finalScore: game.getScore().getScore(),
         correctAnswers: game.getCorrectAnswersCount(),
-        totalQuestions: kahoot.getQuestions().length,
+        totalQuestions: quiz.getQuestions().length,
         averageTimeMs: calculateAverageTime(questionResults),
         questionResults: questionResults
     }

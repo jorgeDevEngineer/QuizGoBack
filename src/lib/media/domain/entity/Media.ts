@@ -1,98 +1,70 @@
+import { randomUUID } from 'crypto';
 
-import { MediaId, MimeType, FileSize } from '../valueObject/Media';
+export type MediaType = 'single' | 'multiple';
 
-export class Media {
-  readonly id: MediaId;
-  readonly data: Buffer;
-  readonly thumbnail: Buffer | null; // El thumbnail puede ser nulo (para no-imágenes)
-  readonly mimeType: MimeType;
-  readonly size: FileSize;
-  readonly originalName: string;
-  readonly createdAt: Date;
-
-  // Constructor privado
-  private constructor(
-    id: MediaId,
-    data: Buffer,
-    thumbnail: Buffer | null,
-    mimeType: MimeType,
-    size: FileSize,
-    originalName: string,
-    createdAt: Date
-  ) {
-    this.id = id;
-    this.data = data;
-    this.thumbnail = thumbnail;
-    this.mimeType = mimeType;
-    this.size = size;
-    this.originalName = originalName;
-    this.createdAt = createdAt;
-  }
-
-  // Factory Method
-  static create(
-    data: Buffer,
-    mimeType: string,
-    size: number,
-    originalName: string,
-    thumbnail: Buffer | null, // Añadido
-    id?: string
-  ): Media {
-    const mediaId = id ? MediaId.of(id) : MediaId.generate();
-    return new Media(
-      mediaId,
-      data,
-      thumbnail,
-      new MimeType(mimeType),
-      new FileSize(size),
-      originalName,
-      new Date()
-    );
-  }
-
-  // Reconstitución desde la base de datos
-  static fromPrimitives(primitives: {
+export interface MediaProps {
     id: string;
-    data: Buffer;
-    thumbnail: Buffer | null;
+    url: string;
+    key: string;
+    type: MediaType;
+    category: string;
     mimeType: string;
     size: number;
+    authorId: string;
     originalName: string;
     createdAt: Date;
-  }): Media {
-    return new Media(
-      MediaId.of(primitives.id),
-      primitives.data,
-      primitives.thumbnail,
-      new MimeType(primitives.mimeType),
-      new FileSize(primitives.size),
-      primitives.originalName,
-      primitives.createdAt
-    );
-  }
+    thumbnailUrl: string | null;
+}
 
-  properties() {
-    return {
-      id: this.id.value,
-      data: this.data,
-      thumbnail: this.thumbnail,
-      mimeType: this.mimeType.value,
-      size: this.size.value,
-      originalName: this.originalName,
-      createdAt: this.createdAt,
-    };
-  }
+export class Media {
+    private props: MediaProps;
 
-  // Updated to match the ListMediaResponseDTO
-  toListResponse() {
-    return {
-      id: this.id.value,
-      url: `/media/${this.id.value}`,
-      mimeType: this.mimeType.value,
-      size: this.size.value,
-      originalName: this.originalName,
-      createdAt: this.createdAt,
-      thumbnailUrl: this.thumbnail ? `data:image/jpeg;base64,${this.thumbnail.toString('base64')}` : null,
-    };
-  }
+    private constructor(props: MediaProps) {
+        this.props = props;
+    }
+
+    public static create(
+        url: string,
+        key: string,
+        category: string,
+        mimeType: string,
+        size: number,
+        authorId: string,
+        originalName: string,
+        thumbnailUrl: string | null
+    ): Media {
+        return new Media({
+            id: randomUUID(),
+            url,
+            key,
+            type: 'single',
+            category,
+            mimeType,
+            size,
+            authorId,
+            originalName,
+            createdAt: new Date(),
+            thumbnailUrl
+        });
+    }
+
+    public static fromPrimitives(props: MediaProps): Media {
+        return new Media(props);
+    }
+
+    public properties(): MediaProps {
+        return this.props;
+    }
+
+    public toResponse() {
+        return {
+            id: this.props.id,
+            url: this.props.url,
+            mimeType: this.props.mimeType,
+            size: this.props.size,
+            originalName: this.props.originalName,
+            createdAt: this.props.createdAt,
+            thumbnailUrl: this.props.thumbnailUrl
+        };
+    }
 }

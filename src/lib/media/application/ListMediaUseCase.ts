@@ -25,7 +25,7 @@ export class ListMediaUseCase implements IHandler<void, Result<ListMediaResponse
     const mediaList: Media[] = await this.mediaRepository.findAll();
 
     // Map entities to a DTO. This is a pure data transformation and should not fail.
-    const response: ListMediaResponseDTO = mediaList.map(media => media.toListResponse());
+    const response: ListMediaResponseDTO = mediaList.map(media => media.toResponse());
 
     // Return a success result with the DTO.
     return Result.ok<ListMediaResponseDTO>(response);

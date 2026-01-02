@@ -7,9 +7,7 @@ import {
   Points,
 } from "../valueObject/Question";
 import { QuizId } from "../valueObject/Quiz";
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { Answer } from "../entity/Answer";
-import { DomainException } from "../../../shared/exceptions/domain.exception";
 
 export class Question {
   private _quiz!: QuizId;
@@ -17,7 +15,7 @@ export class Question {
   private constructor(
     private _id: QuestionId,
     private _text: QuestionText,
-    private _mediaId: MediaIdVO | null,
+    private _mediaId: string | null, // ANTES: MediaIdVO | null
     private _type: QuestionType,
     private _timeLimit: TimeLimit,
     private _points: Points,
@@ -33,7 +31,7 @@ export class Question {
   public static create(
     id: QuestionId,
     text: QuestionText,
-    mediaId: MediaIdVO | null,
+    mediaId: string | null, // ANTES: MediaIdVO | null
     type: QuestionType,
     timeLimit: TimeLimit,
     points: Points,
@@ -45,7 +43,7 @@ export class Question {
   
   public update(
     text: QuestionText,
-    mediaId: MediaIdVO | null,
+    mediaId: string | null, // ANTES: MediaIdVO | null
     type: QuestionType,
     timeLimit: TimeLimit,
     points: Points,
@@ -73,7 +71,7 @@ export class Question {
 
   public get id(): QuestionId { return this._id; }
   public get text(): QuestionText { return this._text; }
-  public get mediaId(): MediaIdVO | null { return this._mediaId; }
+  public get mediaId(): string | null { return this._mediaId; } // ANTES: MediaIdVO | null
   public get type(): QuestionType { return this._type; }
   public get timeLimit(): TimeLimit { return this._timeLimit; }
   public get points(): Points { return this._points; }
@@ -82,9 +80,9 @@ export class Question {
   public toPlainObject() {
     return {
       id: this._id.value,
-      quizId: this._quiz ? this._quiz.value : null, // <-- ARREGLO DE SEGURIDAD
+      quizId: this._quiz ? this._quiz.value : null, 
       text: this._text.value,
-      mediaId: this._mediaId ? this._mediaId.value : null,
+      mediaId: this._mediaId, // ANTES: this._mediaId ? this._mediaId.value : null
       type: this._type.value,
       timeLimit: this._timeLimit.value,
       points: this._points.value,
@@ -97,7 +95,7 @@ export class Question {
       return {
         index: (index + 1).toString(),
         text: answer.getText() ? answer.getText().getValue() : null,
-        mediaID: answer.getMediaId() ? answer.getMediaId().getValue() : null
+        mediaID: answer.getMediaId() // ANTES: ? answer.getMediaId().getValue() : null
       }
     });
     return {
@@ -105,7 +103,7 @@ export class Question {
       questionType: this._type.getValue(),
       questionText: this._text.getValue(),
       timeLimitSeconds: this._timeLimit.getValue(),
-      mediaId: this._mediaId ? this._mediaId.getValue() : null,
+      mediaId: this._mediaId, // ANTES: this._mediaId ? this._mediaId.getValue() : null
       options: answers
     }
   }

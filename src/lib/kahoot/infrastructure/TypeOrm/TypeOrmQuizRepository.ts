@@ -11,7 +11,6 @@ import { Answer } from '../../domain/entity/Answer';
 import { QuizId, UserId, QuizTitle, QuizDescription, Visibility, ThemeId, QuizStatus, QuizCategory } from '../../domain/valueObject/Quiz';
 import { QuestionId, QuestionText, QuestionType, TimeLimit, Points } from '../../domain/valueObject/Question';
 import { AnswerId, AnswerText, IsCorrect } from '../../domain/valueObject/Answer';
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
 import { TypeOrmQuizEntity } from './TypeOrmQuizEntity';
 
 interface MongoQuizDocument {
@@ -109,13 +108,13 @@ export class TypeOrmQuizRepository implements QuizRepository {
             if (aData.text) {
                 return Answer.createTextAnswer(AnswerId.of(aData.id), AnswerText.of(aData.text), IsCorrect.fromBoolean(aData.isCorrect));
             } else {
-                return Answer.createMediaAnswer(AnswerId.of(aData.id), aData.mediaId ? MediaIdVO.of(aData.mediaId) : null, IsCorrect.fromBoolean(aData.isCorrect));
+                return Answer.createMediaAnswer(AnswerId.of(aData.id), aData.mediaId, IsCorrect.fromBoolean(aData.isCorrect));
             }
         });
         return Question.create(
             QuestionId.of(qData.id),
             QuestionText.of(qData.text),
-            qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
+            qData.mediaId,
             QuestionType.fromString(qData.type),
             TimeLimit.of(qData.timeLimit),
             Points.of(qData.points),
@@ -131,7 +130,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
         QuizStatus.fromString(mongoDoc.status),
         QuizCategory.of(mongoDoc.category),
         ThemeId.of(mongoDoc.themeId),
-        mongoDoc.coverImageId ? MediaIdVO.of(mongoDoc.coverImageId) : null,
+        mongoDoc.coverImageId,
         new Date(mongoDoc.createdAt),
         mongoDoc.playCount,
         questions
@@ -144,13 +143,13 @@ export class TypeOrmQuizRepository implements QuizRepository {
           if (aData.text) {
               return Answer.createTextAnswer(AnswerId.of(aData.id), AnswerText.of(aData.text), IsCorrect.fromBoolean(aData.isCorrect));
           } else {
-              return Answer.createMediaAnswer(AnswerId.of(aData.id), aData.mediaId ? MediaIdVO.of(aData.mediaId) : null, IsCorrect.fromBoolean(aData.isCorrect));
+              return Answer.createMediaAnswer(AnswerId.of(aData.id), aData.mediaId, IsCorrect.fromBoolean(aData.isCorrect));
           }
       });
       return Question.create(
           QuestionId.of(qData.id),
           QuestionText.of(qData.text),
-          qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
+          qData.mediaId,
           QuestionType.fromString(qData.type),
           TimeLimit.of(qData.timeLimit),
           Points.of(qData.points),
@@ -166,7 +165,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
         QuizStatus.fromString(pgEntity.status),
         QuizCategory.of(pgEntity.category),
         ThemeId.of(pgEntity.themeId),
-        pgEntity.coverImageId ? MediaIdVO.of(pgEntity.coverImageId) : null,
+        pgEntity.coverImageId,
         pgEntity.createdAt,
         pgEntity.playCount,
         questions
