@@ -5,30 +5,30 @@ import { MediaController } from './media.controller';
 import { TypeOrmMediaEntity } from '../TypeOrm/TypeOrmMediaEntity';
 import { TypeOrmMediaRepository } from '../TypeOrm/TypeOrmMediaRepository';
 import { UploadMedia } from '../../application/UploadMedia';
-import { ListMediaUseCase } from '../../application/ListMediaUseCase';
+import { ListThemesUseCase } from '../../application/ListThemesUseCase';
 import { LoggerModule } from '../../../shared/aspects/logger/infrastructure/logger.module';
-import { ILoggerPort } from '../../../shared/aspects/logger/domain/ports/logger.port';
+import { ILoggerPort, LOGGER_PORT } from '../../../shared/aspects/logger/domain/ports/logger.port';
 import { LoggingUseCaseDecorator } from '../../../shared/aspects/logger/application/decorators/logging.decorator';
 import { ErrorHandlingDecorator } from '../../../shared/aspects/error-handling/application/decorators/error-handling.decorator';
 import { SupabaseStorageService } from '../Supabase/SupabaseStorageService';
-import { IStorageService } from '../../domain/port/IStorageService';
-import { IMediaRepository } from '../../domain/port/IMediaRepository';
+import { IStorageService, STORAGE_SERVICE } from '../../domain/port/IStorageService';
+import { IMediaRepository, IMEDIA_REPOSITORY } from '../../domain/port/IMediaRepository';
 
 @Module({
     imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity]), LoggerModule],
     controllers: [MediaController],
     providers: [
-        // 1. Provide the implementation for the IStorageService interface
+        // 1. Storage Service
         {
-            provide: 'IStorageService', // Use a string token for the interface
+            provide: STORAGE_SERVICE,
             useClass: SupabaseStorageService,
         },
-        // 2. Provide the implementation for the IMediaRepository interface
+        // 2. Media Repository
         {
-            provide: 'IMediaRepository', // Use a string token for the interface
+            provide: IMEDIA_REPOSITORY,
             useClass: TypeOrmMediaRepository,
         },
-        // 3. Provide the UploadMedia use case with its dependencies
+        // 3. UploadMedia Use Case
         {
             provide: UploadMedia,
             useFactory: (
@@ -40,17 +40,17 @@ import { IMediaRepository } from '../../domain/port/IMediaRepository';
                 const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'UploadMedia');
                 return new LoggingUseCaseDecorator(withErrorHandling, logger, 'UploadMedia');
             },
-            inject: ['ILoggerPort', 'IStorageService', 'IMediaRepository'], // Use string tokens for injection
+            inject: [LOGGER_PORT, STORAGE_SERVICE, IMEDIA_REPOSITORY],
         },
-        // 4. Provide the ListMediaUseCase with its dependencies
+        // 4. ListThemesUseCase
         {
-            provide: ListMediaUseCase,
+            provide: ListThemesUseCase,
             useFactory: (logger: ILoggerPort, repository: IMediaRepository) => {
-                const useCase = new ListMediaUseCase(repository);
-                const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'ListMediaUseCase');
-                return new LoggingUseCaseDecorator(withErrorHandling, logger, 'ListMediaUseCase');
+                const useCase = new ListThemesUseCase(repository);
+                const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'ListThemesUseCase');
+                return new LoggingUseCaseDecorator(withErrorHandling, logger, 'ListThemesUseCase');
             },
-            inject: ['ILoggerPort', 'IMediaRepository'], // Use string token for injection
+            inject: [LOGGER_PORT, IMEDIA_REPOSITORY],
         },
     ],
 })

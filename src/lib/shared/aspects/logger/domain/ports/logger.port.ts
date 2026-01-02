@@ -1,3 +1,5 @@
+export const LOGGER_PORT = 'ILoggerPort';
+
 export interface ILoggerPort {
   log(message: string): void;
   error(message: string, trace: string): void;

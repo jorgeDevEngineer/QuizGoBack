@@ -1,5 +1,7 @@
 import { Result } from '../../../shared/Type Helpers/result';
 
+export const STORAGE_SERVICE = 'IStorageService';
+
 // The object returned by the storage service after a successful upload
 export interface StorageUploadResponse {
     url: string; // Publicly accessible URL

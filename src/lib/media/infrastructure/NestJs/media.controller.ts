@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadMedia, UploadMediaDTO } from '../../application/UploadMedia';
-import { ListMediaUseCase } from '../../application/ListMediaUseCase';
+import { ListThemesUseCase } from '../../application/ListThemesUseCase';
 
 interface UploadedFile {
   buffer: Buffer;
@@ -26,15 +26,15 @@ export class MediaController {
   constructor(
     @Inject(UploadMedia)
     private readonly uploadMedia: UploadMedia,
-    @Inject(ListMediaUseCase)
-    private readonly listMedia: ListMediaUseCase,
+    @Inject(ListThemesUseCase)
+    private readonly listThemes: ListThemesUseCase,
   ) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async upload(@UploadedFile() file: UploadedFile, @Body() body: any) {
     if (!file) {
-      throw new HttpException('No file received. Ensure the request is multipart/form-data and the field name is "file".', HttpStatus.BAD_REQUEST);
+      throw new HttpException('No file received. Ensure the request is multipart/form-data and the field name is \"file\".', HttpStatus.BAD_REQUEST);
     }
 
     const dto: UploadMediaDTO = {
@@ -57,7 +57,12 @@ export class MediaController {
 
   @Get('themes')
   async getThemes() {
-    // Lógica para obtener los temas
-    return { themes: [] };
+    const result = await this.listThemes.execute();
+
+    if (result.isFailure) {
+        throw new HttpException(result.error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return result.getValue();
   }
 }
