@@ -85,7 +85,7 @@ export interface UpdateQuiz {
   title?: string;
   description?: string | null;
   visibility?: 'public' | 'private';
-  status?: 'draft' | 'published';
+  status?: 'draft' | 'publish';
   category?: string;
   themeId?: string;
   coverImageId?: string | null;

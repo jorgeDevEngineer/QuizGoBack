@@ -4,7 +4,7 @@ export type QuizQueryParamsInput = {
   page?: number;
   limit?: number;
 
-  status?: 'draft' | 'published' | 'all';
+  status?: 'draft' | 'publish' | 'all';
   visibility?: 'public' | 'private' | 'all';
   categories?: string[];
 
@@ -21,7 +21,7 @@ export class QuizQueryParamsDTO {
   limit?: number;
 
   // Filtros
-  status?: 'draft' | 'published' | 'all';
+  status?: 'draft' | 'publish' | 'all';
   visibility?: 'public' | 'private' | 'all';
   categories?: string[];
 

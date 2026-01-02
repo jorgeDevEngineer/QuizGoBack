@@ -4,7 +4,7 @@ import { Type, Transform } from 'class-transformer';
 import { UpdateQuestionDto } from './update-question.dto';
 
 const allowedVisibilities = ['public', 'private'];
-const allowedStatuses = ['draft', 'published'];
+const allowedStatuses = ['draft', 'publish'];
 
 export class UpdateQuizDto {
 
@@ -24,9 +24,9 @@ export class UpdateQuizDto {
     visibility?: 'public' | 'private';
 
     @IsOptional()
-    @IsIn(allowedStatuses, { message: 'Status must be either draft or published' })
+    @IsIn(allowedStatuses, { message: 'Status must be either draft or publish' })
     @Transform(({ value }) => value.toLowerCase())
-    status?: 'draft' | 'published';
+    status?: 'draft' | 'publish';
 
     @IsOptional()
     @IsString()

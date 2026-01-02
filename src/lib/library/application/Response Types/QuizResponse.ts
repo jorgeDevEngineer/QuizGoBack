@@ -41,7 +41,7 @@ export type QuizResponse = {
   category: string;
 
   /** Estado del quiz */
-  status: "draft" | "published";
+  status: "draft" | "publish";
 };
 
 export function toQuizResponse(quiz: Quiz, author: User): QuizResponse {

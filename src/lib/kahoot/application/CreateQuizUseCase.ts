@@ -24,7 +24,7 @@ export interface CreateQuiz {
     title: string;
     description: string;
     visibility: 'public' | 'private';
-    status: 'draft' | 'published';
+    status: 'draft' | 'publish';
     category: string;
     themeId: string;
     coverImageId: string | null;

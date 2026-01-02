@@ -35,7 +35,7 @@ export class TypeOrmQuizEntity {
   visibility: 'public' | 'private';
 
   @Column({ default: 'draft' })
-  status: 'draft' | 'published';
+  status: 'draft' | 'publish';
 
   @Column({ nullable: true })
   category: string;
