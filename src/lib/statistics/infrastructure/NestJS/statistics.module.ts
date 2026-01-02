@@ -3,10 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { StatisticsController } from "./statistics.controller";
-import { TypeOrmCriteriaApplier } from "../TypeORM/Criteria Appliers/TypeOrmCriteriaApplier";
-import { DataSource, SelectQueryBuilder } from "typeorm";
-import { CriteriaApplier } from "src/lib/library/domain/port/CriteriaApplier";
-import { CompletedQuizQueryCriteria } from "../../application/Response Types/CompletedQuizQueryCriteria";
+import { DataSource } from "typeorm";
 import { SinglePlayerGameRepository } from "../../domain/port/SinglePlayerRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { GetUserResultsDomainService } from "../../domain/services/GetUserResultsDomainService";
@@ -30,10 +27,6 @@ import { StatisticsRepositoryBuilder } from "../TypeORM/statisticsBuilder";
   controllers: [StatisticsController],
   providers: [
     {
-      provide: "CriteriaApplier",
-      useClass: TypeOrmCriteriaApplier,
-    },
-    {
       provide: "StatisticsRepositoryBuilder",
       useFactory: (dataSource: DataSource) => {
         const dbType: "postgres" | "mongo" =
@@ -54,13 +47,9 @@ import { StatisticsRepositoryBuilder } from "../TypeORM/statisticsBuilder";
     {
       provide: "SinglePlayerGameRepository",
       useFactory: (
-        builder: StatisticsRepositoryBuilder,
-        criteriaApplier: CriteriaApplier<
-          SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>,
-          CompletedQuizQueryCriteria
-        >
-      ) => builder.buildSinglePlayerGameRepository(criteriaApplier),
-      inject: ["StatisticsRepositoryBuilder", "CriteriaApplier"],
+        builder: StatisticsRepositoryBuilder
+      ) => builder.buildSinglePlayerGameRepository(),
+      inject: ["StatisticsRepositoryBuilder"],
     },
     {
       provide: "GetUserResultsDomainService",

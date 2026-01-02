@@ -1,12 +1,11 @@
 import { FindOptionsWhere, FindOptionsOrder } from "typeorm";
 import { CriteriaApplier } from "../../../../domain/port/CriteriaApplier";
-import { QuizQueryCriteria } from "../../../../application/Response Types/QuizQueryCriteria";
+import { CompletedQuizQueryCriteria } from "../../../../application/Response Types/CompletedQuizQueryCriteria";
 
 /**
- * CriteriaApplier genérico para Mongo
- * Transforma criterios en opciones de búsqueda para cualquier entidad
+ * CriteriaApplier para Mongo: aplica paginación y ordenamiento
  */
-export class TypeOrmMongoCriteriaApplier<Entity>
+export class MongoCriteriaApplier<Entity>
   implements
     CriteriaApplier<
       {
@@ -15,7 +14,7 @@ export class TypeOrmMongoCriteriaApplier<Entity>
         take?: number;
         order?: FindOptionsOrder<Entity>;
       },
-      QuizQueryCriteria
+      CompletedQuizQueryCriteria
     >
 {
   apply(
@@ -23,13 +22,22 @@ export class TypeOrmMongoCriteriaApplier<Entity>
       where: FindOptionsWhere<Entity>;
       skip?: number;
       take?: number;
+      order?: FindOptionsOrder<Entity>;
     },
-    criteria: QuizQueryCriteria,
-    alias?: string // no se usa en Mongo, pero se mantiene para compatibilidad
+    criteria: CompletedQuizQueryCriteria,
+    alias: string // no se usa en Mongo, pero se mantiene para compatibilidad
   ) {
     // 🔹 Paginación
     options.take = criteria.limit;
     options.skip = (criteria.page - 1) * criteria.limit;
+
+    // 🔹 Ordenamiento
+    if (criteria.orderBy) {
+      options.order = {
+        [criteria.orderBy]: criteria.order,
+      } as any;
+    }
+
     return options;
   }
 }

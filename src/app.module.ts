@@ -24,7 +24,7 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
         DATABASE_URL_POSTGRES: Joi.string().required(),
         DATABASE_URL_MONGO: Joi.string().required(),
         DATABASE_SSL: Joi.boolean().default(false),
-        DATABASE_SYNCHRONIZE: Joi.boolean(),
+        DATABASE_SYNCHRONIZE: Joi.boolean().default(false), // Por defecto false para seguridad
       }),
     }),
 
@@ -32,8 +32,13 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const useSSL = configService.get("DATABASE_SSL") === "true";
-        const synchronize = configService.get("DATABASE_SYNCHRONIZE") === true;
+        // Obtenemos las configuraciones del entorno
+        const useSSL =
+          configService.get("DATABASE_SSL") === "true" ||
+          configService.get("DATABASE_SSL") === true;
+        const synchronize =
+          configService.get("DATABASE_SYNCHRONIZE") === "true" ||
+          configService.get("DATABASE_SYNCHRONIZE") === true;
 
         return {
           type: "postgres",

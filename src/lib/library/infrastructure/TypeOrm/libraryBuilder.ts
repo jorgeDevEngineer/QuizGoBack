@@ -1,10 +1,13 @@
+import {
+  DataSource,
+  Repository,
+  SelectQueryBuilder,
+  MongoRepository,
+} from "typeorm";
 import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { TypeOrmUserEntity } from "../../../user/infrastructure/TypeOrm/TypeOrmUserEntity";
 import { TypeOrmUserRepository } from "../../../user/infrastructure/TypeOrm/TypeOrmUserRepository";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
-import { DataSource, Repository, SelectQueryBuilder } from "typeorm";
-import { QuizQueryCriteria } from "../../application/Response Types/QuizQueryCriteria";
-import { CriteriaApplier } from "../../domain/port/CriteriaApplier";
 import { TypeOrmPostgresUserFavoriteQuizEntity } from "./Postgres/Entities/TypeOrmPostgresUserFavoriteQuizEntity";
 import { TypeOrmPostgresQuizRepository } from "./Postgres/Repositories/TypeOrmPostgresQuizRepository";
 import { TypeOrmPostgresSinglePlayerGameRepository } from "./Postgres/Repositories/TypeOrmPostgresSinglePlayerGameRepository";
@@ -13,6 +16,12 @@ import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRe
 import { QuizRepository } from "../../domain/port/QuizRepository";
 import { UserRepository } from "src/lib/user/domain/port/UserRepository";
 import { SinglePlayerGameRepository } from "../../domain/port/SinglePlayerRepository";
+
+// Appliers
+import { TypeOrmPostgresCriteriaApplier } from "./Criteria Appliers/Postgres/TypeOrmPostgresCriteriaApplier";
+import { TypeOrmPostgresAdvancedCriteriaApplier } from "./Criteria Appliers/Postgres/TypeOrmPostgresAdvancedCriteriaApplier";
+import { TypeOrmMongoCriteriaApplier } from "./Criteria Appliers/Mongo/TypeOrmMongoCriteriaApplier";
+import { TypeOrmMongoUserFavoriteQuizEntity } from "./Mongo/Entities/TypeOrmMongoUserFavoriteQuizEntity";
 
 type DbType = "postgres" | "mongo";
 
@@ -23,13 +32,24 @@ const entityMap = {
     UserFavoriteQuiz: TypeOrmPostgresUserFavoriteQuizEntity,
     SinglePlayerGame: TypeOrmSinglePlayerGameEntity,
   },
+  mongo: {
+    // Aquí irían las entidades Mongo equivalentes
+    Quiz: undefined,
+    User: undefined,
+    UserFavoriteQuiz: undefined,
+    SinglePlayerGame: undefined,
+  },
 };
 
 export class LibraryRepositoryBuilder {
-  private quizRepo?: Repository<TypeOrmQuizEntity>;
-  private userRepo?: Repository<TypeOrmUserEntity>;
-  private userFavRepo?: Repository<TypeOrmPostgresUserFavoriteQuizEntity>;
-  private singleGameRepo?: Repository<TypeOrmSinglePlayerGameEntity>;
+  private quizRepo?: Repository<TypeOrmQuizEntity> | MongoRepository<any>;
+  private userRepo?: Repository<TypeOrmUserEntity> | MongoRepository<any>;
+  private userFavRepo?:
+    | Repository<TypeOrmPostgresUserFavoriteQuizEntity>
+    | MongoRepository<TypeOrmMongoUserFavoriteQuizEntity>;
+  private singleGameRepo?:
+    | Repository<TypeOrmSinglePlayerGameEntity>
+    | MongoRepository<any>;
 
   constructor(
     private readonly dbType: DbType,
@@ -38,52 +58,69 @@ export class LibraryRepositoryBuilder {
 
   withEntity(entityName: keyof (typeof entityMap)["postgres"]) {
     const entityClass = entityMap[this.dbType][entityName];
-    switch (entityName) {
-      case "Quiz":
-        this.quizRepo = this.dataSource.getRepository(entityClass);
-        break;
-      case "User":
-        this.userRepo = this.dataSource.getRepository(entityClass);
-        break;
-      case "UserFavoriteQuiz":
-        this.userFavRepo = this.dataSource.getRepository(entityClass);
-        break;
-      case "SinglePlayerGame":
-        this.singleGameRepo = this.dataSource.getRepository(entityClass);
-        break;
+    if (!entityClass)
+      throw new Error(
+        `Entidad ${entityName} no implementada para ${this.dbType}`
+      );
+
+    if (this.dbType === "postgres") {
+      switch (entityName) {
+        case "Quiz":
+          this.quizRepo = this.dataSource.getRepository(entityClass);
+          break;
+        case "User":
+          this.userRepo = this.dataSource.getRepository(entityClass);
+          break;
+        case "UserFavoriteQuiz":
+          this.userFavRepo = this.dataSource.getRepository(entityClass);
+          break;
+        case "SinglePlayerGame":
+          this.singleGameRepo = this.dataSource.getRepository(entityClass);
+          break;
+      }
+    } else {
+      switch (entityName) {
+        case "Quiz":
+          this.quizRepo = this.dataSource.getMongoRepository(entityClass);
+          break;
+        case "User":
+          this.userRepo = this.dataSource.getMongoRepository(entityClass);
+          break;
+        case "UserFavoriteQuiz":
+          this.userFavRepo = this.dataSource.getMongoRepository(entityClass);
+          break;
+        case "SinglePlayerGame":
+          this.singleGameRepo = this.dataSource.getMongoRepository(entityClass);
+          break;
+      }
     }
-  
+
     return this;
   }
 
-  buildUserFavoriteQuizRepository(
-    criteriaApplier: CriteriaApplier<
-      SelectQueryBuilder<TypeOrmPostgresUserFavoriteQuizEntity>,
-      QuizQueryCriteria
-    >
-  ): UserFavoriteQuizRepository {
+  buildUserFavoriteQuizRepository(): UserFavoriteQuizRepository {
     if (this.dbType === "postgres") {
+      const criteriaApplier =
+        new TypeOrmPostgresCriteriaApplier<TypeOrmPostgresUserFavoriteQuizEntity>();
       return new TypeOrmPostgresUserFavoriteQuizRepository(
         this.userFavRepo!,
         criteriaApplier
       );
+    } else {
+      const criteriaApplier = new TypeOrmMongoCriteriaApplier<TypeOrmMongoUserFavoriteQuizEntity>();
+      // Aquí iría el repositorio Mongo equivalente
+      throw new Error("Mongo UserFavoriteQuizRepository no implementado aún");
     }
-    throw new Error("Mongo UserFavoriteQuizRepository no implementado aún");
   }
 
-  buildQuizRepository(
-    advancedCriteriaApplier: CriteriaApplier<
-      SelectQueryBuilder<TypeOrmQuizEntity>,
-      QuizQueryCriteria
-    >
-  ): QuizRepository {
+  buildQuizRepository(): QuizRepository {
     if (this.dbType === "postgres") {
-      return new TypeOrmPostgresQuizRepository(
-        this.quizRepo!,
-        advancedCriteriaApplier
-      );
+      const criteriaApplier = new TypeOrmPostgresAdvancedCriteriaApplier<TypeOrmQuizEntity>();
+      return new TypeOrmPostgresQuizRepository(this.quizRepo!, criteriaApplier);
+    } else {
+      const criteriaApplier = new TypeOrmMongoCriteriaApplier<any>();
+      throw new Error("Mongo QuizRepository no implementado aún");
     }
-    throw new Error("Mongo QuizRepository no implementado aún");
   }
 
   buildUserRepository(): UserRepository {
@@ -93,18 +130,17 @@ export class LibraryRepositoryBuilder {
     throw new Error("Mongo UserRepository no implementado aún");
   }
 
-  buildSinglePlayerGameRepository(
-    advancedCriteriaApplier: CriteriaApplier<
-      SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>,
-      QuizQueryCriteria
-    >
-  ): SinglePlayerGameRepository {
+  buildSinglePlayerGameRepository(): SinglePlayerGameRepository {
     if (this.dbType === "postgres") {
+      const criteriaApplier =
+        new TypeOrmPostgresAdvancedCriteriaApplier<TypeOrmSinglePlayerGameEntity>();
       return new TypeOrmPostgresSinglePlayerGameRepository(
         this.singleGameRepo!,
-        advancedCriteriaApplier
+        criteriaApplier
       );
+    } else {
+      const criteriaApplier = new TypeOrmMongoCriteriaApplier<any>();
+      throw new Error("Mongo SinglePlayerGameRepository no implementado aún");
     }
-    throw new Error("Mongo SinglePlayerGameRepository no implementado aún");
   }
 }

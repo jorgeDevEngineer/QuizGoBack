@@ -1,9 +1,8 @@
 import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { DataSource, Repository, SelectQueryBuilder } from "typeorm";
-import { CompletedQuizQueryCriteria } from "../../application/Response Types/CompletedQuizQueryCriteria";
-import { CriteriaApplier } from "../../domain/port/CriteriaApplier";
 import { TypeOrmQuizRepository } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizRepository";
+import { TypeOrmPostgresCriteriaApplier } from "./Criteria Appliers/Postgres/TypeOrmPostgresCriteriaApplier";
 import { TypeOrmPostgresSinglePlayerGameRepository } from "./Postgres/Repositories/TypeOrmPostgresSinglePlayerGameRepository";
 import { SinglePlayerGameRepository } from "../../domain/port/SinglePlayerRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
@@ -41,12 +40,9 @@ export class StatisticsRepositoryBuilder {
   }
 
   buildSinglePlayerGameRepository(
-    criteriaApplier: CriteriaApplier<
-      SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>,
-      CompletedQuizQueryCriteria
-    >
   ): SinglePlayerGameRepository {
     if (this.dbType === "postgres") {
+      const criteriaApplier = new TypeOrmPostgresCriteriaApplier<TypeOrmSinglePlayerGameEntity>();
       return new TypeOrmPostgresSinglePlayerGameRepository(
         this.singleGameRepo!,
         criteriaApplier

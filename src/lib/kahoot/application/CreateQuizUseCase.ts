@@ -17,33 +17,18 @@ import {
 } from '../domain/valueObject/Answer';
 import { DomainException } from '../../shared/exceptions/domain.exception';
 import { IHandler } from 'src/lib/shared/IHandler';
-
-// DTOs para la entrada de datos, ahora alineados con los DTOs de infraestructura.
-export interface CreateAnswerDto {
-    text: string;
-    isCorrect: boolean;
-    mediaId: string | null;
-}
-
-export interface CreateQuestion {
-    text: string;
-    type: 'single' | 'multiple' | 'true_false'; // <--- CORREGIDO
-    timeLimit: number;
-    points: number;
-    mediaId: string | null;
-    answers: CreateAnswerDto[];
-}
+import { CreateQuestionDto } from '../infrastructure/NestJs/DTOs/create-question.dto';
 
 export interface CreateQuiz {
     authorId: string;
     title: string;
     description: string;
     visibility: 'public' | 'private';
-    status: 'draft' | 'published';
+    status: 'draft' | 'publish';
     category: string;
     themeId: string;
     coverImageId: string | null;
-    questions: CreateQuestion[];
+    questions: CreateQuestionDto[];
 }
 
 export class CreateQuizUseCase implements IHandler<CreateQuiz, Result<Quiz>> {
@@ -84,7 +69,7 @@ export class CreateQuizUseCase implements IHandler<CreateQuiz, Result<Quiz>> {
             QuestionId.generate(),
             QuestionText.of(qDto.text),
             qDto.mediaId ? MediaIdVO.of(qDto.mediaId) : null,
-            QuestionType.fromString(qDto.type), // <--- CORREGIDO
+            QuestionType.fromString(qDto.type),
             TimeLimit.of(qDto.timeLimit),
             Points.of(qDto.points),
             answers

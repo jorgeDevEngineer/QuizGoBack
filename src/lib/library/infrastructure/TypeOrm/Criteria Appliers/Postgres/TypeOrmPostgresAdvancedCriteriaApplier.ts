@@ -2,7 +2,7 @@ import { SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "../../../../domain/port/CriteriaApplier";
 import { QuizQueryCriteria } from "../../../../application/Response Types/QuizQueryCriteria";
 
-export class TypeOrmPostgresQuizCriteriaApplier<Entity>
+export class TypeOrmPostgresAdvancedCriteriaApplier<Entity>
   implements CriteriaApplier<SelectQueryBuilder<Entity>, QuizQueryCriteria>
 {
   apply(

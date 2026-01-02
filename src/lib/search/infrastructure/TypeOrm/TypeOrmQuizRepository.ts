@@ -158,7 +158,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
     const quizzes = await this.repository.find({
         where: {
           visibility: 'public',
-          status: 'published',
+          status: 'publish',
         },
         order: {
           playCount: 'DESC',

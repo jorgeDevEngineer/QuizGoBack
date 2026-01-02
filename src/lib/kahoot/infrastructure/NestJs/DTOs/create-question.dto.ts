@@ -3,19 +3,14 @@ import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, ValidateNeste
 import { Type } from 'class-transformer';
 import { CreateAnswerDto } from './create-answer.dto';
 
-enum QuestionType {
-    SINGLE = 'single',
-    MULTIPLE = 'multiple',
-    TRUE_FALSE = 'true_false',
-}
-
 export class CreateQuestionDto {
     @IsString()
     @IsNotEmpty()
     public readonly text: string;
 
-    @IsEnum(QuestionType)
-    public readonly type: QuestionType;
+    @IsString()
+    @IsEnum(['single', 'multiple', 'true_false'])
+    public readonly type: 'single' | 'multiple' | 'true_false';
 
     @IsInt()
     public readonly timeLimit: number;

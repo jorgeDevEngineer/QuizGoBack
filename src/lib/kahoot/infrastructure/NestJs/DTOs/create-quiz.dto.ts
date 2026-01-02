@@ -10,7 +10,7 @@ enum Visibility {
 
 enum Status {
     DRAFT = 'draft',
-    PUBLISHED = 'published',
+    PUBLISHED = 'publish',
 }
 
 export class CreateQuizDto {

@@ -15,11 +15,7 @@ import { TypeOrmUserEntity } from "../../../user/infrastructure/TypeOrm//TypeOrm
 import { SinglePlayerGameRepository } from "../../domain/port/SinglePlayerRepository";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { QuizRepository } from "../../domain/port/QuizRepository";
-import { CriteriaApplier } from "../../domain/port/CriteriaApplier";
-import { DataSource, SelectQueryBuilder } from "typeorm";
-import { TypeOrmPostgresCriteriaApplier } from "../TypeOrm/Criteria Appliers/Postgres/TypeOrmPostgresCriteriaApplier";
-import { TypeOrmPostgresQuizCriteriaApplier } from "../TypeOrm/Criteria Appliers/Postgres/TypeOrmPostgresAdvancedCriteriaApplier";
-import { QuizQueryCriteria } from "../../application/Response Types/QuizQueryCriteria";
+import { DataSource } from "typeorm";
 import { GetAllUserQuizzesDomainService } from "../../domain/services/Queries/GetAllUserQuizzesDomainService";
 import { GetUserInProgressQuizzesDomainService } from "../../domain/services/Queries/GetUserInProgressQuizzesDomainService";
 import { GetUserFavoriteQuizzesDomainService } from "../../domain/services/Queries/GetUserFavoriteQuizzesDomainService";
@@ -44,51 +40,31 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
   ],
   controllers: [LibraryController],
   providers: [
-    {
-      provide: "CriteriaApplier",
-      useClass: TypeOrmPostgresCriteriaApplier, // implementación genérica
-    },
-    {
-      provide: "AdvancedCriteriaApplier",
-      useClass: TypeOrmPostgresQuizCriteriaApplier, // implementación avanzada
-    },
-    // Builder configurado con el motor desde variable de entorno
+    // Repositorios construidos con sus criteria appliers correspondientes
     {
       provide: "LibraryRepositoryBuilder",
       useFactory: (dataSource: DataSource) => {
         const dbType: "postgres" | "mongo" =
           (process.env.LIBRARY_DB_TYPE as "postgres" | "mongo") || "postgres";
         return new LibraryRepositoryBuilder(dbType, dataSource)
+          .withEntity("UserFavoriteQuiz")
           .withEntity("Quiz")
           .withEntity("User")
-          .withEntity("UserFavoriteQuiz")
           .withEntity("SinglePlayerGame");
       },
       inject: [DataSource],
     },
-
-    // Repositorios construidos con sus criteria appliers correspondientes
     {
       provide: "UserFavoriteQuizRepository",
-      useFactory: (
-        builder: LibraryRepositoryBuilder,
-        criteriaApplier: CriteriaApplier<
-          SelectQueryBuilder<TypeOrmPostgresUserFavoriteQuizEntity>,
-          QuizQueryCriteria
-        >
-      ) => builder.buildUserFavoriteQuizRepository(criteriaApplier),
-      inject: ["LibraryRepositoryBuilder", "CriteriaApplier"],
+      useFactory: (builder: LibraryRepositoryBuilder) =>
+        builder.buildUserFavoriteQuizRepository(),
+      inject: ["LibraryRepositoryBuilder"],
     },
     {
       provide: "QuizRepository",
-      useFactory: (
-        builder: LibraryRepositoryBuilder,
-        advancedCriteriaApplier: CriteriaApplier<
-          SelectQueryBuilder<TypeOrmQuizEntity>,
-          QuizQueryCriteria
-        >
-      ) => builder.buildQuizRepository(advancedCriteriaApplier),
-      inject: ["LibraryRepositoryBuilder", "AdvancedCriteriaApplier"],
+      useFactory: (builder: LibraryRepositoryBuilder) =>
+        builder.buildQuizRepository(),
+      inject: ["LibraryRepositoryBuilder"],
     },
     {
       provide: "UserRepository",
@@ -98,14 +74,9 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
     },
     {
       provide: "SinglePlayerGameRepository",
-      useFactory: (
-        builder: LibraryRepositoryBuilder,
-        advancedCriteriaApplier: CriteriaApplier<
-          SelectQueryBuilder<TypeOrmSinglePlayerGameEntity>,
-          QuizQueryCriteria
-        >
-      ) => builder.buildSinglePlayerGameRepository(advancedCriteriaApplier),
-      inject: ["LibraryRepositoryBuilder", "AdvancedCriteriaApplier"],
+      useFactory: (builder: LibraryRepositoryBuilder) =>
+        builder.buildSinglePlayerGameRepository(),
+      inject: ["LibraryRepositoryBuilder"],
     },
     {
       provide: "AddUserFavoriteQuizDomainService",
