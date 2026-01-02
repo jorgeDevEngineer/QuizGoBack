@@ -53,10 +53,10 @@ export class QuizDescription {
 }
 
 export class QuizStatus {
-    private constructor(public readonly value: 'draft' | 'published') {}
+    private constructor(public readonly value: 'draft' | 'publish') {}
     public static fromString(value: string): QuizStatus {
-        if (value !== 'draft' && value !== 'published') { throw new DomainException(`Invalid QuizStatus, it must be 'draft' or 'published'.`); }
-        return new QuizStatus(value as 'draft' | 'published');
+        if (value !== 'draft' && value !== 'publish') { throw new DomainException(`Invalid QuizStatus, it must be 'draft' or 'publish'.`); }
+        return new QuizStatus(value as 'draft' | 'publish');
     }
 }
 

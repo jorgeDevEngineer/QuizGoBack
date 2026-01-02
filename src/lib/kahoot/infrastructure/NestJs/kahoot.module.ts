@@ -1,3 +1,4 @@
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { KahootController } from './kahoots.controller';
@@ -6,7 +7,6 @@ import { GetQuizUseCase } from '../../application/GetQuizUseCase';
 import { ListUserQuizzesUseCase } from '../../application/ListUserQuizzesUseCase';
 import { UpdateQuizUseCase } from '../../application/UpdateQuizUseCase';
 import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
-import { TypeOrmQuizEntity } from '../TypeOrm/TypeOrmQuizEntity';
 import { TypeOrmQuizRepository } from '../TypeOrm/TypeOrmQuizRepository';
 import { QuizRepository } from '../../domain/port/QuizRepository';
 import { LoggerModule } from '../../../shared/aspects/logger/infrastructure/logger.module';
@@ -15,9 +15,14 @@ import { LoggingUseCaseDecorator } from '../../../shared/aspects/logger/applicat
 import { ErrorHandlingDecorator } from '../../../shared/aspects/error-handling/application/decorators/error-handling.decorator';
 import { GetAllKahootsUseCase } from '../../application/GetAllKahootsUseCase';
 import { DatabaseModule } from '../../../shared/infrastructure/database/database.module';
+import { TypeOrmQuizEntity } from '../TypeOrm/TypeOrmQuizEntity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmQuizEntity]), LoggerModule, DatabaseModule],
+  imports: [
+    LoggerModule, 
+    DatabaseModule,
+    TypeOrmModule.forFeature([TypeOrmQuizEntity]),
+  ],
   controllers: [KahootController],
   providers: [
     {
@@ -79,6 +84,6 @@ import { DatabaseModule } from '../../../shared/infrastructure/database/database
       inject: ['ILoggerPort', 'QuizRepository'],
     },
   ],
-  exports: ['QuizRepository'],
+  exports: ['QuizRepository', TypeOrmModule],
 })
 export class KahootModule {}
