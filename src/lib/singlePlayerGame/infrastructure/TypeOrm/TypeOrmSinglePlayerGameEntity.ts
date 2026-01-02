@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { SinglePlayerGame } from '../../domain/aggregates/SinglePlayerGame';
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { 
     EvaluatedAnswer, 
     GameProgress, 
@@ -7,8 +8,7 @@ import {
     GameScore,  
     PlayerAnswer, 
     QuestionResult, 
-    QuestionResultJSON, 
-    SinglePlayerGameId
+    QuestionResultJSON
 } from '../../domain/valueObjects/SinglePlayerGameVOs';
 import { QuestionId } from 'src/lib/kahoot/domain/valueObject/Question';
 import { QuizId, UserId } from 'src/lib/kahoot/domain/valueObject/Quiz';

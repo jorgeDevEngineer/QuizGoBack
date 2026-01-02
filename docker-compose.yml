@@ -3,14 +3,14 @@ services:
   # ============================================
   # Base de datos PostgreSQL
   # ============================================
-  db:
+  postgres-db:
     image: postgres:17.7
-    container_name: kahoot-db
+    container_name: postgres-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password123}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
     volumes:
       # Persistencia de datos
       - postgres_data:/var/lib/postgresql/data
@@ -18,10 +18,12 @@ services:
     # cambiar a 5432 si no se tiene instalado postgres localmente, sino usar el puerto 5433 para evitar conflictos
       - "${POSTGRES_PORT:-5433}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5432"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-admin} -d $${POSTGRES_DB:-postgres} -p 5432"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - kahoot-network
 
   # ============================================
   # Aplicación NestJS
@@ -36,19 +38,47 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${PORT:-3000}
       # Dentro de Docker, la conexión es al puerto interno 5432 (no al externo POSTGRES_PORT)
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL_POSTGRES: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-password123}@postgres-db:5432/${POSTGRES_DB:-postgres}
+      # URL de la base de datos MongoDB
+      DATABASE_URL_MONGO: mongodb://${MONGO_INITDB_ROOT_USERNAME:-admin}:${MONGO_INITDB_ROOT_PASSWORD:-password123}@mongo-db:27017/
       # SSL desactivado para PostgreSQL local en Docker
       DATABASE_SSL: ${DATABASE_SSL:-false}
       # Synchronize crea las tablas automáticamente (solo para desarrollo/testing)
       DATABASE_SYNCHRONIZE: ${DATABASE_SYNCHRONIZE:-true}
     ports:
-      - "${PORT}:3000"
+      - "${PORT:-3000}:3000"
     volumes:
       # Persistir uploads
       - ./uploads:/app/uploads
     depends_on:
-      db:
+      postgres-db:
         condition: service_healthy
+      mongo-db:
+        condition: service_healthy
+    networks:
+      - kahoot-network
+
+  # ============================================
+  # Base de datos MongoDB
+  # ============================================
+  mongo-db:
+    image: mongo:latest
+    container_name: mongo-db
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-password123}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--host", "localhost", "--authenticationDatabase", "admin", "-u", "${MONGO_INITDB_ROOT_USERNAME}", "-p", "${MONGO_INITDB_ROOT_PASSWORD}", "--eval", "db.runCommand({ ping: 1 }).ok || quit(1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kahoot-network
 
   # ============================================
   # Seeder - Ejecuta INSERTs después de que la app cree las tablas
@@ -57,28 +87,32 @@ services:
     image: postgres:17.7
     container_name: kahoot-seeder
     environment:
-      PGHOST: db
+      PGHOST: postgres-db
       PGPORT: 5432
-      PGUSER: ${POSTGRES_USER}
-      PGPASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: ${POSTGRES_DB}
-      # URL de la app para verificar que está lista
-      APP_URL: http://localhost:3000
+      PGUSER: ${POSTGRES_USER:-admin}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-password123}
+      PGDATABASE: ${POSTGRES_DB:-postgres}
+      # URL de la app para verificar que está lista (dentro de Docker, usar nombre del servicio)
+      APP_URL: http://app:3000
     volumes:
       - ./docker/seed-data:/seed-data
       - ./docker/run-seeds.sh:/run-seeds.sh:ro
     entrypoint: ["/bin/bash", "/run-seeds.sh"]
     depends_on:
-      db:
+      postgres-db:
         condition: service_healthy
       app:
         condition: service_started
     restart: "no"
+    networks:
+      - kahoot-network
 
 volumes:
   postgres_data:
     driver: local
+  mongo_data:
+    driver: local
 
 networks:
   kahoot-network:
-    driver: default
+    driver: bridge

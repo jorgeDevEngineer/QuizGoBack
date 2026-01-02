@@ -1,0 +1,1 @@
+INSERT INTO public.notifications (id, title, message, "userId", "createdAt") VALUES ('3b3312ea-758a-40b6-bccb-ccb3345f2c1f', 'Notificacion de Prueba', 'Hola mundo', '9fa9df55-a70b-47cb-9f8d-ddb8d2c3c76a', '2025-12-31 12:58:02.966000');

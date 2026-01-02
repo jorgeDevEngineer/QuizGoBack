@@ -1,5 +1,5 @@
 import { InjectRepository } from "@nestjs/typeorm";
-import { SinglePlayerGameRepository } from "../../../domain/port/SinglePlayerRepository";
+import { SinglePlayerGameRepository } from "../../../../domain/port/SinglePlayerRepository";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { Injectable } from "@nestjs/common";
 import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
@@ -10,7 +10,7 @@ import { CriteriaApplier } from "src/lib/library/domain/port/CriteriaApplier";
 import { QuizQueryCriteria } from "src/lib/library/application/Response Types/QuizQueryCriteria";
 
 @Injectable()
-export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameRepository {
+export class TypeOrmPostgresSinglePlayerGameRepository implements SinglePlayerGameRepository {
 
     constructor(
         @InjectRepository(TypeOrmSinglePlayerGameEntity)

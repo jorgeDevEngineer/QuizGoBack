@@ -1,14 +1,14 @@
 import { SelectQueryBuilder } from "typeorm";
-import { CriteriaApplier } from "../../../domain/port/CriteriaApplier";
-import { QuizQueryCriteria } from "../../../application/Response Types/QuizQueryCriteria";
+import { CriteriaApplier } from "../../../../domain/port/CriteriaApplier";
+import { QuizQueryCriteria } from "../../../../application/Response Types/QuizQueryCriteria";
 
-export class TypeOrmCriteriaApplier<Entity>
+export class TypeOrmPostgresCriteriaApplier<Entity>
   implements CriteriaApplier<SelectQueryBuilder<Entity>, QuizQueryCriteria>
 {
   apply(
     qb: SelectQueryBuilder<Entity>,
     criteria: QuizQueryCriteria,
-    alias: string,
+    alias?: string,
   ): SelectQueryBuilder<Entity> {
    // Paginación
    qb.limit(criteria.limit);

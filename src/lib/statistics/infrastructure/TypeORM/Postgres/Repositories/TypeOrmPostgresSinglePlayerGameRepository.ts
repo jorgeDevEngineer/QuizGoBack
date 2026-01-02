@@ -1,16 +1,17 @@
 import { InjectRepository } from "@nestjs/typeorm";
-import { SinglePlayerGameRepository } from "../../../domain/port/SinglePlayerRepository";
+import { SinglePlayerGameRepository } from "../../../../domain/port/SinglePlayerRepository";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { Injectable } from "@nestjs/common";
 import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
-import { GameProgressStatus, SinglePlayerGameId} from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
+import { GameProgressStatus} from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "src/lib/library/domain/port/CriteriaApplier";
 import { CompletedQuizQueryCriteria as QuizQueryCriteria } from "src/lib/statistics/application/Response Types/CompletedQuizQueryCriteria";
 
 @Injectable()
-export class TypeOrmSinglePlayerGameRepository implements SinglePlayerGameRepository {
+export class TypeOrmPostgresSinglePlayerGameRepository implements SinglePlayerGameRepository {
 
     constructor(
         @InjectRepository(TypeOrmSinglePlayerGameEntity)
