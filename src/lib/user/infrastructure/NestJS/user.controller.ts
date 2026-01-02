@@ -114,7 +114,8 @@ export class UserController {
         body.name,
         body.theme,
         body.language,
-        body.gameStreak
+        body.gameStreak,
+        body.status
       );
     } catch (error) {
       if (error instanceof UserNotFoundError) {

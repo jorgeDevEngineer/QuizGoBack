@@ -17,6 +17,7 @@ import { UserDate } from "../../domain/valueObject/UserDate";
 import { Membership } from "../../domain/entity/Membership";
 import { MembershipType } from "../../domain/valueObject/MembershipType";
 import { MembershipDate } from "../../domain/valueObject/MembershipDate";
+import { UserStatus } from "../../domain/valueObject/UserStatus";
 
 export class TypeOrmUserRepository implements UserRepository {
   constructor(
@@ -42,7 +43,8 @@ export class TypeOrmUserRepository implements UserRepository {
         new MembershipDate(entity.membershipExpiresAt)
       ),
       new UserDate(entity.createdAt),
-      new UserDate(entity.updatedAt)
+      new UserDate(entity.updatedAt),
+      new UserStatus(entity.status)
     );
   }
 
@@ -82,6 +84,7 @@ export class TypeOrmUserRepository implements UserRepository {
       membershipExpiresAt: user.membership.expiresAt.value,
       createdAt: user.createdAt.value,
       updatedAt: user.updatedAt.value,
+      status: user.status.value,
     });
     await this.repository.save(userEntity);
   }
@@ -101,6 +104,7 @@ export class TypeOrmUserRepository implements UserRepository {
       membershipStartedAt: user.membership.startedAt.value,
       membershipExpiresAt: user.membership.expiresAt.value,
       updatedAt: user.updatedAt.value,
+      status: user.status.value,
     });
   }
 

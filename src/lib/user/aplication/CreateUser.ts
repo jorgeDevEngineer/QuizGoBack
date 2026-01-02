@@ -14,6 +14,7 @@ import { UserDate } from "../domain/valueObject/UserDate";
 import { Membership } from "../domain/entity/Membership.js";
 import { MembershipType } from "../domain/valueObject/MembershipType.js";
 import { MembershipDate } from "../domain/valueObject/MembershipDate.js";
+import { UserStatus } from "../domain/valueObject/UserStatus";
 
 export class CreateUser {
   constructor(private readonly userRepository: UserRepository) {}
@@ -31,7 +32,8 @@ export class CreateUser {
     gameStreak?: number,
     membership?: { type: "free" | "premium"; startedAt: Date; expiresAt: Date },
     createdAt?: Date,
-    updatedAt?: Date
+    updatedAt?: Date,
+    status?: "Active" | "Blocked"
   ): Promise<void> {
     const newUser = new User(
       new UserName(userName),
@@ -54,7 +56,8 @@ export class CreateUser {
           )
         : undefined,
       createdAt ? new UserDate(createdAt) : undefined,
-      updatedAt ? new UserDate(updatedAt) : undefined
+      updatedAt ? new UserDate(updatedAt) : undefined,
+      status ? new UserStatus(status) : undefined
     );
     const userWithSameId = await this.userRepository.getOneById(newUser.id);
     const userWithSameUserName = await this.userRepository.getOneByName(

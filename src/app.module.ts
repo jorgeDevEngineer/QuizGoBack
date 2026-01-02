@@ -1,8 +1,7 @@
-
 import { Module, OnApplicationBootstrap } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import * as Joi from 'joi';
+import * as Joi from "joi";
 import { KahootModule } from "./lib/kahoot/infrastructure/NestJs/kahoot.module";
 import { MediaModule } from "./lib/media/infrastructure/NestJs/media.module";
 import { SearchModule } from "./lib/search/infrastructure/NestJs/search.module";
@@ -19,7 +18,7 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
+    ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
         DATABASE_URL_POSTGRES: Joi.string().required(),
@@ -40,7 +39,7 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
           type: "postgres",
           url: configService.get<string>("DATABASE_URL_POSTGRES"),
           autoLoadEntities: true,
-          synchronize,
+          synchronize: synchronize,
           ssl: useSSL ? { rejectUnauthorized: false } : false,
         };
       },
@@ -62,12 +61,12 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
 export class AppModule implements OnApplicationBootstrap {
   constructor(
     private readonly mongoAdapter: DynamicMongoAdapter,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   async onApplicationBootstrap() {
-    const mongoUrl = this.configService.get<string>('DATABASE_URL_MONGO');
-    await this.mongoAdapter.reconnect('kahoot', mongoUrl);
-    await this.mongoAdapter.reconnect('media', mongoUrl);
+    const mongoUrl = this.configService.get<string>("DATABASE_URL_MONGO");
+    await this.mongoAdapter.reconnect("kahoot", mongoUrl);
+    await this.mongoAdapter.reconnect("media", mongoUrl);
   }
 }
