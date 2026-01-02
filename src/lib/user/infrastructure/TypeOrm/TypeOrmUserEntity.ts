@@ -38,12 +38,12 @@ export class TypeOrmUserEntity {
   @Column()
   updatedAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   membershipType: "free" | "premium";
 
-  @Column()
+  @Column({ nullable: true })
   membershipStartedAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   membershipExpiresAt: Date;
 }

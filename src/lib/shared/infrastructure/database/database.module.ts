@@ -1,4 +1,3 @@
-
 import { Global, Module } from '@nestjs/common';
 import { DynamicMongoAdapter } from './dynamic-mongo.adapter';
 

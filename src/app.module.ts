@@ -33,13 +33,12 @@ import { DynamicMongoAdapter } from "./lib/shared/infrastructure/database/dynami
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const useSSL = configService.get("DATABASE_SSL") === "true";
-        const synchronize = configService.get("DATABASE_SYNCHRONIZE") === "true";
 
         return {
           type: "postgres",
           url: configService.get<string>("DATABASE_URL_POSTGRES"),
           autoLoadEntities: true,
-          synchronize,
+          synchronize: true,
           ssl: useSSL ? { rejectUnauthorized: false } : false,
         };
       },
