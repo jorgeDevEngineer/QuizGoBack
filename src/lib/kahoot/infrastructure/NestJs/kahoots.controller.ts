@@ -22,14 +22,14 @@ import { ListUserQuizzesUseCase } from '../../application/ListUserQuizzesUseCase
 import { UpdateQuizUseCase, UpdateQuiz } from '../../application/UpdateQuizUseCase';
 import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
 import { IsString, Length } from 'class-validator';
-import { Result } from '../../../shared/Type Helpers/result';
+import { Result } from '../../../shared/TypeHelpers/result';
 import { GetAllKahootsUseCase } from '../../application/GetAllKahootsUseCase';
 import { CreateQuizDto } from './DTOs/create-quiz.dto';
-import { UpdateQuizDto } from './DTOs/update-quiz.dto'; // <-- 1. IMPORTAR
+import { UpdateQuizDto } from './DTOs/update-quiz.dto';
 
 export class FindOneParams {
   @IsString()
-  @Length(5, 255)
+  @Length(36, 36)
   id: string;
 }
 
@@ -98,12 +98,11 @@ export class KahootController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async edit(
     @Param() params: FindOneParams, 
-    @Body() updateQuizDto: UpdateQuizDto, // <-- 2. USAR EL NUEVO DTO
+    @Body() updateQuizDto: UpdateQuizDto,
     @Req() req: any
   ) { 
     const authorId = req.user.id;
 
-    // 3. AJUSTAR EL MAPEO
     const updateQuizData: UpdateQuiz = {
       quizId: params.id,
       authorId: authorId,

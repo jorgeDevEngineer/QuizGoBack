@@ -2,12 +2,8 @@
 import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateAnswerDto } from './create-answer.dto';
+import { QuestionType } from '../../../domain/valueObject/Question';
 
-enum QuestionType {
-    SINGLE = 'single',
-    MULTIPLE = 'multiple',
-    TRUE_FALSE = 'true_false',
-}
 
 export class CreateQuestionDto {
     @IsString()

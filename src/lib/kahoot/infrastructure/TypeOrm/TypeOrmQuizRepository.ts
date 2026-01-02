@@ -29,7 +29,6 @@ export class TypeOrmQuizRepository implements QuizRepository {
   }
 
   private mapPgToDomain(q: TypeOrmQuizEntity): Quiz {
-    // ... (PG mapping - no es el foco ahora)
     const questions = q.questions.map((qData) => {
       const answers = qData.answers.map((aData) => {
         if (aData.text) {
@@ -104,6 +103,8 @@ export class TypeOrmQuizRepository implements QuizRepository {
         await collection.replaceOne({ _id: mongoDoc._id }, mongoDoc, { upsert: true });
     } catch (error) {
         console.error('Failed to save to MongoDB, falling back to PostgreSQL.', error);
+        const quizEntity = this.pgRepository.create(plainQuiz);
+        await this.pgRepository.save(quizEntity);
     }
   }
 
@@ -158,6 +159,7 @@ export class TypeOrmQuizRepository implements QuizRepository {
         await collection.deleteOne({ _id: id.value });
     } catch (error) {
         console.error('Failed to delete from MongoDB, falling back to PostgreSQL.', error);
+        await this.pgRepository.delete(id.value);
     }
   }
 }
