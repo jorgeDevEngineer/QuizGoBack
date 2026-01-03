@@ -1,6 +1,6 @@
 import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
-import { DataSource, Repository, SelectQueryBuilder } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { TypeOrmQuizRepository } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizRepository";
 import { TypeOrmPostgresCriteriaApplier } from "./Criteria Appliers/Postgres/TypeOrmPostgresCriteriaApplier";
 import { TypeOrmPostgresSinglePlayerGameRepository } from "./Postgres/Repositories/TypeOrmPostgresSinglePlayerGameRepository";
