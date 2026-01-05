@@ -1,5 +1,5 @@
-import { UserRepository } from "../domain/port/UserRepository";
-import { User } from "../domain/aggregate/User";
+import { UserRepository } from "../../../domain/port/UserRepository";
+import { User } from "../../../domain/aggregate/User";
 
 export class GetAllUsers {
   constructor(private readonly userRepository: UserRepository) {}

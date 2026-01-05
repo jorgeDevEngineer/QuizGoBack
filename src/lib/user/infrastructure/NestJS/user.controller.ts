@@ -11,17 +11,17 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { GetAllUsers } from "../../application/GetAllUsers";
-import { GetOneUserById } from "../../application/GetOneUserById";
-import { GetOneUserByUserName } from "../../application/GetOneUserByUserName";
-import { CreateUser } from "../../application/CreateUser";
-import { EditUser } from "../../application/EditUser";
-import { DeleteUser } from "../../application/DeleteUser";
+import { GetAllUsers } from "../../application/Handlers/Querys/GetAllUsers";
+import { GetOneUserById } from "../../application/Handlers/Querys/GetOneUserById";
+import { GetOneUserByUserName } from "../../application/Handlers/Querys/GetOneUserByUserName";
+import { CreateUser } from "../../application/Handlers/Commands/CreateUser";
+import { EditUser } from "../../application/Handlers/Commands/EditUser";
+import { DeleteUser } from "../../application/Handlers/Commands/DeleteUser";
 import { FindByIdParams, FindByUserNameParams } from "./Validations";
 import { UserNotFoundError } from "../../application/error/UserNotFoundError";
 import { Create, Edit } from "./Validations";
-import { EnableFreeMembership } from "../../application/EnableFreeMembership";
-import { EnablePremiumMembership } from "../../application/EnablePremiumMembership";
+import { EnableFreeMembership } from "../../application/Handlers/Commands/EnableFreeMembership";
+import { EnablePremiumMembership } from "../../application/Handlers/Commands/EnablePremiumMembership";
 import { MEMBERSHIP_TYPES } from "../../domain/valueObject/MembershipType";
 
 @Controller("user")

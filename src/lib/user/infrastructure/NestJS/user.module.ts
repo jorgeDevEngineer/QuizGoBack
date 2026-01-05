@@ -3,14 +3,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { TypeOrmUserEntity } from "../TypeOrm/TypeOrmUserEntity";
 import { UserController } from "./user.controller";
 import { TypeOrmUserRepository } from "../TypeOrm/TypeOrmUserRepository";
-import { GetOneUserById } from "../../application/GetOneUserById";
-import { GetAllUsers } from "../../application/GetAllUsers";
-import { CreateUser } from "../../application/CreateUser";
-import { DeleteUser } from "../../application/DeleteUser";
-import { EditUser } from "../../application/EditUser";
-import { GetOneUserByUserName } from "../../application/GetOneUserByUserName";
-import { EnablePremiumMembership } from "../../application/EnablePremiumMembership";
-import { EnableFreeMembership } from "../../application/EnableFreeMembership";
+import { GetOneUserById } from "../../application/Handlers/Querys/GetOneUserById";
+import { GetAllUsers } from "../../application/Handlers/Querys/GetAllUsers";
+import { CreateUser } from "../../application/Handlers/Commands/CreateUser";
+import { DeleteUser } from "../../application/Handlers/Commands/DeleteUser";
+import { EditUser } from "../../application/Handlers/Commands/EditUser";
+import { GetOneUserByUserName } from "../../application/Handlers/Querys/GetOneUserByUserName";
+import { EnablePremiumMembership } from "../../application/Handlers/Commands/EnablePremiumMembership";
+import { EnableFreeMembership } from "../../application/Handlers/Commands/EnableFreeMembership";
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserEntity])],

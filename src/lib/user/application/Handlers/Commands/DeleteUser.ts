@@ -1,5 +1,5 @@
-import { UserRepository } from "../domain/port/UserRepository";
-import { UserId } from "../domain/valueObject/UserId";
+import { UserRepository } from "../../../domain/port/UserRepository";
+import { UserId } from "../../../domain/valueObject/UserId";
 
 export class DeleteUser {
   constructor(private readonly userRepository: UserRepository) {}

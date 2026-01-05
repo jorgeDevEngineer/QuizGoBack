@@ -1,6 +1,6 @@
-import { UserRepository } from "../domain/port/UserRepository.js";
-import { UserId } from "../domain/valueObject/UserId.js";
-import { UserNotFoundError } from "./error/UserNotFoundError.js";
+import { UserRepository } from "../../../domain/port/UserRepository.js";
+import { UserId } from "../../../domain/valueObject/UserId.js";
+import { UserNotFoundError } from "./../../error/UserNotFoundError.js";
 
 export class EnablePremiumMembership {
   constructor(private readonly userRepository: UserRepository) {}
