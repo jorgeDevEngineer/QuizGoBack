@@ -26,3 +26,24 @@ export class PlayerId {
         return this.playerId;
     }
 }
+
+export class PlayerNickname {
+
+    private constructor(private readonly nickname:string) {
+        if (!this.isValid(nickname)){
+            throw new Error('El nickname debe tener entre 4 y 20 caracteres');
+        }
+    }
+
+    public static create(nickname:string):PlayerNickname {
+        return new PlayerNickname(nickname);
+    }
+
+    private isValid(nickname:string):boolean{
+        return nickname.length >= 4 && nickname.length <= 20;
+    }
+
+    public getNickname(): string {
+        return this.nickname;
+    }
+}
