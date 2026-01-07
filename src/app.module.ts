@@ -73,5 +73,6 @@ export class AppModule implements OnApplicationBootstrap {
     const mongoUrl = this.configService.get<string>("DATABASE_URL_MONGO");
     await this.mongoAdapter.reconnect("kahoot", mongoUrl);
     await this.mongoAdapter.reconnect("media", mongoUrl);
+    await this.mongoAdapter.reconnect("user", mongoUrl);
   }
 }
