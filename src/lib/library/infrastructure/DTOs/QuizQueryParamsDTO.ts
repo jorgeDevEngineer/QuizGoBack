@@ -1,4 +1,4 @@
-import { QuizQueryCriteria } from "../Response Types/QuizQueryCriteria";
+import { QuizQueryCriteria } from "../../application/Response Types/QuizQueryCriteria";
 
 export type QuizQueryParamsInput = {
   page?: number;

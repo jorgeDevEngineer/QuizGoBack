@@ -1,4 +1,4 @@
-import { QuizQueryParamsInput } from "../DTOs/QuizQueryParamsDTO";
+import { QuizQueryParamsInput } from "../../infrastructure/DTOs/QuizQueryParamsDTO";
 
 export class GetUserQuizzes{
     constructor(

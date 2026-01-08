@@ -1,5 +1,5 @@
-import { QuizQueryParamsInput} from '../../../library/application/DTOs/QuizQueryParamsDTO';
-import { CompletedQuizQueryCriteria } from "../Response Types/CompletedQuizQueryCriteria";
+import { QuizQueryParamsInput} from '../../../library/infrastructure/DTOs/QuizQueryParamsDTO';
+import { CompletedQuizQueryCriteria } from "../../application/Response Types/CompletedQuizQueryCriteria";
 
 export type CompletedQuizQueryParams = Pick<QuizQueryParamsInput, 'page' | 'limit' | 'order' | 'orderBy'>;
 
