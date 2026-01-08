@@ -1,15 +1,23 @@
 export class Result<T> {
   public isSuccess: boolean;
   public isFailure: boolean;
-  public error: string | null;
+  public error: Error | null;
   private _value: T | null;
 
-  private constructor(isSuccess: boolean, error?: string | null, value?: T | null) {
+  private constructor(
+    isSuccess: boolean,
+    error?: Error | null,
+    value?: T | null
+  ) {
     if (isSuccess && error) {
-      throw new Error('InvalidOperation: A result cannot be successful and contain an error');
+      throw new Error(
+        "InvalidOperation: A result cannot be successful and contain an error"
+      );
     }
     if (!isSuccess && !error) {
-      throw new Error('InvalidOperation: A failing result needs to contain an error message');
+      throw new Error(
+        "InvalidOperation: A failing result needs to contain an error"
+      );
     }
 
     this.isSuccess = isSuccess;
@@ -25,7 +33,7 @@ export class Result<T> {
       // It's better to throw an error here or handle it gracefully
       // depending on the design decision.
       // For this implementation, we will log and return null.
-      console.error('Cannot retrieve the value from a failed result.');
+      console.error("Cannot retrieve the value from a failed result.");
       return null;
     }
     return this._value;
@@ -35,7 +43,8 @@ export class Result<T> {
     return new Result<U>(true, null, value);
   }
 
-  public static fail<U>(error: string): Result<U> {
-    return new Result<U>(false, error);
+  public static fail<U>(error: Error | string): Result<U> {
+    const errorObj = typeof error === "string" ? new Error(error) : error;
+    return new Result<U>(false, errorObj);
   }
 }

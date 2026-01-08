@@ -18,6 +18,7 @@ import { QuizRepository } from "../../domain/port/QuizRepository";
 import { DataSource } from "typeorm";
 import { GetAllUserQuizzesDomainService } from "../../domain/services/Queries/GetAllUserQuizzesDomainService";
 import { GetUserInProgressQuizzesDomainService } from "../../domain/services/Queries/GetUserInProgressQuizzesDomainService";
+import { DynamicMongoAdapter } from "../../../shared/infrastructure/database/dynamic-mongo.adapter";
 import { GetUserFavoriteQuizzesDomainService } from "../../domain/services/Queries/GetUserFavoriteQuizzesDomainService";
 import { GetUserCompletedQuizzesDomainService } from "../../domain/services/Queries/GetUserCompletedQuizzesDomainService";
 import { AddUserFavoriteQuizDomainService } from "../../domain/services/Commands/AddUserFavoriteQuizDomainService";
@@ -43,16 +44,19 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
     // Repositorios construidos con sus criteria appliers correspondientes
     {
       provide: "LibraryRepositoryBuilder",
-      useFactory: (dataSource: DataSource) => {
+      useFactory: (
+        dataSource: DataSource,
+        mongoAdapter: DynamicMongoAdapter
+      ) => {
         const dbType: "postgres" | "mongo" =
           (process.env.LIBRARY_DB_TYPE as "postgres" | "mongo") || "postgres";
-        return new LibraryRepositoryBuilder(dbType, dataSource)
+        return new LibraryRepositoryBuilder(dbType, dataSource, mongoAdapter)
           .withEntity("UserFavoriteQuiz")
           .withEntity("Quiz")
           .withEntity("User")
           .withEntity("SinglePlayerGame");
       },
-      inject: [DataSource],
+      inject: [DataSource, DynamicMongoAdapter],
     },
     {
       provide: "UserFavoriteQuizRepository",

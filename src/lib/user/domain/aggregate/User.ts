@@ -11,7 +11,6 @@ import { UserId } from "../valueObject/UserId";
 import { UserPlainName } from "../valueObject/UserPlainName";
 import { Membership } from "../entity/Membership.js";
 import { UserStatus } from "../valueObject/UserStatus";
-import { stat } from "fs";
 
 export class User {
   readonly id: UserId;

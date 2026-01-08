@@ -65,9 +65,9 @@ async find(id: SomeId): Promise<SomeEntity | null> {
     // 1. Intenta usar MongoDB
     const collection = await this.getMongoCollection();
     const result = await collection.findOne({ _id: id.value });
-    
+
     if (!result) return null;
-    
+
     // Lógica para mapear el resultado de Mongo a tu entidad de dominio
     return this.mapMongoToDomain(result);
 
@@ -94,23 +94,24 @@ Para cambiar la base de datos de un módulo, envía una petición `PUT` al endpo
 
 #### **Estructura del Endpoint**
 
--   **Método:** `PUT`
--   **URL:** `http://localhost:8080/config/database-connection`
--   **Headers:**
-    -   `Content-Type`: `application/json`
--   **Body:**
-    ```json
-    {
-        "moduleName": "kahoot",
-        "dbType": "mongo"
-    }
-    ```
-    -   `moduleName` (string): Módulo a modificar (`"kahoot"`, `"media"`).
-    -   `dbType` (string): Base de datos a usar (`"mongo"`, `"postgres"`). Al seleccionar `postgres`, se fuerza el fallo de la conexión a Mongo para ese módulo, activando el fallback.
+- **Método:** `PUT`
+- **URL:** `http://localhost:8080/config/database-connection`
+- **Headers:**
+  - `Content-Type`: `application/json`
+- **Body:**
+  ```json
+  {
+    "moduleName": "kahoot",
+    "dbType": "mongo"
+  }
+  ```
+  - `moduleName` (string): Módulo a modificar (`"kahoot"`, `"media"`).
+  - `dbType` (string): Base de datos a usar (`"mongo"`, `"postgres"`). Al seleccionar `postgres`, se fuerza el fallo de la conexión a Mongo para ese módulo, activando el fallback.
 
 #### **Ejemplos con cURL**
 
 **Conectar a MongoDB:** (Usa la variable de entorno `DATABASE_URL_MONGO`)
+
 ```bash
 curl --location --request PUT 'http://localhost:8080/config/database-connection' \
 --header 'Content-Type: application/json' \
@@ -121,6 +122,7 @@ curl --location --request PUT 'http://localhost:8080/config/database-connection'
 ```
 
 **Volver a PostgreSQL:**
+
 ```bash
 curl --location --request PUT 'http://localhost:8080/config/database-connection' \
 --header 'Content-Type: application/json' \

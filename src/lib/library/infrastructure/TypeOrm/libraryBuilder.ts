@@ -22,6 +22,7 @@ import { TypeOrmPostgresCriteriaApplier } from "./Criteria Appliers/Postgres/Typ
 import { TypeOrmPostgresAdvancedCriteriaApplier } from "./Criteria Appliers/Postgres/TypeOrmPostgresAdvancedCriteriaApplier";
 import { TypeOrmMongoCriteriaApplier } from "./Criteria Appliers/Mongo/TypeOrmMongoCriteriaApplier";
 import { TypeOrmMongoUserFavoriteQuizEntity } from "./Mongo/Entities/TypeOrmMongoUserFavoriteQuizEntity";
+import { DynamicMongoAdapter } from "../../../shared/infrastructure/database/dynamic-mongo.adapter";
 
 type DbType = "postgres" | "mongo";
 
@@ -53,7 +54,8 @@ export class LibraryRepositoryBuilder {
 
   constructor(
     private readonly dbType: DbType,
-    private readonly dataSource: DataSource
+    private readonly dataSource: DataSource,
+    private readonly mongoAdapter: DynamicMongoAdapter
   ) {}
 
   withEntity(entityName: keyof (typeof entityMap)["postgres"]) {
@@ -107,7 +109,8 @@ export class LibraryRepositoryBuilder {
         criteriaApplier
       );
     } else {
-      const criteriaApplier = new TypeOrmMongoCriteriaApplier<TypeOrmMongoUserFavoriteQuizEntity>();
+      const criteriaApplier =
+        new TypeOrmMongoCriteriaApplier<TypeOrmMongoUserFavoriteQuizEntity>();
       // Aquí iría el repositorio Mongo equivalente
       throw new Error("Mongo UserFavoriteQuizRepository no implementado aún");
     }
@@ -115,7 +118,8 @@ export class LibraryRepositoryBuilder {
 
   buildQuizRepository(): QuizRepository {
     if (this.dbType === "postgres") {
-      const criteriaApplier = new TypeOrmPostgresAdvancedCriteriaApplier<TypeOrmQuizEntity>();
+      const criteriaApplier =
+        new TypeOrmPostgresAdvancedCriteriaApplier<TypeOrmQuizEntity>();
       return new TypeOrmPostgresQuizRepository(this.quizRepo!, criteriaApplier);
     } else {
       const criteriaApplier = new TypeOrmMongoCriteriaApplier<any>();
@@ -125,7 +129,7 @@ export class LibraryRepositoryBuilder {
 
   buildUserRepository(): UserRepository {
     if (this.dbType === "postgres") {
-      return new TypeOrmUserRepository(this.userRepo!);
+      return new TypeOrmUserRepository(this.userRepo!, this.mongoAdapter);
     }
     throw new Error("Mongo UserRepository no implementado aún");
   }

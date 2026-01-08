@@ -3,17 +3,24 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { TypeOrmUserEntity } from "../TypeOrm/TypeOrmUserEntity";
 import { UserController } from "./user.controller";
 import { TypeOrmUserRepository } from "../TypeOrm/TypeOrmUserRepository";
-import { GetOneUserById } from "../../aplication/GetOneUserById";
-import { GetAllUsers } from "../../aplication/GetAllUsers";
-import { CreateUser } from "../../aplication/CreateUser";
-import { DeleteUser } from "../../aplication/DeleteUser";
-import { EditUser } from "../../aplication/EditUser";
-import { GetOneUserByUserName } from "../../aplication/GetOneUserByUserName";
-import { EnablePremiumMembership } from "../../aplication/EnablePremiumMembership";
-import { EnableFreeMembership } from "../../aplication/EnableFreeMembership";
+import { GetOneUserByIdQueryHandler } from "../../application/Handlers/Querys/GetOneUserByIdQueryHandler";
+import { GetAllUsersQueryHandler } from "../../application/Handlers/Querys/GetAllUsersQueryHandler";
+import { CreateUserCommandHandler } from "../../application/Handlers/Commands/CreateUserCommandHandler";
+import { DeleteUserCommandHandler } from "../../application/Handlers/Commands/DeleteUserCommandHandler";
+import { EditUserCommandHandler } from "../../application/Handlers/Commands/EditUserCommandHandler";
+import { GetOneUserByUserNameQueryHandler } from "../../application/Handlers/Querys/GetOneUserByUserNameQueryHandler";
+import { EnablePremiumMembershipCommandHandler } from "../../application/Handlers/Commands/EnablePremiumMembershipCommandHandler";
+import { EnableFreeMembershipCommandHandler } from "../../application/Handlers/Commands/EnableFreeMembershipCommandHandler";
+import { ErrorHandlingDecorator } from "src/lib/shared/aspects/error-handling/application/decorators/error-handling.decorator";
+import { LoggingUseCaseDecorator } from "src/lib/shared/aspects/logger/application/decorators/logging.decorator";
+import {
+  ILoggerPort,
+  LOGGER_PORT,
+} from "src/lib/shared/aspects/logger/domain/ports/logger.port";
+import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logger.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmUserEntity])],
+  imports: [TypeOrmModule.forFeature([TypeOrmUserEntity]), LoggerModule],
   controllers: [UserController],
   providers: [
     {
@@ -21,52 +28,140 @@ import { EnableFreeMembership } from "../../aplication/EnableFreeMembership";
       useClass: TypeOrmUserRepository,
     },
     {
-      provide: "GetAllUsers",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new GetAllUsers(repository),
-      inject: ["UserRepository"],
+      provide: GetAllUsersQueryHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new GetAllUsersQueryHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "GetAllUsersQueryHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "GetAllUsersQueryHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
     {
-      provide: "GetOneUserById",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new GetOneUserById(repository),
-      inject: ["UserRepository"],
+      provide: GetOneUserByIdQueryHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new GetOneUserByIdQueryHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "GetOneUserByIdQueryHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "GetOneUserByIdQueryHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
     {
-      provide: "GetOneUserByUserName",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new GetOneUserByUserName(repository),
-      inject: ["UserRepository"],
+      provide: GetOneUserByUserNameQueryHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new GetOneUserByUserNameQueryHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "GetOneUserByUserNameQueryHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "GetOneUserByUserNameQueryHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
     {
-      provide: "CreateUser",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new CreateUser(repository),
-      inject: ["UserRepository"],
+      provide: CreateUserCommandHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new CreateUserCommandHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "CreateUserCommandHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "CreateUserCommandHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
     {
-      provide: "DeleteUser",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new DeleteUser(repository),
-      inject: ["UserRepository"],
+      provide: DeleteUserCommandHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new DeleteUserCommandHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "DeleteUserCommandHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "DeleteUserCommandHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
     {
-      provide: "EditUser",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new EditUser(repository),
-      inject: ["UserRepository"],
+      provide: EditUserCommandHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new EditUserCommandHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "EditUserCommandHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "EditUserCommandHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
     {
-      provide: "EnablePremiumMembership",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new EnablePremiumMembership(repository),
-      inject: ["UserRepository"],
+      provide: EnablePremiumMembershipCommandHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new EnablePremiumMembershipCommandHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "EnablePremiumMembershipCommandHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "EnablePremiumMembershipCommandHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
     {
-      provide: "EnableFreeMembership",
-      useFactory: (repository: TypeOrmUserRepository) =>
-        new EnableFreeMembership(repository),
-      inject: ["UserRepository"],
+      provide: EnableFreeMembershipCommandHandler,
+      useFactory: (logger: ILoggerPort, repository: TypeOrmUserRepository) => {
+        const useCase = new EnableFreeMembershipCommandHandler(repository);
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "EnableFreeMembershipCommandHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "EnableFreeMembershipCommandHandler"
+        );
+      },
+      inject: [LOGGER_PORT, "UserRepository"],
     },
   ],
 })
