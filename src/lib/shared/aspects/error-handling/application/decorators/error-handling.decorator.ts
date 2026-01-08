@@ -1,3 +1,4 @@
+import { UserNotFoundError } from "src/lib/user/application/error/UserNotFoundError";
 import { Result } from "../../../../Type Helpers/result";
 import { DomainException } from "../../../../exceptions/domain.exception";
 import { BaseErrorHandlingDecorator } from "./baseErrorHandling.decorator";
@@ -14,6 +15,13 @@ export class ErrorHandlingDecorator<
       // Errores de dominio → log como warning y devolvemos Result.fail con el error
       this.logger.warn(
         `Domain validation failed in ${this.handlerName}: ${error.message} - Command: ${JSON.stringify(command)}`
+      );
+      return Result.fail<TResponse>(error);
+    }
+
+    if (error instanceof UserNotFoundError) {
+      this.logger.warn(
+        `User not found in ${this.handlerName}: ${error.message} - Command: ${JSON.stringify(command)}`
       );
       return Result.fail<TResponse>(error);
     }

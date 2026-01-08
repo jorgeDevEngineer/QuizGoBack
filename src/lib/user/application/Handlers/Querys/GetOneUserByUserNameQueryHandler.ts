@@ -4,18 +4,19 @@ import { UserName } from "../../../domain/valueObject/UserName";
 import { UserNotFoundError } from "../../error/UserNotFoundError";
 import { IHandler } from "src/lib/shared/IHandler";
 import { GetOneUserByUserName } from "../../Parameter Objects/GetOneUserByUserName";
+import { Result } from "src/lib/shared/Type Helpers/Result";
 
 export class GetOneUserByUserNameQueryHandler
-  implements IHandler<GetOneUserByUserName, User | null>
+  implements IHandler<GetOneUserByUserName, Result<User>>
 {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(query: GetOneUserByUserName): Promise<User | null> {
+  async execute(query: GetOneUserByUserName): Promise<Result<User>> {
     const userNameValueObject = new UserName(query.userName);
     const user = await this.userRepository.getOneByName(userNameValueObject);
     if (!user) {
-      throw new UserNotFoundError("User not found");
+      return Result.fail(new UserNotFoundError("User not found"));
     }
-    return user;
+    return Result.ok(user);
   }
 }

@@ -32,30 +32,34 @@ import { DeleteUser } from "../../application/Parameter Objects/DeleteUser";
 import { EnableFreeMembership } from "../../application/Parameter Objects/EnableFreeMembership";
 import { EnablePremiumMembership } from "../../application/Parameter Objects/EnablePremiumMembership";
 import { Result } from "src/lib/shared/Type Helpers/Result";
+import { User } from "../../domain/aggregate/User";
 
 @Controller("user")
 export class UserController {
   constructor(
-    @Inject("GetAllUsersQueryHandler")
+    @Inject(GetAllUsersQueryHandler)
     private readonly getAllUsers: GetAllUsersQueryHandler,
-    @Inject("GetOneUserByIdQueryHandler")
+    @Inject(GetOneUserByIdQueryHandler)
     private readonly getOneUserById: GetOneUserByIdQueryHandler,
-    @Inject("GetOneUserByUserNameQueryHandler")
+    @Inject(GetOneUserByUserNameQueryHandler)
     private readonly getOneUserByUserName: GetOneUserByUserNameQueryHandler,
-    @Inject("CreateUserCommandHandler")
+    @Inject(CreateUserCommandHandler)
     private readonly createUserCommandHandler: CreateUserCommandHandler,
-    @Inject("EditUserCommandHandler")
+    @Inject(EditUserCommandHandler)
     private readonly editUser: EditUserCommandHandler,
-    @Inject("DeleteUserCommandHandler")
+    @Inject(DeleteUserCommandHandler)
     private readonly deleteUser: DeleteUserCommandHandler,
-    @Inject("EnablePremiumMembershipCommandHandler")
+    @Inject(EnablePremiumMembershipCommandHandler)
     private readonly enablePremiumMembership: EnablePremiumMembershipCommandHandler,
-    @Inject("EnableFreeMembershipCommandHandler")
+    @Inject(EnableFreeMembershipCommandHandler)
     private readonly enableFreeMembership: EnableFreeMembershipCommandHandler
   ) {}
 
   handleResult<T>(result: Result<T>): T {
     if (result.isFailure) {
+      if (result.error instanceof UserNotFoundError) {
+        throw new NotFoundException(result.error.message);
+      }
       throw new InternalServerErrorException(result.error.message);
     }
     return result.getValue()!;
@@ -63,48 +67,23 @@ export class UserController {
 
   @Get()
   async getAll() {
-    try {
-      const query = new GetAllUsers();
-      return (await this.getAllUsers.execute(query)).map((user) =>
-        user.toPlainObject()
-      );
-    } catch (error) {
-      throw new InternalServerErrorException(
-        "Could not fetch users: " + error.message
-      );
-    }
+    const query = new GetAllUsers();
+    const result = await this.getAllUsers.execute(query);
+    return this.handleResult(result).map((user) => user.toPlainObject());
   }
 
   @Get(":id")
   async getOneById(@Param() params: FindByIdParams) {
-    try {
-      const query = new GetOneUserById(params.id);
-      return (await this.getOneUserById.execute(query)).toPlainObject();
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new NotFoundException("User not found");
-      } else {
-        throw new InternalServerErrorException(
-          "Could not fetch users: " + error.message
-        );
-      }
-    }
+    const query = new GetOneUserById(params.id);
+    const result = await this.getOneUserById.execute(query);
+    return this.handleResult(result).toPlainObject();
   }
 
   @Get("username/:userName")
   async getOneUserByName(@Param() params: FindByUserNameParams) {
-    try {
-      const query = new GetOneUserByUserName(params.userName);
-      return (await this.getOneUserByUserName.execute(query)).toPlainObject();
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new NotFoundException("User not found");
-      } else {
-        throw new InternalServerErrorException(
-          "Could not fetch users: " + error.message
-        );
-      }
-    }
+    const query = new GetOneUserByUserName(params.userName);
+    const result = await this.getOneUserByUserName.execute(query);
+    return this.handleResult(result).toPlainObject();
   }
 
   @Post()
@@ -118,10 +97,7 @@ export class UserController {
         body.avatarUrl
       );
       const result = await this.createUserCommandHandler.execute(createUser);
-      if (result.isFailure) {
-        throw result.error;
-      }
-      return result.getValue();
+      return this.handleResult(result);
     } catch (error) {
       throw new InternalServerErrorException(
         "Could not create user : " + error.message
@@ -131,50 +107,34 @@ export class UserController {
 
   @Patch(":id")
   async edit(@Param() params: FindByIdParams, @Body() body: Edit) {
-    try {
-      const query = new GetOneUserById(params.id);
-      const user = await this.getOneUserById.execute(query);
-      const editUserCommand = new EditUser(
-        body.userName,
-        body.email,
-        body.hashedPassword,
-        body.userType,
-        body.avatarUrl,
-        user.id.value,
-        body.name,
-        body.theme,
-        body.language,
-        body.gameStreak,
-        body.status
-      );
-      return await this.editUser.execute(editUserCommand);
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new NotFoundException("User not found");
-      } else {
-        throw new InternalServerErrorException(
-          "Could not edit user : " + error.message
-        );
-      }
-    }
+    const query = new GetOneUserById(params.id);
+    const userResult = await this.getOneUserById.execute(query);
+    const user = this.handleResult(userResult);
+    const editUserCommand = new EditUser(
+      body.userName,
+      body.email,
+      body.hashedPassword,
+      body.userType,
+      body.avatarUrl,
+      user.id.value,
+      body.name,
+      body.theme,
+      body.language,
+      body.gameStreak,
+      body.status
+    );
+    const editResult = await this.editUser.execute(editUserCommand);
+    return this.handleResult(editResult);
   }
 
   @Delete(":id")
   async delete(@Param() params: FindByIdParams) {
-    try {
-      const query = new GetOneUserById(params.id);
-      await this.getOneUserById.execute(query);
-      const deleteUserCommand = new DeleteUser(params.id);
-      return await this.deleteUser.execute(deleteUserCommand);
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new NotFoundException("User not found");
-      } else {
-        throw new InternalServerErrorException(
-          "Could not delete user : " + error.message
-        );
-      }
-    }
+    const query = new GetOneUserById(params.id);
+    const userResult = await this.getOneUserById.execute(query);
+    this.handleResult(userResult);
+    const deleteUserCommand = new DeleteUser(params.id);
+    const deleteResult = await this.deleteUser.execute(deleteUserCommand);
+    return this.handleResult(deleteResult);
   }
 
   @Get("plans/list")
@@ -184,50 +144,27 @@ export class UserController {
 
   @Get(":id/subscription")
   async getSubscriptionStatus(@Param() params: FindByIdParams) {
-    try {
-      const query = new GetOneUserById(params.id);
-      const user = await this.getOneUserById.execute(query);
-      return {
-        membershipType: user.membership.type.value,
-        status: user.membership.isEnabled() ? "enabled" : "disabled",
-        expiresAt: user.membership.expiresAt.value,
-      };
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new NotFoundException("User not found");
-      }
-    }
+    const query = new GetOneUserById(params.id);
+    const userResult = await this.getOneUserById.execute(query);
+    const user = this.handleResult(userResult);
+    return {
+      membershipType: user.membership.type.value,
+      status: user.membership.isEnabled() ? "enabled" : "disabled",
+      expiresAt: user.membership.expiresAt.value,
+    };
   }
 
   @Post(":id/subscription")
   async enablePremiumSubscription(@Param() params: FindByIdParams) {
-    try {
-      const command = new EnablePremiumMembership(params.id);
-      return await this.enablePremiumMembership.execute(command);
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new NotFoundException("User not found");
-      } else {
-        throw new InternalServerErrorException(
-          "Could not enable premium membership: " + error.message
-        );
-      }
-    }
+    const command = new EnablePremiumMembership(params.id);
+    const result = await this.enablePremiumMembership.execute(command);
+    return this.handleResult(result);
   }
 
   @Delete(":id/subscription")
   async enableFreeSubscription(@Param() params: FindByIdParams) {
-    try {
-      const command = new EnableFreeMembership(params.id);
-      return await this.enableFreeMembership.execute(command);
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new NotFoundException("User not found");
-      } else {
-        throw new InternalServerErrorException(
-          "Could not enable free membership: " + error.message
-        );
-      }
-    }
+    const command = new EnableFreeMembership(params.id);
+    const result = await this.enableFreeMembership.execute(command);
+    return this.handleResult(result);
   }
 }

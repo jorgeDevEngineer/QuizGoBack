@@ -15,22 +15,27 @@ import { UserNotFoundError } from "../../error/UserNotFoundError";
 import { UserStatus } from "../../../domain/valueObject/UserStatus";
 import { IHandler } from "src/lib/shared/IHandler";
 import { EditUser } from "../../Parameter Objects/EditUser";
+import { Result } from "src/lib/shared/Type Helpers/Result";
 
-export class EditUserCommandHandler implements IHandler<EditUser, void> {
+export class EditUserCommandHandler
+  implements IHandler<EditUser, Result<void>>
+{
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(command: EditUser): Promise<void> {
+  async execute(command: EditUser): Promise<Result<void>> {
     const existing = await this.userRepository.getOneById(
       new UserId(command.id)
     );
     if (!existing) {
-      throw new UserNotFoundError("User not found");
+      return Result.fail(new UserNotFoundError("User not found"));
     }
     const userWithSameUserName = await this.userRepository.getOneByName(
       new UserName(command.userName)
     );
     if (userWithSameUserName && userWithSameUserName.id.value !== command.id) {
-      throw new Error("That name already belongs to another user");
+      return Result.fail(
+        new Error("That name already belongs to another user")
+      );
     }
 
     const user = new User(
@@ -50,5 +55,6 @@ export class EditUserCommandHandler implements IHandler<EditUser, void> {
       new UserStatus(command.status)
     );
     await this.userRepository.edit(user);
+    return Result.ok(undefined);
   }
 }
