@@ -1,4 +1,3 @@
-
 import {
   Body,
   Controller,
@@ -9,26 +8,38 @@ import {
   Param,
   Post,
   Put,
-  HttpException,
-  HttpStatus,
-  BadRequestException
-} from '@nestjs/common';
-import { CreateQuizUseCase, CreateQuiz } from '../../application/CreateQuizUseCase'; 
-import { GetQuizUseCase } from '../../application/GetQuizUseCase';
-import { ListUserQuizzesUseCase } from '../../application/ListUserQuizzesUseCase';
-import { UpdateQuizUseCase, UpdateQuizDto } from '../../application/UpdateQuizUseCase';
-import { DeleteQuizUseCase } from '../../application/DeleteQuizUseCase';
-import { IsString, Length } from 'class-validator';
-import { Result } from '../../../shared/Type Helpers/result';
-import { GetAllKahootsUseCase } from '../../application/GetAllKahootsUseCase';
+  BadRequestException,
+  UsePipes,
+  ValidationPipe,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
+import { FakeCurrentUserGuard } from "../../../groups/infraestructure/NestJs/FakeCurrentUser.guard";
+import {
+  CreateQuizUseCase,
+  CreateQuiz,
+} from "../../application/CreateQuizUseCase";
+import { GetQuizUseCase } from "../../application/GetQuizUseCase";
+import { ListUserQuizzesUseCase } from "../../application/ListUserQuizzesUseCase";
+import {
+  UpdateQuizUseCase,
+  UpdateQuiz,
+} from "../../application/UpdateQuizUseCase";
+import { DeleteQuizUseCase } from "../../application/DeleteQuizUseCase";
+import { IsString, Length } from "class-validator";
+import { Result } from "../../../shared/Type Helpers/result";
+import { GetAllKahootsUseCase } from "../../application/GetAllKahootsUseCase";
+import { CreateQuizDto } from "./DTOs/create-quiz.dto";
+import { UpdateQuizDto } from "./DTOs/update-quiz.dto";
 
 export class FindOneParams {
   @IsString()
-  @Length(5, 255)
+  @Length(36, 36)
   id: string;
 }
 
-@Controller('kahoots')
+@Controller("kahoots")
+@UseGuards(FakeCurrentUserGuard)
 export class KahootController {
   constructor(
     @Inject(CreateQuizUseCase)
@@ -42,58 +53,75 @@ export class KahootController {
     @Inject(DeleteQuizUseCase)
     private readonly deleteQuizUseCase: DeleteQuizUseCase,
     @Inject(GetAllKahootsUseCase)
-    private readonly getAllKahootsUseCase: GetAllKahootsUseCase,
+    private readonly getAllKahootsUseCase: GetAllKahootsUseCase
   ) {}
 
   private handleResult<T>(result: Result<T>) {
     if (result.isFailure) {
-      if (result.error.toLowerCase().includes('not found')) {
-        throw new NotFoundException(result.error);
+      if (result.error.message.toLowerCase().includes("not found")) {
+        throw new NotFoundException(result.error.message);
       }
-      throw new BadRequestException(result.error);
+      throw new BadRequestException(result.error.message);
     }
     return result.getValue();
   }
 
-  @Get('all')
+  @Get("all")
   async getAllKahoots() {
     const result = await this.getAllKahootsUseCase.execute();
     const quizzes = this.handleResult(result);
     return quizzes.map((q) => q.toPlainObject());
   }
 
-  @Get('user/:userId')
-  async listUserQuizzes(@Param('userId') userId: string) {
+  @Get("user/:userId")
+  async listUserQuizzes(@Param("userId") userId: string) {
     const result = await this.listUserQuizzesUseCase.execute(userId);
     const quizzes = this.handleResult(result);
     return quizzes.map((q) => q.toPlainObject());
   }
 
   @Post()
-  async create(@Body() body: CreateQuiz) { 
-    const result = await this.createQuizUseCase.execute(body);
-    const quiz = this.handleResult(result);
-    return quiz.toPlainObject();
-  }
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async create(@Body() createQuizDto: CreateQuizDto, @Req() req: any) {
+    const authorId = req.user.id;
 
-  @Put(':id')
-  async edit(@Param() params: FindOneParams, @Body() body: CreateQuiz) { 
-    const updateQuizDto: UpdateQuizDto = {
-      ...body,
-      quizId: params.id
+    const createQuizData: CreateQuiz = {
+      ...createQuizDto,
+      authorId: authorId,
+      questions: createQuizDto.questions,
     };
-    const result = await this.updateQuizUseCase.execute(updateQuizDto);
+
+    const result = await this.createQuizUseCase.execute(createQuizData);
     const quiz = this.handleResult(result);
     return quiz.toPlainObject();
   }
 
-  @Delete(':id')
+  @Put(":id")
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async edit(
+    @Param() params: FindOneParams,
+    @Body() updateQuizDto: UpdateQuizDto,
+    @Req() req: any
+  ) {
+    const authorId = req.user.id;
+
+    const updateQuizData: UpdateQuiz = {
+      quizId: params.id,
+      authorId: authorId,
+      ...updateQuizDto,
+    };
+    const result = await this.updateQuizUseCase.execute(updateQuizData);
+    const quiz = this.handleResult(result);
+    return quiz.toPlainObject();
+  }
+
+  @Delete(":id")
   async delete(@Param() params: FindOneParams) {
     const result = await this.deleteQuizUseCase.execute(params.id);
     return this.handleResult(result);
   }
 
-  @Get(':id')
+  @Get(":id")
   async getOneById(@Param() params: FindOneParams) {
     const result = await this.getQuizUseCase.execute(params.id);
     const quiz = this.handleResult(result);

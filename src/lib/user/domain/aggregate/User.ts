@@ -10,6 +10,7 @@ import { UserDate } from "../valueObject/UserDate";
 import { UserId } from "../valueObject/UserId";
 import { UserPlainName } from "../valueObject/UserPlainName";
 import { Membership } from "../entity/Membership.js";
+import { UserStatus } from "../valueObject/UserStatus";
 
 export class User {
   readonly id: UserId;
@@ -25,6 +26,7 @@ export class User {
   membership: Membership;
   readonly createdAt: UserDate;
   updatedAt: UserDate;
+  status: UserStatus;
   constructor(
     userName: UserName,
     email: UserEmail,
@@ -38,7 +40,8 @@ export class User {
     gameStreak?: UserGameStreak,
     membership?: Membership,
     createdAt?: UserDate,
-    updatedAt?: UserDate
+    updatedAt?: UserDate,
+    status?: UserStatus
   ) {
     this.userName = userName;
     this.email = email;
@@ -55,6 +58,7 @@ export class User {
       : Membership.createFreeMembership();
     this.createdAt = createdAt ? createdAt : new UserDate(new Date());
     this.updatedAt = updatedAt ? updatedAt : new UserDate(this.createdAt.value);
+    this.status = status ? status : new UserStatus("Active");
   }
 
   toPlainObject() {
@@ -71,6 +75,7 @@ export class User {
       membership: this.membership.toPlainObject(),
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
+      status: this.status.value,
     };
   }
 

@@ -1,4 +1,3 @@
-
 # Guía Definitiva de Manejo de Errores: Patrón Result y Decoradores
 
 Este documento explica la implementación de un sistema robusto para el manejo de errores en la capa de aplicación. Usamos el patrón \`Result\` y decoradores para desacoplar la lógica de negocio de la infraestructura, aumentar la previsibilidad del código y gestionar los errores de forma centralizada.
@@ -12,14 +11,14 @@ Sin este patrón, los casos de uso a menudo lanzan excepciones HTTP directamente
 import { NotFoundException } from '@nestjs/common';
 
 class GetQuizUseCase {
-  async execute(id: string): Promise<Quiz> {
-    const quiz = await this.quizRepository.find(id);
-    if (!quiz) {
-      // ¡MAL! El dominio/aplicación no debería saber nada sobre HTTP.
-      throw new NotFoundException('Quiz not found'); 
-    }
-    return quiz;
-  }
+async execute(id: string): Promise<Quiz> {
+const quiz = await this.quizRepository.find(id);
+if (!quiz) {
+// ¡MAL! El dominio/aplicación no debería saber nada sobre HTTP.
+throw new NotFoundException('Quiz not found');
+}
+return quiz;
+}
 }
 \`\`\`
 
@@ -28,7 +27,7 @@ class GetQuizUseCase {
 Introducimos una clase genérica \`Result<T>\` que encapsula el resultado de una operación, que puede ser un éxito (con un valor) o un fallo (con un error).
 
 - **Éxito:** \`Result.ok<T>(value: T)\`
-- **Fallo:** \`Result.fail<T>(error: string)\`
+- **Fallo:** \`Result.fail<T>(error: Error)\`
 
 Esto fuerza a que la firma del método sea explícita sobre sus posibles resultados.
 
@@ -38,18 +37,18 @@ import { Result } from '../../../common/domain/result'; // <-- Importado desde c
 import { IUseCase } from '../../../common/use-case.interface';
 
 class GetQuizUseCase implements IUseCase<string, Result<Quiz>> {
-  async execute(id: string): Promise<Result<Quiz>> {
-    try {
-      const quiz = await this.quizRepository.find(id);
-      if (!quiz) {
-        return Result.fail<Quiz>('Quiz not found');
-      }
-      return Result.ok<Quiz>(quiz);
-    } catch (error: any) {
-       // Los errores inesperados (ej: fallo de BD) se capturan y se relanzan
-       return Result.fail<Quiz>(error.message);
-    }
-  }
+async execute(id: string): Promise<Result<Quiz>> {
+try {
+const quiz = await this.quizRepository.find(id);
+if (!quiz) {
+return Result.fail<Quiz>(new Error('Quiz not found'));
+}
+return Result.ok<Quiz>(quiz);
+} catch (error: any) {
+// Los errores inesperados (ej: fallo de BD) se capturan y se relanzan
+return Result.fail<Quiz>(error);
+}
+}
 }
 \`\`\`
 
@@ -78,36 +77,46 @@ En el fichero `*.module.ts`, debes usar una `useFactory` para construir y decora
 ```typescript
 // Ejemplo en `products.module.ts`
 
-import { Module } from '@nestjs/common';
-import { ProductController } from './infrastructure/NestJs/product.controller';
+import { Module } from "@nestjs/common";
+import { ProductController } from "./infrastructure/NestJs/product.controller";
 
 // Importaciones de Casos de Uso y Decoradores
-import { CreateProductUseCase } from './application/CreateProductUseCase';
-import { ErrorHandlingDecorator } from '../../../aspects/error-handling/application/decorators/error-handling.decorator';
-import { LoggingUseCaseDecorator } from '../../../aspects/logger/application/decorators/logging.decorator';
+import { CreateProductUseCase } from "./application/CreateProductUseCase";
+import { ErrorHandlingDecorator } from "../../../aspects/error-handling/application/decorators/error-handling.decorator";
+import { LoggingUseCaseDecorator } from "../../../aspects/logger/application/decorators/logging.decorator";
 
 // Importaciones de Puertos e Inyecciones
-import { ILoggerPort } from '../../../aspects/logger/domain/ports/logger.port';
-import { ProductRepository } from './domain/port/ProductRepository';
-import { TypeOrmProductRepository } from './infrastructure/TypeOrm/TypeOrmProductRepository';
+import { ILoggerPort } from "../../../aspects/logger/domain/ports/logger.port";
+import { ProductRepository } from "./domain/port/ProductRepository";
+import { TypeOrmProductRepository } from "./infrastructure/TypeOrm/TypeOrmProductRepository";
 
 @Module({
-  imports: [/* ... */],
+  imports: [
+    /* ... */
+  ],
   controllers: [ProductController],
   providers: [
     {
-      provide: 'ProductRepository', // Token del repositorio
+      provide: "ProductRepository", // Token del repositorio
       useClass: TypeOrmProductRepository,
     },
     {
       // VITAL: El token es la propia CLASE del caso de uso.
-      provide: CreateProductUseCase, 
+      provide: CreateProductUseCase,
       useFactory: (logger: ILoggerPort, repo: ProductRepository) => {
         const useCase = new CreateProductUseCase(repo); // 1. Instancia base
-        const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'CreateProductUseCase'); // 2. Decorador de errores
-        return new LoggingUseCaseDecorator(withErrorHandling, logger, 'CreateProductUseCase'); // 3. Decorador de logging
+        const withErrorHandling = new ErrorHandlingDecorator(
+          useCase,
+          logger,
+          "CreateProductUseCase"
+        ); // 2. Decorador de errores
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "CreateProductUseCase"
+        ); // 3. Decorador de logging
       },
-      inject: ['ILoggerPort', 'ProductRepository'], // Dependencias de la factory
+      inject: ["ILoggerPort", "ProductRepository"], // Dependencias de la factory
     },
     // ... Repetir la estructura para OTROS casos de uso (e.g., UpdateProductUseCase)
   ],
@@ -124,16 +133,23 @@ El controlador es ahora muy simple. Su única responsabilidad es ejecutar el cas
 ```typescript
 // Ejemplo en `product.controller.ts`
 
-import { Controller, Post, Body, Inject, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateProductUseCase } from '../application/CreateProductUseCase';
-import { CreateProductDto } from './dto/create-product.dto';
+import {
+  Controller,
+  Post,
+  Body,
+  Inject,
+  HttpException,
+  HttpStatus,
+} from "@nestjs/common";
+import { CreateProductUseCase } from "../application/CreateProductUseCase";
+import { CreateProductDto } from "./dto/create-product.dto";
 
-@Controller('products')
+@Controller("products")
 export class ProductController {
   constructor(
     // Se inyecta usando la CLASE como token.
     @Inject(CreateProductUseCase)
-    private readonly createProductUseCase: CreateProductUseCase,
+    private readonly createProductUseCase: CreateProductUseCase
   ) {}
 
   @Post()

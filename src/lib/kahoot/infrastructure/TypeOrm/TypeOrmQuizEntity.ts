@@ -1,21 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-interface AnswerEmbed {
-    id: string;
-    text?: string;
-    mediaId?: string;
-    isCorrect: boolean;
-}
-
-interface QuestionEmbed {
-    id: string;
-    text: string;
-    mediaId?: string;
-    type: 'quiz' | 'true_false' | 'multiple';
-    timeLimit: number;
-    points: number;
-    answers: AnswerEmbed[];
-}
+import { Entity, PrimaryColumn, Column } from 'typeorm';
 
 @Entity('quizzes')
 export class TypeOrmQuizEntity {
@@ -25,19 +9,19 @@ export class TypeOrmQuizEntity {
   @Column()
   userId: string;
 
-  @Column({ nullable: true })
+  @Column()
   title: string;
 
-  @Column({ nullable: true })
+  @Column()
   description: string;
 
-  @Column({ default: 'private' })
-  visibility: 'public' | 'private';
+  @Column()
+  visibility: string;
 
-  @Column({ default: 'draft' })
-  status: 'draft' | 'published';
+  @Column()
+  status: string;
 
-  @Column({ nullable: true })
+  @Column()
   category: string;
 
   @Column()
@@ -46,12 +30,12 @@ export class TypeOrmQuizEntity {
   @Column({ nullable: true })
   coverImageId: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column()
   createdAt: Date;
 
-  @Column({ type: 'int', default: 0 })
+  @Column()
   playCount: number;
 
   @Column({ type: 'jsonb' })
-  questions: QuestionEmbed[];
+  questions: any[];
 }

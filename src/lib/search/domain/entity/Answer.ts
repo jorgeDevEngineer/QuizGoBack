@@ -1,6 +1,6 @@
 // Importamos todos los VOs necesarios
 import { AnswerId, AnswerText, IsCorrect} from '../valueObject/Answer';
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
+import { MediaId as MediaIdVO } from '../../../media/domain/value-object/MediaId';
 import { QuestionId } from "../valueObject/Question";
 
 export class Answer {
@@ -13,17 +13,6 @@ export class Answer {
     private readonly _text: AnswerText | null,
     private readonly _mediaId: MediaIdVO | null
   ) {
-    // --- Validación de la Entidad ---
-    // Esta es la lógica de negocio que discutimos.
-    // El constructor privado asegura que una 'Answer' inválida no pueda ser creada.
-
-    // // Regla 1: No puede tener ambos
-    // if (_text && _mediaId) {
-    //   throw new Error("Answer cannot have both text and media content.");
-    // } // Regla 2: Debe tener al menos uno
-    // if (!_text && !_mediaId) {
-    //   throw new Error("Answer must have either text or media content.");
-    // }
   }
 
   /**
@@ -72,7 +61,7 @@ export class Answer {
       id: this._id.value,
       questionId: this._question.value,
       text: this._text ? this._text.value : null,
-      mediaId: this._mediaId ? this._mediaId.value : null,
+      mediaId: this._mediaId ? this._mediaId.getId() : null,
       isCorrect: this._isCorrect.value,
     };
   }

@@ -1,7 +1,7 @@
 import { SinglePlayerGameRepository } from "../../domain/repositories/SinglePlayerGameRepository";
 import { GetGameSummaryQuery } from "../parameterObjects/GetGameSummaryQuery";
 import { GameSummaryResponseDto } from "../dtos/SinglePlayerGameResponses.dto";
-import { SinglePlayerGameId } from "../../domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { IHandler } from "src/lib/shared/IHandler";
 
 export class GetGameSummaryQueryHandler implements IHandler<GetGameSummaryQuery, GameSummaryResponseDto> {

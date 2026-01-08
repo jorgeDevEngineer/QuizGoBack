@@ -73,14 +73,24 @@ export class QuestionType {
   }
 
   public static fromString(value: string): QuestionType {
-    const validTypes: QuestionTypeValue[] = ["quiz", "true_false", "multiple"];
-    if (!validTypes.includes(value as QuestionTypeValue)) {
+    const sanitizedValue = this.sanitizeValue(value);
+    if (!this.isValid(sanitizedValue)) {
       throw new DomainException(
-        `Invalid QuestionType: ${value}. Must be 'quiz', 'true_false', or 'multiple'.`
+        `Invalid QuestionType: ${value}. Must be 'quiz', 'single', 'true_false', or 'multiple'.`
       );
     }
-    return new QuestionType(value as QuestionTypeValue);
+    return new QuestionType(sanitizedValue as QuestionTypeValue);
   }
+  
+  private static sanitizeValue(value: string): string {
+    return value === 'single' ? 'quiz' : value;
+  }
+
+  private static isValid(value: string): value is QuestionTypeValue {
+    const validTypes: QuestionTypeValue[] = ["quiz", "true_false", "multiple"];
+    return validTypes.includes(value as QuestionTypeValue);
+  }
+  
   public getValue(): QuestionTypeValue{
     return this.value;
   }
@@ -120,7 +130,7 @@ export class TimeLimit {
 
 export class Points {
   private static readonly ALLOWED_VALUES: ReadonlySet<number> = new Set([
-    0, 1000, 2000,
+    0, 500, 1000, 2000,
   ]);
 
   private constructor(public readonly value: number) {

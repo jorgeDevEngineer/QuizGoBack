@@ -28,7 +28,7 @@ import {
 } from '../../../src/lib/kahoot/domain/valueObject/Quiz';
 
 // Helper to create a valid, REAL Quiz entity for sociable testing.
-const createRealQuizForTest = (quizIdStr: string, initialStatus: 'draft' | 'published' = 'draft'): Quiz => {
+const createRealQuizForTest = (quizIdStr: string, initialStatus: 'draft' | 'publish' = 'draft'): Quiz => {
     const questionId = QuestionId.generate();
     const answers = [
         Answer.createTextAnswer(AnswerId.generate(), AnswerText.of('Paris'), IsCorrect.fromBoolean(true)),
@@ -112,7 +112,7 @@ describe('UpdateQuizUseCase (Application Layer)', () => {
         expect(result.getValue().toPlainObject().title).toBe('New Updated Title');
     });
 
-    it('should change the status of a quiz from draft to published', async () => {
+    it('should change the status of a quiz from draft to publish', async () => {
         // ARRANGE
         const quizId = '123e4567-e89b-42d3-a456-426614174002';
         const realQuiz = createRealQuizForTest(quizId, 'draft');
@@ -126,7 +126,7 @@ describe('UpdateQuizUseCase (Application Layer)', () => {
             title: 'Original Title',
             description: 'Original quiz description.',
             visibility: 'public',
-            status: 'published',
+            status: 'publish',
             category: 'Geography',
             themeId: '123e4567-e89b-42d3-a456-426614174007',
             coverImageId: null,
@@ -149,7 +149,7 @@ describe('UpdateQuizUseCase (Application Layer)', () => {
         const result = await useCase.execute(updateDto);
 
         // ASSERT
-        expect(result.getValue().toPlainObject().status).toBe('published');
+        expect(result.getValue().toPlainObject().status).toBe('publish');
     });
 
     it('should fail if the quiz to update is not found', async () => {

@@ -5,7 +5,7 @@ import {
 } from "../../Response Types/PlayingQuizResponse";
 import { QueryWithPaginationResponse } from "../../Response Types/QueryWithPaginationResponse";
 import { Either } from "../../../../shared/Type Helpers/Either";
-import { QuizQueryParamsDTO } from "../../DTOs/QuizQueryParamsDTO";
+import { QuizQueryParamsDTO } from "../../../infrastructure/DTOs/QuizQueryParamsDTO";
 import { DomainException } from "../../../../shared/exceptions/DomainException";
 import { GetUserInProgressQuizzesDomainService } from "../../../domain/services/Queries/GetUserInProgressQuizzesDomainService";
 import { IHandler} from "../.././../../shared/IHandler";

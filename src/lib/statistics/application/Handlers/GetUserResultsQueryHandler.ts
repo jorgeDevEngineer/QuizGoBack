@@ -7,7 +7,7 @@ import { DomainUnexpectedException } from 'src/lib/shared/exceptions/DomainUnexp
 import { GetUserResultsDomainService } from '../../domain/services/GetUserResultsDomainService';
 import { Either } from 'src/lib/shared/Type Helpers/Either';
 import { Injectable } from '@nestjs/common';
-import { CompletedQuizQueryParamsDTO } from '../DTOs/CompletedQuizQueryParams';
+import { CompletedQuizQueryParamsDTO } from '../../infrastructure/DTOs/CompletedQuizQueryParams';
 
 @Injectable()
 export class GetUserResultsQueryHandler implements IHandler <GetUserResults, Either<DomainException, QueryWithPaginationResponse<CompletedQuizResponse>>> {

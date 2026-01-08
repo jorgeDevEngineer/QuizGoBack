@@ -1,35 +1,4 @@
-import { randomUUID } from "crypto";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
-import { Optional } from "src/lib/shared/Type Helpers/Optional";
-
-const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-function isValidUUID(value: string): boolean {
-    return UUID_V4_REGEX.test(value);
-}
-
-/**
- * Encapsula un identificador para una Partida de un Kahoot (UUID v4).
- */
-export class SinglePlayerGameId {
-
-    private constructor(private readonly gameId:string){
-        if(!isValidUUID(gameId)){
-            throw new Error(`SinglePlayerGameId does not have a valid UUID v4 format: ${gameId}`);
-        }
-    }
-
-    public static of(gameId: string): SinglePlayerGameId{
-        return new SinglePlayerGameId(gameId);
-    }
-
-    public static generate(): SinglePlayerGameId{
-        return new SinglePlayerGameId(randomUUID());
-    }
-
-    public getId():string{
-        return this.gameId;
-    }
-}
 
 /**
  * Enum para los estados de una Partida, en progreso o completada

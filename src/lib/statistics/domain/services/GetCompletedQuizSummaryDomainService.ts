@@ -5,7 +5,7 @@ import { SinglePlayerGameRepository } from "../port/SinglePlayerRepository";
 import { QuizRepository } from "../../../kahoot/domain/port/QuizRepository";
 import { QuizNotFoundException } from "src/lib/shared/exceptions/QuizNotFoundException";
 import { GameNotFoundException } from "src/lib/shared/exceptions/GameNotFoundException";
-import { SinglePlayerGameId } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
+import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { Quiz } from "src/lib/kahoot/domain/entity/Quiz";
 import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
 

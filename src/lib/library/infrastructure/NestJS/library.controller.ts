@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post, Query } from '@nestjs/common';
-import { UserIdDTO } from '../../application/DTOs/UserIdDTO';
+import { UserIdDTO } from '../DTOs/UserIdDTO';
 import { QuizResponse } from '../../application/Response Types/QuizResponse';
-import { QuizQueryParamsInput } from '../../application/DTOs/QuizQueryParamsDTO';
+import { QuizQueryParamsInput } from '../DTOs/QuizQueryParamsDTO';
 import { QueryWithPaginationResponse } from '../../application/Response Types/QueryWithPaginationResponse';
 import { PlayingQuizResponse } from '../../application/Response Types/PlayingQuizResponse';
 import { DeleteUserFavoriteQuiz } from '../../application/Parameter Objects/DeleteUserFavoriteQuiz';
