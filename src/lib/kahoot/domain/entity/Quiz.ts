@@ -142,8 +142,16 @@ export class Quiz {
     return this._themeId;
   }
 
-  public getTotalQuestions(){
+  public getTotalQuestions():number{
     return this._questions.length;
+  }
+
+  public getTitle(): string{
+    return this._title.value;
+  }
+
+  public getCoverImageId(): string {
+    return this._coverImageId.getValue();
   }
 
   public toPlainObject() {
@@ -182,7 +190,7 @@ export class Quiz {
     return question;
   }
 
-  public getNextQuestionByIndex(currentIndex: number): Question | null {
+  public getNextQuestionByIndex(currentIndex: number = -1): Question | null {
     if (this._questions.length === 0) {
         return null;
     }
@@ -192,7 +200,15 @@ export class Quiz {
     }
     
     return this._questions[currentIndex + 1];
-}
+  }
+
+  public isDraft(): boolean {
+    return this._status.value === 'draft';
+  }
+  
+  public isPrivate(): boolean {
+    return this._visibility.value === 'private';
+  }
 
 }
 
