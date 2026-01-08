@@ -4,7 +4,7 @@ import { UserName } from "../../../domain/valueObject/UserName";
 import { UserNotFoundError } from "../../error/UserNotFoundError";
 import { IHandler } from "src/lib/shared/IHandler";
 import { GetOneUserByUserName } from "../../Parameter Objects/GetOneUserByUserName";
-import { Result } from "src/lib/shared/Type Helpers/Result";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export class GetOneUserByUserNameQueryHandler
   implements IHandler<GetOneUserByUserName, Result<User>>

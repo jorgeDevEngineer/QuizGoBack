@@ -31,7 +31,7 @@ import { EditUser } from "../../application/Parameter Objects/EditUser";
 import { DeleteUser } from "../../application/Parameter Objects/DeleteUser";
 import { EnableFreeMembership } from "../../application/Parameter Objects/EnableFreeMembership";
 import { EnablePremiumMembership } from "../../application/Parameter Objects/EnablePremiumMembership";
-import { Result } from "src/lib/shared/Type Helpers/Result";
+import { Result } from "src/lib/shared/Type Helpers/result";
 import { User } from "../../domain/aggregate/User";
 
 @Controller("user")

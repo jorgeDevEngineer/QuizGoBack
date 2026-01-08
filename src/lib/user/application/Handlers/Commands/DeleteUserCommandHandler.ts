@@ -2,7 +2,7 @@ import { UserRepository } from "../../../domain/port/UserRepository";
 import { UserId } from "../../../domain/valueObject/UserId";
 import { IHandler } from "src/lib/shared/IHandler";
 import { DeleteUser } from "../../Parameter Objects/DeleteUser";
-import { Result } from "src/lib/shared/Type Helpers/Result";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export class DeleteUserCommandHandler
   implements IHandler<DeleteUser, Result<void>>
