@@ -18,6 +18,14 @@ export class UserId {
     );
   }
 
+  public static of(value: string): UserId {
+    return new UserId(value);
+  }
+
+  public getValue(): string {
+    return this.value;
+  }
+
   public static generateId(): UserId {
     return new UserId(crypto.randomUUID());
   }

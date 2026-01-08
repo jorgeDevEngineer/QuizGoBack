@@ -11,6 +11,16 @@ export class Player {
         private readonly isGuest: boolean
     ) {}
 
+    public static create(
+        id: PlayerId,
+        nickname: PlayerNickname,
+        score: GameScore,
+        streak: number = 0,
+        isGuest: boolean
+    ){
+        return new Player(id, nickname, score, streak, isGuest);
+    }
+
     public newNickname(nickname:string): void {
         const newNickname:PlayerNickname = PlayerNickname.create(nickname);
         this.nickname = newNickname;

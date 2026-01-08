@@ -296,8 +296,12 @@ export class MultiplayerSession {
         return this.leaderboard.getEntryFor( playerId ) ;   
     }
 
-    public getSessionProgress(): number {
+    public getSessionProgressPercentage(): number {
         return this.progress.getProgressPercentage() ;
+    }
+
+    public getSessionProgress(): SessionProgress {
+        return this.progress;
     }
 
     public getNumberOfQuestionsLeft(): number {
@@ -347,11 +351,11 @@ export class MultiplayerSession {
         return this.sessionState;
     }
 
-    private getStartingDate(): Date{
-        return this.startedAt ;
+    public getStartingDate(): Date{
+        return this.startedAt;
     }
 
-    private getCompletionDate(): Date {
+    public getCompletionDate(): Date {
         if( !this.completedAt.hasValue() ){
             throw new Error("FATAL: La sesión no tiene fecha de completación, posiblemente la partida no se ha completado o no se completó")
         }
@@ -368,6 +372,27 @@ export class MultiplayerSession {
 
     public getQuizId(): QuizId {
         return this.quizId;
+    }
+
+    public getId(): MultiplayerSessionId {
+        return this.sessionId;
+    }
+
+    public static fromDb(
+        sessionId: MultiplayerSessionId,
+        hostId: UserId,
+        quizId: QuizId,
+        sessionPin: SessionPin,
+        startedAt: Date,
+        completedAt: Optional<Date>,
+        currentQuestionStartTime: Date,
+        sessionState: SessionState,
+        leaderboard: Leaderboard,
+        progress: SessionProgress,
+        players: Map<string, Player>, // PlayerId ---> Player
+        playersAnswers: Map<string, MultiplayerQuestionResult>
+    ) {
+        return new MultiplayerSession(sessionId, hostId, quizId, sessionPin, startedAt, completedAt, currentQuestionStartTime, sessionState, leaderboard, progress, players, playersAnswers);
     }
     
 }

@@ -5,7 +5,5 @@ import { MultiplayerSession } from "../aggregates/MultiplayerSession";
 export interface IMultiplayerSessionHistoryRepository {
   
   archiveSession(session: MultiplayerSession, quiz: Quiz ): Promise<void>;
-
-  archiveSessionEither(session: MultiplayerSession, quiz: Quiz ): Promise<void>
   
 }

@@ -93,6 +93,10 @@ export class Leaderboard {
         return new Leaderboard([]);
     }
 
+    public static fromMap(entradas: LeaderboardEntry[]): Leaderboard {
+        return new Leaderboard(entradas);
+    }
+
     public updateLeaderboard( players: Player[] ): Leaderboard {
 
         const previousRanks = this.entries.map( entry =>({ id: entry.getPlayerId().getId(), previousRank: entry.getRank() }));
@@ -317,6 +321,10 @@ export class SessionState {
         return new SessionState( SessionStateType.LOBBY );
     }
 
+    public static createAsAny(state: SessionStateType): SessionState {
+        return new SessionState(state);
+    }
+
     public toQuestion(): SessionState {
         if( this.canTransitionTo( SessionStateType.QUESTION ) ){
             return new SessionState(SessionStateType.QUESTION);
@@ -413,6 +421,10 @@ export class MultiplayerQuestionResult {
 
     public static create(questionId: QuestionId): MultiplayerQuestionResult {
         const answers: Map<string, MultiplayerAnswer> = new Map();
+        return new MultiplayerQuestionResult(questionId, answers);
+    }
+
+    public static fromMap(questionId: QuestionId, answers:Map<string, MultiplayerAnswer>): MultiplayerQuestionResult{
         return new MultiplayerQuestionResult(questionId, answers);
     }
 
