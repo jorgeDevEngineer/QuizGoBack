@@ -11,10 +11,11 @@ import { InMemoryActiveSessionRepository } from "../repositories/ActiveMultiplay
 import { TypeOrmQuizRepository } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizRepository";
 import { FileSystemPinRepository } from "../repositories/FileSystemPinRepository";
 import { CryptoGeneratePinService } from "../adapters/CryptoGeneratePin";
+import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([TypeOrmMultiplayerSessionEntity]), 
+        TypeOrmModule.forFeature([TypeOrmMultiplayerSessionEntity, TypeOrmQuizEntity]), 
         KahootModule,
         SinglePlayerGameModule,
     ],
@@ -57,7 +58,6 @@ import { CryptoGeneratePinService } from "../adapters/CryptoGeneratePin";
     InMemoryActiveSessionRepository,
     CryptoGeneratePinService,
     CryptoUuidGenerator,
-    TypeOrmQuizRepository,
     FileSystemPinRepository,
     MultiplayerSessionHistoryTypeOrmRepository,
     

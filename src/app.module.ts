@@ -15,6 +15,7 @@ import { LoggerModule } from "./lib/shared/aspects/logger/infrastructure/logger.
 import { BackofficeModule } from "./lib/backoffice/infrastructure/NestJs/backoffice.module";
 import { DatabaseModule } from "./lib/shared/infrastructure/database/database.module";
 import { AdminModule } from "./lib/admin/infrastructure/admin.module";
+import { MultiplayerSessionModule } from "./lib/multiplayer/infrastructure/NestJs/MultiplayerSession.module";
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { AdminModule } from "./lib/admin/infrastructure/admin.module";
     SinglePlayerGameModule,
     StatisticsModule,
     BackofficeModule,
+    MultiplayerSessionModule,
   ],
 })
 export class AppModule {}

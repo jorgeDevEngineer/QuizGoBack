@@ -17,16 +17,16 @@ import { MultiplayerSessionFactory } from "../../domain/factories/MultiplayerSes
 export class CreateSessionCommandHandler implements IHandler<CreateSessionCommand, CreateSessionResponseDto> {
 
     constructor(
-        @Inject( InMemoryActiveSessionRepository )
+        @Inject( 'IActiveMultiplayerSessionRepository' )
         private readonly sessionRepository: IActiveMultiplayerSessionRepository,
 
-        @Inject( TypeOrmQuizRepository )
+        @Inject( 'QuizRepository' )
         private readonly kahootRepository: QuizRepository,
 
-        @Inject( CryptoUuidGenerator )
+        @Inject( 'UuidGenerator' )
         private readonly uuidGenerator: UuidGenerator,
 
-        @Inject( CryptoGeneratePinService )
+        @Inject( 'IGeneratePinService' )
         private readonly pinGenerator: IGeneratePinService,
     ){}
 
