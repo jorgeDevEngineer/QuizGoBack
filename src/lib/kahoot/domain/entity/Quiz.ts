@@ -150,8 +150,8 @@ export class Quiz {
     return this._title.value;
   }
 
-  public getCoverImageId(): string {
-    return this._coverImageId.getValue();
+  public getCoverImageId(): string | null {
+    return this._coverImageId ? this._coverImageId.value : null;
   }
 
   public toPlainObject() {
@@ -195,7 +195,18 @@ export class Quiz {
         return null;
     }
     
-    if (currentIndex < 0 || currentIndex >= this._questions.length - 1) {
+    // Si currentIndex es -1 (antes de empezar), retorna la primera pregunta
+    if (currentIndex === -1) {
+        return this._questions[0];
+    }
+    
+    // Si el índice está fuera de rango, retorna null
+    if (currentIndex < 0 || currentIndex >= this._questions.length) {
+        return null;
+    }
+    
+    // Si es la última pregunta, retorna null
+    if (currentIndex >= this._questions.length - 1) {
         return null;
     }
     

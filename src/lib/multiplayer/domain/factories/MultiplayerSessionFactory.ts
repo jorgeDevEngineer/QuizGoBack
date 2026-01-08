@@ -30,7 +30,7 @@ export class MultiplayerSessionFactory {
         const hostId = new UserId( hostIdString );
 
         // Obtenemos la informacion del kahoot necesaria para construir el player session
-        const questionId = QuestionId.of( (quiz.getNextQuestionByIndex()?.id!).getValue() )
+        const questionId = QuestionId.of( (quiz.getNextQuestionByIndex()?.id!)?.getValue()! )
 
         const kahootInfo: KahootInfo = {
             kahootId: quiz.id,

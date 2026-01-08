@@ -16,6 +16,8 @@ import { MultiplayerSessionFactory } from "../../domain/factories/MultiplayerSes
 
 export class CreateSessionCommandHandler implements IHandler<CreateSessionCommand, CreateSessionResponseDto> {
 
+    private readonly DEFAULT_COVER_IMAGE = 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+
     constructor(
         @Inject( 'IActiveMultiplayerSessionRepository' )
         private readonly sessionRepository: IActiveMultiplayerSessionRepository,
@@ -62,11 +64,13 @@ export class CreateSessionCommandHandler implements IHandler<CreateSessionComman
             quiz
         });
 
+        const coverImageUrl = quiz.getCoverImageId() ?? this.DEFAULT_COVER_IMAGE;
+
         return {
             sessionPin: pin,
             qrToken: qrToken,
             quizTitle: quiz.getTitle(),
-            coverImageUrl: quiz.getCoverImageId(),
+            coverImageUrl: coverImageUrl,
             theme: null, //Por ahora no está implementado
         }
         
