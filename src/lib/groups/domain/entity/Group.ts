@@ -73,7 +73,7 @@ export class Group {
       [adminMember],
       [],
       [],
-      null,    // invitation (aún no generada)     // completions
+      null,    
       createdAt,
       createdAt,
     );
@@ -105,6 +105,7 @@ static createFromdb(
     updatedAt,
   );
 }
+
 
 
 
@@ -157,6 +158,7 @@ static createFromdb(
     return this._adminId.value === userId.value;
   }
 
+
   rename(
     name: GroupName,
     description: GroupDescription,             
@@ -166,6 +168,7 @@ static createFromdb(
     this._description = description;
     this._updatedAt = now;
   }
+
 
   addMember(userId: UserId, now: Date = new Date()): void {
     const existing = this._members.find(
@@ -400,3 +403,43 @@ generateInvitation(
     };
   }
 }
+
+export type GroupQuizAssignmentPlain = {
+  id: string;
+  groupId: string;
+  quizId: string;
+  assignedBy: string;
+  createdAt: Date;
+  availableFrom: Date | null;
+  availableUntil: Date | null;
+  isActive: boolean;
+};
+
+export type GroupQuizAssignmentPrimitive = {
+  id: string;
+  quizId: string;
+  assignedBy: string;
+  createdAt: Date;
+  availableFrom: Date | null;
+  availableUntil: Date | null;
+  isActive: boolean;
+};
+
+export type QuizBasicPrimitive = {
+  id: string;
+  title: string;
+};
+
+export type CompletedAttemptPrimitive = {
+  gameId: string;
+  quizId: string;
+  score: number;
+  startedAt: Date;
+  completedAt: Date;
+};
+
+export type GroupMemberScoreStat = {
+  userId: string;
+  completedQuizzes: number;
+  totalPoints: number;
+};

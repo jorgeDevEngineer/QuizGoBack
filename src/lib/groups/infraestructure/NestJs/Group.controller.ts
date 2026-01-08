@@ -32,11 +32,17 @@ import { TransferGroupAdminCommandHandler } from "../../application/Handlers/com
 import { AssignQuizToGroupCommand } from "../../application/parameterObjects/AssignQuizToGroupCommand";
 import { AssignQuizToGroupCommandHandler } from "../../application/Handlers/commands/AssignQuizToGroupCommandHandler"; 
 import { GetUserGroupsQuery } from "../../application/parameterObjects/GetUserGroupsQuery";
-import { GetUserGroupsQueryHandler } from "../../application/Handlers/commands/GetUserGroupsQueryHandler";
+import { GetUserGroupsQueryHandler } from "../../application/Handlers/queries/GetUserGroupsQueryHandler";
 import { GetGroupMembersQuery } from "../../application/parameterObjects/GetGroupMembersQuery";
-import { GetGroupMembersQueryHandler } from "../../application/Handlers/commands/GetGroupMembersQueryHandler";
+import { GetGroupMembersQueryHandler } from "../../application/Handlers/queries/GetGroupMembersQueryHandler";
 import { GetGroupDetailsQuery } from "../../application/parameterObjects/GetGroupDetailsQuery";
-import { GetGroupDetailsQueryHandler } from "../../application/Handlers/commands/GetGroupDetailsQueryHandler";
+import { GetGroupDetailsQueryHandler } from "../../application/Handlers/queries/GetGroupDetailsQueryHandler";
+import { GetGroupQuizzesQuery } from "../../application/parameterObjects/GetGroupQuizzesQuery";
+import { GetGroupQuizzesQueryHandler } from "../../application/Handlers/queries/GetGroupQuizzesQueryHandler";
+import { GetGroupLeaderboardQuery } from "../../application/parameterObjects/GetGroupLeaderboardQuery";
+import { GetGroupLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupLeaderboardQUeryHandler";
+import { GetGroupQuizLeaderboardQuery } from "../../application/parameterObjects/GetGroupQuizLeaderboarquery";
+import { GetGroupQuizLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupQuizLeaderboardQueryHandler";
 
 import { CreateGroupRequestDto } from "../../application/dtos/GroupRequest.dto";
 import { CreateGroupResponseDto } from "../../application/dtos/GroupResponse.dto";
@@ -62,6 +68,9 @@ export class GroupsController {
     private readonly getUserGroupsQueryHandler: GetUserGroupsQueryHandler,
     private readonly getGroupMembersQueryHandler: GetGroupMembersQueryHandler,
     private readonly getGroupDetailsQueryHandler: GetGroupDetailsQueryHandler,
+    private readonly getGroupAssignedQuizzesQueryHandler: GetGroupQuizzesQueryHandler,
+    private readonly getGroupLeaderboardQueryHandler: GetGroupLeaderboardQueryHandler,
+    private readonly getGroupQuizLeaderboardQueryHandler: GetGroupQuizLeaderboardQueryHandler,
   ) {}
 
   private getCurrentUserId(req: Request): string {
@@ -106,6 +115,17 @@ export class GroupsController {
     );
 
     return this.assignQuizToGroupCommandHandler.execute(command);
+}
+
+@Get(':groupId/quizzes')
+async getAssignedQuizzes(
+  @Param('groupId') groupId: string,
+  @Req() req: any,
+) {
+  const currentUserId = this.getCurrentUserId(req);
+  const query = new GetGroupQuizzesQuery(groupId, currentUserId);
+
+  return this.getGroupAssignedQuizzesQueryHandler.execute(query);
 }
 
   @Get()
@@ -221,6 +241,32 @@ export class GroupsController {
 
     return this.transferGroupAdminCommandHandler.execute(command);
   }
+
+  @Get(':groupId/leaderboard')
+async getGroupLeaderboard(
+  @Param('groupId') groupId: string,
+  @Req() req: Request,
+) {
+  const userId = this.getCurrentUserId(req);
+  const query = new GetGroupLeaderboardQuery(groupId, userId);
+  return await this.getGroupLeaderboardQueryHandler.execute(query);
+}
+
+@Get(":groupId/quizzes/:quizId/leaderboard")
+async getGroupQuizLeaderboard(
+  @Param("groupId") groupId: string,
+  @Param("quizId") quizId: string,
+  @Req() req: Request,
+) {
+  const userId = this.getCurrentUserId(req);
+  const query = new GetGroupQuizLeaderboardQuery(
+    groupId,
+    quizId,
+    userId,
+  );
+  return await this.getGroupQuizLeaderboardQueryHandler.execute(query
+  );
+}
 
 }
 

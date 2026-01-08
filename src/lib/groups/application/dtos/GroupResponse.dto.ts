@@ -90,3 +90,43 @@ export interface GetGroupDetailsResponseDto {
   createdAt: string;
   updatedAt: string;
 }
+
+export type GroupQuizStatus = "PENDING" | "COMPLETED";
+
+export interface GetGroupAssignedQuizzesResponseDto {
+  data: Array<{
+    assignmentId: string;
+    quizId: string;
+    title: string | null;
+    availableUntil: Date | null;
+    status: GroupQuizStatus;
+    userResult: null | {
+      score: number;
+      attemptId: string;
+      completedAt: Date;
+    };
+    leaderboard: Array<{ name: string; score: number }>;
+  }>;
+}
+
+export interface GroupLeaderboardItemDto {
+  userId: string;
+  name: string;              
+  completedQuizzes: number;
+  totalPoints: number;
+  position: number;
+};
+
+export interface GetGroupLeaderboardResponseDto {
+  leaderboard: GroupLeaderboardItemDto[];
+}
+
+export interface GetGroupQuizLeaderboardResponseDto {
+  quizId: string;
+  groupId: string;
+  topPlayers: {
+    userId: string;
+    name: string;
+    score: number;
+  }[];
+}

@@ -20,14 +20,17 @@ import { LeaveGroupCommandHandler } from "../../application/Handlers/commands/Le
 import { RemoveGroupMemberCommandHandler } from "../../application/Handlers/commands/RemoveGroupMemberCommandHandler";
 import { TransferGroupAdminCommandHandler } from "../../application/Handlers/commands/TransferGroupAdminCommandHandler";
 import { AssignQuizToGroupCommandHandler } from "../../application/Handlers/commands/AssignQuizToGroupCommandHandler";
-import { GetUserGroupsQueryHandler } from "../../application/Handlers/commands/GetUserGroupsQueryHandler";
-import { GetGroupMembersQueryHandler } from "../../application/Handlers/commands/GetGroupMembersQueryHandler";
-import { GetGroupDetailsQueryHandler } from "../../application/Handlers/commands/GetGroupDetailsQueryHandler";
+import { GetUserGroupsQueryHandler } from "../../application/Handlers/queries/GetUserGroupsQueryHandler";
+import { GetGroupMembersQueryHandler } from "../../application/Handlers/queries/GetGroupMembersQueryHandler";
+import { GetGroupDetailsQueryHandler } from "../../application/Handlers/queries/GetGroupDetailsQueryHandler";
+import { GetGroupQuizzesQueryHandler } from "../../application/Handlers/queries/GetGroupQuizzesQueryHandler";
+import { GetGroupLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupLeaderboardQUeryHandler";
+import { GetGroupQuizLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupQuizLeaderboardQueryHandler";
 
 import { TypeOrmQuizEntity } from "../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { TypeOrmQuizReadService } from "../TypeOrm/QuizReadServiceImplementation";
 import { QuizReadService } from "../../domain/port/QuizReadService";
-import { create } from "domain";
+import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 
 @Module({
   imports: [
@@ -36,6 +39,7 @@ import { create } from "domain";
       GroupMemberOrmEntity,
       GroupQuizAssignmentOrmEntity,
       TypeOrmQuizEntity,
+      TypeOrmSinglePlayerGameEntity,
     ]),
   ],
   controllers: [GroupsController],
@@ -110,6 +114,7 @@ import { create } from "domain";
         new TransferGroupAdminCommandHandler(repo),
       inject: ["GroupRepository"],
     },
+    
     {
       provide: AssignQuizToGroupCommandHandler,
       useFactory: (
@@ -117,6 +122,24 @@ import { create } from "domain";
         quizReadService: QuizReadService,
       ) => new AssignQuizToGroupCommandHandler(groupRepo, quizReadService),
       inject: ["GroupRepository", "QuizReadService"],
+    },
+    {
+      provide: GetGroupQuizzesQueryHandler,
+      useFactory: (groupRepository: GroupRepository
+      ) =>new GetGroupQuizzesQueryHandler(groupRepository),
+      inject: ["GroupRepository"],
+    },
+    {
+      provide: GetGroupLeaderboardQueryHandler,
+      useFactory: (groupRepository: GroupRepository
+      ) =>new GetGroupLeaderboardQueryHandler(groupRepository),
+      inject: ["GroupRepository"],
+    },
+    {
+      provide: GetGroupQuizLeaderboardQueryHandler,
+      useFactory: (groupRepository: GroupRepository 
+      ) =>new GetGroupQuizLeaderboardQueryHandler(groupRepository),
+      inject: ["GroupRepository"],
     },
   ],
 })

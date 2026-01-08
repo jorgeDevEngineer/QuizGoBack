@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, In} from "typeorm";
 import { GroupRepository } from "../../domain/port/GroupRepository";
-import { Group } from "../../domain/entity/Group";
+import { CompletedAttemptPrimitive, Group, GroupQuizAssignmentPrimitive, QuizBasicPrimitive } from "../../domain/entity/Group";
 import { GroupId } from "../../domain/valueObject/GroupId";
 import { GroupName } from "../../domain/valueObject/GroupName";
 import { GroupDescription } from "../../domain/valueObject/GroupDescription";
@@ -17,6 +17,9 @@ import { GroupInvitationToken } from "../../domain/valueObject/GroupInvitationTo
 import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { GroupOrmEntity } from "./GroupOrmEntity";
 import { GroupMemberOrmEntity } from "./GroupOrnMember";
+import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
+import { TypeOrmQuizEntity } from "src/lib/search/infrastructure/TypeOrm/TypeOrmQuizEntity";
+import { GameProgressStatus } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 
 @Injectable()
 export class TypeOrmGroupRepository implements GroupRepository {
@@ -26,7 +29,105 @@ export class TypeOrmGroupRepository implements GroupRepository {
 
     @InjectRepository(GroupMemberOrmEntity)
     private readonly memberRepo: Repository<GroupMemberOrmEntity>,
+
+    @InjectRepository(GroupQuizAssignmentOrmEntity)
+    private readonly groupQuizAssignmentRepo: Repository<GroupQuizAssignmentOrmEntity>,
+
+    @InjectRepository(TypeOrmQuizEntity) private readonly quizRepo: Repository<TypeOrmQuizEntity>,
+
+    @InjectRepository(TypeOrmSinglePlayerGameEntity) private readonly gameRepo: Repository<TypeOrmSinglePlayerGameEntity>,
   ) {}
+
+ 
+
+  async findAssignmentsByGroupId(groupId: GroupId): Promise<GroupQuizAssignmentPrimitive[]> {
+  const rows = await this.groupQuizAssignmentRepo.find({
+    where: { group: { id: groupId.value } },
+    order: { createdAt: "DESC" },
+  });
+
+  return rows.map(r => ({
+    id: r.id,
+    quizId: r.quizId,
+    assignedBy: r.assignedBy,
+    createdAt: r.createdAt,
+    availableFrom: r.availableFrom ?? null,
+    availableUntil: r.availableUntil ?? null,
+    isActive: r.isActive,
+  }));
+}
+
+async findQuizzesBasicByIds(quizIds: string[]): Promise<QuizBasicPrimitive[]> {
+  if (quizIds.length === 0) return [];
+
+  const quizzes = await this.quizRepo.find({
+    where: { id: In(quizIds) },
+    select: { id: true, title: true },
+  });
+
+  return quizzes.map(q => ({ id: q.id, title: q.title }));
+}
+
+
+async findCompletedAttemptsByUserAndQuizIds(userId: string, quizIds: string[]): Promise<CompletedAttemptPrimitive[]> {
+  if (quizIds.length === 0) return [];
+
+  const games = await this.gameRepo.find({
+    where: {
+      playerId: userId,
+      quizId: In(quizIds),
+      status: GameProgressStatus.COMPLETED,
+    },
+    order: { startedAt: "DESC" },
+  });
+
+  // Filtramos sólo los que tienen completedAt
+  return games
+    .filter(g => !!g.completedAt)
+    .map(g => ({
+      gameId: g.gameId,
+      quizId: g.quizId,
+      score: g.score,
+      startedAt: g.startedAt,
+      completedAt: g.completedAt!,
+    }));
+}
+
+
+async getGroupLeaderboardByGroupId(
+  groupId: GroupId,
+  memberUserIds: string[],
+): Promise<{ userId: string; completedQuizzes: number; totalPoints: number }[]> {
+
+  //traer assignments del grupo
+  const assignments = await this.findAssignmentsByGroupId(groupId);
+  const quizIds = assignments
+    .filter(a => a.isActive) 
+    .map(a => a.quizId);
+
+  if (quizIds.length === 0 || memberUserIds.length === 0) return [];
+
+  //aggregate en asyncgame
+  const raw = await this.gameRepo
+    .createQueryBuilder("g")
+    .select("g.playerId", "userId")
+    .addSelect("COUNT(DISTINCT g.quizId)", "completedQuizzes")
+    .addSelect("COALESCE(SUM(g.score), 0)", "totalPoints")
+    .where("g.status = :status", { status: GameProgressStatus.COMPLETED })
+    .andWhere("g.quizId IN (:...quizIds)", { quizIds })
+    .andWhere("g.playerId IN (:...userIds)", { userIds: memberUserIds })
+    .groupBy("g.playerId")
+    .orderBy("COALESCE(SUM(g.score), 0)", "DESC")
+    .addOrderBy("COUNT(DISTINCT g.quizId)", "DESC")
+    .getRawMany<{ userId: string; completedQuizzes: string; totalPoints: string }>();
+
+  return raw.map(r => ({
+    userId: r.userId,
+    completedQuizzes: Number(r.completedQuizzes ?? 0),
+    totalPoints: Number(r.totalPoints ?? 0),
+  }));
+}
+
 
   //Metodos de la interface GroupRepository
 
