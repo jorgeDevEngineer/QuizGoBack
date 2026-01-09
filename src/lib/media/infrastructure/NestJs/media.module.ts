@@ -13,11 +13,15 @@ import { ErrorHandlingDecorator } from '../../../shared/aspects/error-handling/a
 import { SupabaseStorageService } from '../Supabase/SupabaseStorageService';
 import { IStorageService, STORAGE_SERVICE } from '../../domain/port/IStorageService';
 import { IMediaRepository, IMEDIA_REPOSITORY } from '../../domain/port/IMediaRepository';
+import { DynamicMongoAdapter } from '../../../shared/infrastructure/database/dynamic-mongo.adapter';
+import { DatabaseModule } from '../../../shared/infrastructure/database/database.module';
+import { MediaMapper } from '../MediaMapper';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity]), LoggerModule],
+    imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity]), LoggerModule, DatabaseModule],
     controllers: [MediaController],
     providers: [
+        MediaMapper,
         // 1. Storage Service
         {
             provide: STORAGE_SERVICE,
@@ -26,6 +30,11 @@ import { IMediaRepository, IMEDIA_REPOSITORY } from '../../domain/port/IMediaRep
         // 2. Media Repository
         {
             provide: IMEDIA_REPOSITORY,
+            useFactory: (repo, mongo, mapper) => new TypeOrmMediaRepository(repo, mongo, mapper),
+            inject: [TypeOrmMediaRepository, DynamicMongoAdapter, MediaMapper]
+        },
+        {
+            provide: TypeOrmMediaRepository, // Proveer la clase concreta para inyección en la factory
             useClass: TypeOrmMediaRepository,
         },
         // 3. UploadMedia Use Case
