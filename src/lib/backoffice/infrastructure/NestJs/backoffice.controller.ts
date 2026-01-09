@@ -151,4 +151,27 @@ export class BackofficeController {
             throw new BadRequestException(e.message);
         }
     }
+
+    @Get('massNotifications')
+    async getNotifications(
+        @Headers('user') userIdHeader: string,
+        @Query('userId') userId?: string,
+        @Query('limit', new DefaultValuePipe(10)) limit?: number,
+        @Query('page', new DefaultValuePipe(1)) page?: number,
+        @Query('orderBy', new DefaultValuePipe('createdAt')) orderBy?: string,
+        @Query('order', new DefaultValuePipe('desc')) order: 'asc' | 'desc' = 'desc'
+    ) {
+        try {
+            const result = await this.getNotificationsUseCase.run(userIdHeader, {
+                userId,
+                limit,
+                page,
+                orderBy,
+                order,
+            });
+            return result;
+        } catch (e) {
+            throw new InternalServerErrorException(e.message);
+        }
+    }
 }
