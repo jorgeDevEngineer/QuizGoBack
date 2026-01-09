@@ -1,3 +1,5 @@
+import { DomainException } from "src/lib/shared/exceptions/domain.exception";
+
 export const MEMBERSHIP_TYPES = {
   FREE: "free",
   PREMIUM: "premium",
@@ -7,7 +9,7 @@ export class MembershipType {
   readonly value: "free" | "premium";
   constructor(value: "free" | "premium") {
     if (!this.isValid(value)) {
-      throw new Error("Invalid membership type");
+      throw new DomainException("Invalid membership type");
     }
     this.value = value;
   }

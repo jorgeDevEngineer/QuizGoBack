@@ -1,8 +1,10 @@
+import { DomainException } from "src/lib/shared/exceptions/domain.exception";
+
 export class UserStatus {
   readonly value: "Active" | "Blocked";
   constructor(value: "Active" | "Blocked") {
     if (!this.isValid(value)) {
-      throw new Error("Invalid user status");
+      throw new DomainException("Invalid user status");
     }
     this.value = value;
   }

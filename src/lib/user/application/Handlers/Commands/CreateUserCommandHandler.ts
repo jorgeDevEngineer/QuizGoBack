@@ -52,12 +52,12 @@ export class CreateUserCommandHandler
       command.status ? new UserStatus(command.status) : undefined
     );
     const userWithSameId = await this.userRepository.getOneById(newUser.id);
-    const userWithSameUserName = await this.userRepository.getOneByName(
-      newUser.userName
-    );
     if (userWithSameId) {
       throw new Error("User with this ID already exists");
     }
+    const userWithSameUserName = await this.userRepository.getOneByName(
+      newUser.userName
+    );
     if (userWithSameUserName) {
       throw new Error("User with this username already exists");
     }

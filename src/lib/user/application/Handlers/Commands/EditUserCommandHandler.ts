@@ -11,7 +11,7 @@ import { UserPlainName } from "../../../domain/valueObject/UserPlainName";
 import { UserTheme } from "../../../domain/valueObject/UserTheme";
 import { UserLanguage } from "../../../domain/valueObject/UserLanguaje";
 import { UserGameStreak } from "../../../domain/valueObject/UserGameStreak";
-import { UserNotFoundError } from "../../error/UserNotFoundError";
+import { UserNotFoundException } from "../../exceptions/UserNotFoundException";
 import { UserStatus } from "../../../domain/valueObject/UserStatus";
 import { IHandler } from "src/lib/shared/IHandler";
 import { EditUser } from "../../Parameter Objects/EditUser";
@@ -27,7 +27,7 @@ export class EditUserCommandHandler
       new UserId(command.id)
     );
     if (!existing) {
-      return Result.fail(new UserNotFoundError("User not found"));
+      return Result.fail(new UserNotFoundException());
     }
     const userWithSameUserName = await this.userRepository.getOneByName(
       new UserName(command.userName)

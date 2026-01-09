@@ -2,12 +2,12 @@ import { IHandler } from "src/lib/shared/IHandler";
 import { ILoggerPort } from "../../../logger/domain/ports/logger.port";
 
 export abstract class BaseErrorHandlingDecorator<TParameterObject, TResponse>
-  implements IHandler<TParameterObject, TResponse> {
-
+  implements IHandler<TParameterObject, TResponse>
+{
   constructor(
     protected readonly handler: IHandler<TParameterObject, TResponse>,
     protected readonly logger: ILoggerPort,
-    protected readonly handlerName: string,
+    protected readonly handlerName: string
   ) {}
 
   async execute(command: TParameterObject): Promise<TResponse> {
@@ -20,5 +20,8 @@ export abstract class BaseErrorHandlingDecorator<TParameterObject, TResponse>
   }
 
   // Un único método abstracto para manejar excepciones inesperadas
-  protected abstract handleException(error: Error, command: TParameterObject): TResponse;
+  protected abstract handleException(
+    error: Error,
+    command: TParameterObject
+  ): TResponse;
 }

@@ -1,9 +1,11 @@
+import { DomainException } from "src/lib/shared/exceptions/domain.exception";
+
 export class UserDate {
   readonly value: Date;
 
   constructor(value: Date) {
     if (!this.isValid(value)) {
-      throw new Error("Invalid date value");
+      throw new DomainException("Invalid date value");
     }
     this.value = value;
   }

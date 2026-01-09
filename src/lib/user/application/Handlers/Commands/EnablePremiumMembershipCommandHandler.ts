@@ -1,6 +1,6 @@
 import { UserRepository } from "../../../domain/port/UserRepository.js";
 import { UserId } from "../../../domain/valueObject/UserId.js";
-import { UserNotFoundError } from "../../error/UserNotFoundError.js";
+import { UserNotFoundException } from "../../exceptions/UserNotFoundException.js";
 import { IHandler } from "src/lib/shared/IHandler";
 import { EnablePremiumMembership } from "../../Parameter Objects/EnablePremiumMembership.js";
 import { Result } from "src/lib/shared/Type Helpers/result";
@@ -13,7 +13,7 @@ export class EnablePremiumMembershipCommandHandler
   async execute(command: EnablePremiumMembership): Promise<Result<void>> {
     const user = await this.userRepository.getOneById(new UserId(command.id));
     if (!user) {
-      return Result.fail(new UserNotFoundError("User not found"));
+      return Result.fail(new UserNotFoundException());
     }
     user.enablePremiumMembership();
     await this.userRepository.edit(user);

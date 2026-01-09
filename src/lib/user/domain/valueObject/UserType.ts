@@ -1,9 +1,11 @@
+import { DomainException } from "src/lib/shared/exceptions/domain.exception";
+
 export class UserType {
   readonly value: "student" | "teacher" | "personal";
 
   constructor(value: "student" | "teacher" | "personal") {
     if (!this.isValid(value)) {
-      throw new Error("Invalid user type");
+      throw new DomainException("Invalid user type");
     }
     this.value = value;
   }

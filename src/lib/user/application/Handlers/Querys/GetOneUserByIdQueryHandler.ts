@@ -1,7 +1,7 @@
 import { UserRepository } from "../../../domain/port/UserRepository";
 import { UserId } from "../../../domain/valueObject/UserId";
 import { User } from "../../../domain/aggregate/User";
-import { UserNotFoundError } from "../../error/UserNotFoundError";
+import { UserNotFoundException } from "../../exceptions/UserNotFoundException";
 import { IHandler } from "src/lib/shared/IHandler";
 import { GetOneUserById } from "../../Parameter Objects/GetOneUserById";
 import { Result } from "src/lib/shared/Type Helpers/result";
@@ -15,7 +15,7 @@ export class GetOneUserByIdQueryHandler
     const userId = new UserId(query.id);
     const user = await this.userRepository.getOneById(userId);
     if (!user) {
-      return Result.fail(new UserNotFoundError("User not found"));
+      return Result.fail(new UserNotFoundException());
     }
     return Result.ok(user);
   }

@@ -1,8 +1,10 @@
+import { DomainException } from "src/lib/shared/exceptions/domain.exception";
+
 export class UserPlainName {
   readonly value: string;
   constructor(value: string) {
     if (!this.isValid(value)) {
-      throw new Error("Invalid user plain name");
+      throw new DomainException("Invalid user plain name");
     }
     this.value = value;
   }

@@ -1,9 +1,11 @@
+import { DomainException } from "src/lib/shared/exceptions/domain.exception";
+
 export class UserHashedPassword {
   readonly value: string;
 
   constructor(value: string) {
     if (!this.isValid(value)) {
-      throw new Error("Invalid password format");
+      throw new DomainException("Invalid password format");
     }
     this.value = value;
   }
