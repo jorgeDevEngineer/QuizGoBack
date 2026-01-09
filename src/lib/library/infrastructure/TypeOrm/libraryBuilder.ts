@@ -24,6 +24,7 @@ import { MongoCriteriaApplier } from "./Criteria Appliers/Mongo/MongoCriteriaApp
 import { DynamicMongoAdapter } from "../../../shared/infrastructure/database/dynamic-mongo.adapter";
 import { TypeOrmMultiplayerSessionEntity } from "src/lib/multiplayer/infrastructure/repositories/TypeOrm/TypeOrmMultiplayerSessionEntity";
 import { DynamicMultiplayerGameRepository } from "./Repositories/DynamicMultiplayerGameRepository";
+import { MultiplayerSessionHistoryRepository } from "../../domain/port/MultiplayerSessionHistoryRepository";
 
 const entityMap = {
   postgres: {
@@ -122,7 +123,7 @@ export class LibraryRepositoryBuilder {
     );
   }
 
-  buildMultiplayerSessionHistoryRepository() {
+  buildMultiplayerSessionHistoryRepository(): MultiplayerSessionHistoryRepository {
     const criteriaAplier =
       new TypeOrmPostgresCriteriaApplier<TypeOrmMultiplayerSessionEntity>();
     const mongoCriteriaApplier = new MongoCriteriaApplier<any>();

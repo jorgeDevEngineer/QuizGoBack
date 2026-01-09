@@ -57,20 +57,14 @@ export class GetUserCompletedQuizzesDomainService {
         criteria
       );
 
-    console.log("Consiguió las partidas multijugador", completeMultiGames);
-
     const multiGameQuizIds = completeMultiGames.map((game) =>
       QuizId.of(game.getQuizId().value)
     );
-
-    console.log("IDs de quices multijugador", multiGameQuizIds);
 
     const multiQuizzes = await this.quizRepository.findByIds(
       multiGameQuizIds,
       criteria
     );
-
-    console.log("Consiguió los quices de multijugador", multiQuizzes);
 
     const quizzIds = completedGames.map((game) =>
       QuizId.of(game.getQuizId().value)
