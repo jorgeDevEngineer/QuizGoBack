@@ -3,7 +3,7 @@ import { UserId } from "../../../domain/valueObject/UserId.js";
 import { UserNotFoundError } from "../../error/UserNotFoundError.js";
 import { IHandler } from "src/lib/shared/IHandler";
 import { EnablePremiumMembership } from "../../Parameter Objects/EnablePremiumMembership.js";
-import { Result } from "src/lib/shared/Type Helpers/Result";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export class EnablePremiumMembershipCommandHandler
   implements IHandler<EnablePremiumMembership, Result<void>>
