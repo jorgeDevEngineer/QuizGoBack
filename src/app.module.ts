@@ -76,5 +76,6 @@ export class AppModule implements OnApplicationBootstrap {
     await this.mongoAdapter.reconnect("kahoot", mongoUrl);
     await this.mongoAdapter.reconnect("media", mongoUrl);
     await this.mongoAdapter.reconnect("user", mongoUrl);
+    await this.mongoAdapter.reconnect("groups", mongoUrl);
   }
 }
