@@ -15,15 +15,13 @@ import { QuizId, UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { CriteriaApplier } from "src/lib/library/domain/port/CriteriaApplier";
 import { QuizQueryCriteria } from "src/lib/library/application/Response Types/QuizQueryCriteria";
-import {
-  MongoAdvancedCriteriaApplier,
-  MongoFindParams,
-} from "../Criteria Appliers/Mongo/MongoAdvancedCriteriaApplier";
+import { MongoFindParams } from "../Criteria Appliers/Mongo/MongoAdvancedCriteriaApplier";
 import { DynamicMongoAdapter } from "src/lib/shared/infrastructure/database/dynamic-mongo.adapter";
 import { ObjectId } from "mongodb";
 import { Optional } from "src/lib/shared/Type Helpers/Optional";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
 import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
+import { MongoCriteriaApplier } from "../Criteria Appliers/Mongo/MongoCriteriaApplier";
 
 type MongoSinglePlayerGameDoc = {
   _id: ObjectId; // ID nativo de Mongo
@@ -56,7 +54,7 @@ export class DynamicSinglePlayerGameRepository
       QuizQueryCriteria
     >,
     private readonly mongoAdapter: DynamicMongoAdapter,
-    private readonly mongoCriteriaApplier: MongoAdvancedCriteriaApplier<any>
+    private readonly mongoCriteriaApplier: MongoCriteriaApplier<MongoSinglePlayerGameDoc>
   ) {}
 
   async findInProgressGames(
@@ -67,7 +65,7 @@ export class DynamicSinglePlayerGameRepository
       // 🔑 Intentar Mongo primero
       const db = await this.mongoAdapter.getConnection("singlePlayerGame");
       const collection =
-        db.collection<MongoSinglePlayerGameDoc>("singlePlayerGames");
+        db.collection<MongoSinglePlayerGameDoc>("singlePlayerGame");
 
       const params: MongoFindParams<any> = {
         filter: {
@@ -96,7 +94,6 @@ export class DynamicSinglePlayerGameRepository
       });
 
       qb = this.pgCriteriaApplier.apply(qb, criteria, "game");
-      qb.orderBy("game.startedAt", "DESC");
 
       const [entities, totalCount] = await qb.getManyAndCount();
       return [entities.map((entity) => entity.toDomain()), totalCount];
@@ -111,7 +108,7 @@ export class DynamicSinglePlayerGameRepository
       // 🔑 Intentar Mongo primero
       const db = await this.mongoAdapter.getConnection("singlePlayerGame");
       const collection =
-        db.collection<MongoSinglePlayerGameDoc>("singlePlayerGames");
+        db.collection<MongoSinglePlayerGameDoc>("singlePlayerGame");
 
       const params: MongoFindParams<any> = {
         filter: {

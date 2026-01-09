@@ -28,6 +28,7 @@ import { LoggingUseCaseDecorator } from "src/lib/shared/aspects/logger/applicati
 import { ErrorHandlingDecoratorWithEither } from "src/lib/shared/aspects/error-handling/application/decorators/error-handling-either";
 import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logger.module";
 import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
+import { MultiplayerSessionHistoryRepository } from "../../domain/port/MultiplayerSessionHistoryRepository";
 
 @Module({
   imports: [
@@ -52,7 +53,8 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
           .withEntity("UserFavoriteQuiz")
           .withEntity("Quiz")
           .withEntity("User")
-          .withEntity("SinglePlayerGame");
+          .withEntity("SinglePlayerGame")
+          .withEntity("MultiplayerSession");
       },
       inject: [DataSource, DynamicMongoAdapter],
     },
@@ -78,6 +80,12 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
       provide: "SinglePlayerGameRepository",
       useFactory: (builder: LibraryRepositoryBuilder) =>
         builder.buildSinglePlayerGameRepository(),
+      inject: ["LibraryRepositoryBuilder"],
+    },
+    {
+      provide: "MultiplayerSessionHistoryRepository",
+      useFactory: (builder: LibraryRepositoryBuilder) =>
+        builder.buildMultiplayerSessionHistoryRepository(),
       inject: ["LibraryRepositoryBuilder"],
     },
     {
@@ -204,11 +212,13 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
       provide: "GetUserInProgressQuizzesDomainService",
       useFactory: (
         singlePlayerRepo: SinglePlayerGameRepository,
+        multiPlayerRepo: MultiplayerSessionHistoryRepository,
         quizRepo: QuizRepository,
         userRepo: UserRepository
       ) =>
         new GetUserInProgressQuizzesDomainService(
           singlePlayerRepo,
+          multiPlayerRepo,
           quizRepo,
           userRepo
         ),
@@ -216,6 +226,7 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
         "SinglePlayerGameRepository",
         "QuizRepository",
         "UserRepository",
+        "MultiplayerSessionHistoryRepository",
       ],
     },
     {
@@ -245,17 +256,20 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
       useFactory: (
         quizRepository: QuizRepository,
         userRepo: UserRepository,
-        singlePlayerRepo: SinglePlayerGameRepository
+        singlePlayerRepo: SinglePlayerGameRepository,
+        multiPlayerRepo: MultiplayerSessionHistoryRepository
       ) =>
         new GetUserCompletedQuizzesDomainService(
           quizRepository,
           userRepo,
-          singlePlayerRepo
+          singlePlayerRepo,
+          multiPlayerRepo
         ),
       inject: [
         "QuizRepository",
         "UserRepository",
         "SinglePlayerGameRepository",
+        "MultiplayerSessionHistoryRepository",
       ],
     },
     {

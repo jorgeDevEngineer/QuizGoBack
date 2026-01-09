@@ -75,7 +75,7 @@ export class DynamicQuizRepository implements QuizRepository {
       QuizQueryCriteria
     >,
     private readonly mongoAdapter: DynamicMongoAdapter,
-    private readonly mongoCriteriaApplier: MongoAdvancedCriteriaApplier<any>
+    private readonly mongoCriteriaApplier: MongoAdvancedCriteriaApplier<MongoQuizDoc>
   ) {}
 
   private mapToDomain(q: TypeOrmQuizEntity): Quiz {
