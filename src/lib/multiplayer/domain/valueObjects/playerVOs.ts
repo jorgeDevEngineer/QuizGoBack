@@ -54,3 +54,6 @@ export class PlayerNickname {
         return this.nickname;
     }
 }
+
+export const MAX_NICKNAME_TEXT_LENGTH = 20; 
+export const MIN_NICKNAME_TEXT_LENGTH = 4;
