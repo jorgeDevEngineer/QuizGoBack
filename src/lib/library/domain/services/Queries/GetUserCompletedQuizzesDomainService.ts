@@ -16,6 +16,7 @@ import { QuizQueryCriteria } from "../../../application/Response Types/QuizQuery
 import { Quiz } from "src/lib/kahoot/domain/entity/Quiz";
 import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
 import { MultiplayerSessionHistoryRepository } from "../../port/MultiplayerSessionHistoryRepository";
+import { MultiplayerSession } from "src/lib/multiplayer/domain/aggregates/MultiplayerSession";
 
 export class GetUserCompletedQuizzesDomainService {
   constructor(
@@ -33,6 +34,7 @@ export class GetUserCompletedQuizzesDomainService {
       DomainException,
       {
         completedGames: SinglePlayerGame[];
+        completeMultiGames: MultiplayerSession[];
         quizzes: Quiz[];
         quizAuthors: User[];
         totalCount: number;
@@ -49,12 +51,37 @@ export class GetUserCompletedQuizzesDomainService {
       );
     }
 
-    const quizzesIds = completedGames.map((game) =>
+    const [completeMultiGames, totalMultiCount] =
+      await this.multiPlayerRepo.findCompletedSessions(
+        UserId.of(userId.value),
+        criteria
+      );
+
+    console.log("Consiguió las partidas multijugador", completeMultiGames);
+
+    const multiGameQuizIds = completeMultiGames.map((game) =>
       QuizId.of(game.getQuizId().value)
     );
-    const quizzes = await this.quizRepository.findByIds(quizzesIds, criteria);
+
+    console.log("IDs de quices multijugador", multiGameQuizIds);
+
+    const multiQuizzes = await this.quizRepository.findByIds(
+      multiGameQuizIds,
+      criteria
+    );
+
+    console.log("Consiguió los quices de multijugador", multiQuizzes);
+
+    const quizzIds = completedGames.map((game) =>
+      QuizId.of(game.getQuizId().value)
+    );
+    const quizzes = await this.quizRepository.findByIds(quizzIds, criteria);
     if (quizzes.length === 0) {
       return Either.makeLeft(new QuizzesNotFoundException());
+    }
+
+    if (multiQuizzes.length > 0) {
+      quizzes.push(...multiQuizzes);
     }
 
     const quizAuthors: User[] = [];
@@ -68,11 +95,14 @@ export class GetUserCompletedQuizzesDomainService {
       quizAuthors.push(author);
     }
 
+    let realTotalCount = totalCount + totalMultiCount;
+
     return Either.makeRight({
       completedGames,
+      completeMultiGames,
       quizzes,
       quizAuthors,
-      totalCount,
+      totalCount: realTotalCount,
     });
   }
 }

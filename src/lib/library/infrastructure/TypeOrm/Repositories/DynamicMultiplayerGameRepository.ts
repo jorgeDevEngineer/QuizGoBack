@@ -127,7 +127,7 @@ export class DynamicMultiplayerGameRepository
         status: "COMPLETED",
       });
 
-      qb.andWhere(`players @> :playerJson`, {
+      qb.andWhere(`multiPlayerSession.players @> :playerJson`, {
         playerJson: JSON.stringify([{ playerId: playerId.getValue() }]),
       });
 

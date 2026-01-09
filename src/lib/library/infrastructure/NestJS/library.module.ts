@@ -212,13 +212,11 @@ import { MultiplayerSessionHistoryRepository } from "../../domain/port/Multiplay
       provide: "GetUserInProgressQuizzesDomainService",
       useFactory: (
         singlePlayerRepo: SinglePlayerGameRepository,
-        multiPlayerRepo: MultiplayerSessionHistoryRepository,
         quizRepo: QuizRepository,
         userRepo: UserRepository
       ) =>
         new GetUserInProgressQuizzesDomainService(
           singlePlayerRepo,
-          multiPlayerRepo,
           quizRepo,
           userRepo
         ),
@@ -226,7 +224,6 @@ import { MultiplayerSessionHistoryRepository } from "../../domain/port/Multiplay
         "SinglePlayerGameRepository",
         "QuizRepository",
         "UserRepository",
-        "MultiplayerSessionHistoryRepository",
       ],
     },
     {

@@ -15,12 +15,10 @@ import { QuizQueryCriteria } from "../../../application/Response Types/QuizQuery
 import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { SinglePlayerGame } from "src/lib/singlePlayerGame/domain/aggregates/SinglePlayerGame";
 import { Quiz } from "src/lib/kahoot/domain/entity/Quiz";
-import { MultiplayerSessionHistoryRepository } from "../../port/MultiplayerSessionHistoryRepository";
 
 export class GetUserInProgressQuizzesDomainService {
   constructor(
     private readonly singlePlayerRepo: SinglePlayerGameRepository,
-    private readonly multiPlayerRepo: MultiplayerSessionHistoryRepository,
     private readonly quizRepo: QuizRepository,
     private readonly userRepo: UserRepository
   ) {}

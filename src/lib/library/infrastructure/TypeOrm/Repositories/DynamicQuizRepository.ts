@@ -220,6 +220,7 @@ export class DynamicQuizRepository implements QuizRepository {
   }
 
   async findByIds(ids: QuizId[], criteria: QuizQueryCriteria): Promise<Quiz[]> {
+    if (ids.length === 0) return [];
     try {
       const db = await this.mongoAdapter.getConnection("kahoot");
       const collection = db.collection<MongoQuizDoc>("quizzes");
