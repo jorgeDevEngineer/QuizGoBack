@@ -41,7 +41,7 @@ import { GetGroupQuizzesQuery } from "../../application/parameterObjects/GetGrou
 import { GetGroupQuizzesQueryHandler } from "../../application/Handlers/queries/GetGroupQuizzesQueryHandler";
 import { GetGroupLeaderboardQuery } from "../../application/parameterObjects/GetGroupLeaderboardQuery";
 import { GetGroupLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupLeaderboardQUeryHandler";
-import { GetGroupQuizLeaderboardQuery } from "../../application/parameterObjects/GetGroupQuizLeaderboarquery";
+import { GetGroupQuizLeaderboardQuery } from "../../application/parameterObjects/GetGroupQuizLeaderboarQuery";
 import { GetGroupQuizLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupQuizLeaderboardQueryHandler";
 
 import { CreateGroupRequestDto } from "../../application/dtos/GroupRequest.dto";
