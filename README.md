@@ -1,63 +1,126 @@
-# NestJS + TypeORM + Postgres (Hexagonal) 🚀
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-<p align="center"><a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a></p>
+# 🚀 QuizGo Backend (BackComun)
 
 Proyecto backend diseñado para emular las funcionalidades de Kahoot, permitiendo la gestión de quizzes, salas en tiempo real y sistemas de puntuación competitivos. 🎮
 
-## 🧭 Arquitectura del Proyecto
+Este proyecto es una solución backend robusta construida con **NestJS**, diseñada bajo los principios de **Arquitectura Hexagonal (Ports & Adapters)** y **Domain-Driven Design (DDD)**. una caracteristica importantee es la capacidad de **Persistencia Híbrida Dinámica**, permitiendo cambiar entre MongoDB y PostgreSQL en tiempo de ejecución sin detener el servicio.
 
-El sistema está estructurado siguiendo los principios de la Arquitectura Hexagonal. Cada módulo de NestJS funciona como su propio hexágono, fomentando la separación de responsabilidades y facilitando el mantenimiento.
+---
 
-### Estructura de Capas por Módulo:
+## 🧭 Arquitectura & Diseño
 
-🟡 **Domain:** El núcleo del negocio. Contiene entities, value-objects, aggregates y las interfaces de los repositories (puertos de salida).
+El sistema está dividido en módulos desacoplados, donde cada uno encapsula su propia lógica y persistencia. Hemos integrado patrones de diseño táctico para garantizar escalabilidad y mantenibilidad.
 
-Para visualizar mejor el modelo de dominio expuesto, consulta el siguiente diagrama: 👉 **[Ver Diagrama Modelo de Dominio](https://lucid.app/lucidchart/c54dbe5b-aec8-4c01-8c33-933dc3005d76/edit?invitationId=inv_b30a5a60-c316-4ea5-b4bd-5900b0ac2294)** 👈
+### Estructura de Capas (The Hexagon)
 
+🟡 **Domain (Núcleo):**
+Donde residen las reglas de negocio puras.
+- **Aggregates & Entities:** Modelos ricos con lógica de negocio.
+- **Value Objects:** Objetos inmutables que encapsulan validaciones.
+- **Ports (Interfaces):** Contratos que la infraestructura debe cumplir (ej: `GroupRepository`).
 
+🟣 **Application (Orquestación):**
+La capa que coordina las acciones del usuario.
+- **CQS (Commands & Queries):** Separación estricta entre operaciones de escritura y lectura.
+- **Handlers:** Ejecutores de casos de uso específicos.
+- **DTOs:** Contratos de entrada/salida para proteger el dominio.
 
-🟣 **Application:** Lógica de aplicación y orquestación. Incluye los use-cases (puertos de entrada), application-services.
+🔵 **Infrastructure (Adaptadores):**
+Implementaciones técnicas y detalles externos.
+- **NestJS Controllers & Gateways:** API REST y WebSockets.
+- **Persistence:** Repositorios híbridos (TypeORM + Native Mongo Driver).
+- **Adapters:** Implementaciones de los puertos del dominio (ej: `DynamicMongoAdapter`).
 
-🔵 **Infrastructure:** Implementaciones técnicas y adaptadores. Contiene los controladores REST, gateways de WebSockets, entidades de base de datos (TypeORM) y la configuración de los módulos de NestJS.
+👉 **[Ver Diagrama del Modelo de Dominio](https://lucid.app/lucidchart/c54dbe5b-aec8-4c01-8c33-933dc3005d76/edit?invitationId=inv_b30a5a60-c316-4ea5-b4bd-5900b0ac2294)** 👈
 
-## 🛠️ Tecnologías Principales
-```Framework:``` NestJS 🔺
+---
 
-```ORM:``` TypeORM 🗄️
+## 🛠️ Stack Tecnológico
 
-```Base de Datos:``` PostgreSQL y MongoDB
+| Tecnología | Rol |
+| :--- | :--- |
+| **NestJS** | Framework principal (Node.js). |
+| **TypeScript** | Lenguaje tipado para robustez. |
+| **PostgreSQL** | Base de datos Relacional (Fallback / Reportes). |
+| **MongoDB** | Base de datos Documental (Principal / Alto rendimiento). |
+| **TypeORM** | ORM para manejo de entidades SQL. |
+| **Docker** | Contenerización de servicios. |
+| **Socket.io** | Comunicación en tiempo real para las salas de juego. |
 
+---
 
-## Instalación y Configuración⚡
+## 🚀 Puesta en Marcha (Setup)
 
-1. Clona el repositorio:  
+Sigue estos pasos para levantar el entorno de desarrollo localmente.
+
+### 1. Prerrequisitos
+Asegúrate de tener instalado:
+- [Node.js](https://nodejs.org/) (v18 o superior)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+
+### 2. Instalación de Dependencias
 ```bash
-git clone https://github.com/jorgeDevEngineer/BackComun.git
+npm install
 ```
-2. Configura el entorno: Copia el archivo de ejemplo y ajusta tus credenciales de base de datos:
-```bash
+
+### 3. Configuración de Entorno
+Crea una copia del archivo .env.example y renómbralo a .env. Configura las credenciales para los contenedores de Docker:
+
+```Bash
 cp .env.example .env
 ```
+Nota: Asegúrate de que DATABASE_URL_POSTGRES y DATABASE_URL_MONGO coincidan con la configuración de tu docker-compose.yml.
 
-3. Instala dependencias:  
-```bash
-   npm install
+### 4. Levantar Infraestructura (Docker) 🐳
+No necesitas instalar las bases de datos manualmente. Usa Docker Compose para levantar PostgreSQL y MongoDB simultáneamente:
+
+```Bash
+docker-compose up -d
 ```
-4. Ejecución:
-
-```bash
-
-# Desarrollo
-npm run start
-
-# Modo Watch 
+### 5. Ejecutar la Aplicación
+```Bash
+# Modo Desarrollo (con recarga automática / watch mode)
 npm run start:dev
 ```
-## 📚 Uso y Endpoints
+Una vez levantado, la API estará disponible en: http://localhost:3000/api
 
-```API REST:``` Endpoints dedicados para el CRUD completo de quizzes y gestión de preguntas.
+## Base de Datos Dinámica
+Este backend implementa un patrón de Circuit Breaker / Fallback para la persistencia.
 
-```WebSockets:``` Gestión de salas de juego, unión de jugadores y actualización de puntuaciones en vivo.
+```Mongo First:``` Por defecto, los módulos intentan escribir en MongoDB (optimizado para lectura/escritura rápida de documentos grandes como Quizzes).
+
+```Postgres Fallback:``` Si Mongo falla o se deshabilita, el sistema cambia automáticamente a PostgreSQL sin perder datos.
+
+**Control en Tiempo Real:**
+
+Puedes forzar el cambio de motor de base de datos para un módulo específico (ej: groups) usando el endpoint de administración:
+
+```Endpoint:``` PUT /config/database-connection
+
+
+JSON
+
+// Body para forzar PostgreSQL (Simular fallo de Mongo)
+{
+  "moduleName": "groups",
+  "dbType": "postgres"
+}
+JSON
+
+// Body para restaurar a MongoDB
+{
+  "moduleName": "groups",
+  "dbType": "mongo"
+}
+
+
+
+## 🧪Testing
+Aseguramos la calidad del código mediante tests unitarios y de integración.
+
 
 ## Autores 👥
 
