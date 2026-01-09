@@ -12,22 +12,24 @@ import { GroupInvitationToken } from "../valueObject/GroupInvitationToken";
 import { GroupQuizCompletion } from "./GroupQuizCompletion";
 import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { InvitationTokenGenerator } from "../port/GroupInvitationTokenGenerator";
+import { Optional } from "src/lib/shared/Type Helpers/Optional";
 
 export class Group {
   private _members: GroupMember[];
   private _quizAssignments: GroupQuizAssignment[];
   private _completions: GroupQuizCompletion[];
-  private _invitationToken: GroupInvitationToken | null;
+private _invitationToken: Optional<GroupInvitationToken>;
+  private _description: Optional<GroupDescription>;
 
   private constructor(
     private readonly _id: GroupId,
     private _name: GroupName,
-    private _description: GroupDescription | null, 
+    _description: Optional<GroupDescription>, 
     private _adminId: UserId,
     members: GroupMember[],
     quizAssignments: GroupQuizAssignment[],
     completions: GroupQuizCompletion[],
-    invitationToken: GroupInvitationToken | null,
+    invitationToken: Optional<GroupInvitationToken>,
     private readonly _createdAt: Date,
     private _updatedAt: Date,
   ) {
@@ -35,7 +37,7 @@ export class Group {
     this._quizAssignments = quizAssignments;
     this._invitationToken = invitationToken;
     this._completions = completions;
-
+    this._description = _description;
     this._members.forEach((m) => m._setGroup(this._id));
     this._quizAssignments.forEach((qa) => qa._setGroup(this._id));
 
@@ -64,16 +66,20 @@ export class Group {
       GroupRole.admin(),
       createdAt,
     );
+    const descriptionOptional = description 
+      ? new Optional(description) 
+      : new Optional<GroupDescription>();
+
 
     return new Group(
       id,
       name,
-      description,
+      descriptionOptional,
       adminId,
       [adminMember],
       [],
       [],
-      null,    
+      new Optional<GroupInvitationToken>(null),
       createdAt,
       createdAt,
     );
@@ -92,15 +98,20 @@ static createFromdb(
   createdAt: Date,
   updatedAt: Date,
 ): Group {
+
+  const descriptionOptional = description ? new Optional(description): new Optional<GroupDescription>();
+
+  const tokenOptional = invitationToken ? new Optional(invitationToken) : new Optional<GroupInvitationToken>();
+
   return new Group(
     id,
     name,
-    description,
+    descriptionOptional,
     adminId,
     members,
     quizAssignments,
     completions,
-    invitationToken,
+    tokenOptional,
     createdAt,
     updatedAt,
   );
@@ -118,7 +129,7 @@ static createFromdb(
     return this._name;
   }
 
-  get description(): GroupDescription {
+  get description(): Optional<GroupDescription> {
     return this._description;
   }
 
@@ -142,7 +153,7 @@ static createFromdb(
     return this._updatedAt;
   }
 
-  get invitationToken(): GroupInvitationToken | null {
+  get invitationToken(): Optional<GroupInvitationToken> {
     return this._invitationToken;
   }
 
@@ -165,7 +176,7 @@ static createFromdb(
     now: Date = new Date(),
   ): void {
     this._name = name;
-    this._description = description;
+    this._description = new Optional(description);
     this._updatedAt = now;
   }
 
@@ -347,7 +358,7 @@ removeQuizAssignment(
 
 // Invitaciones al grupo
 setInvitation(invitation: GroupInvitationToken, now: Date = new Date()): void {
-  this._invitationToken = invitation;
+  this._invitationToken = new Optional(invitation);
   this._updatedAt = now;
 }
 
@@ -359,16 +370,16 @@ validateInvitationToken(
     throw new Error("No hay invitación activa para este grupo.");
   }
 
-  if (this._invitationToken.token !== token) {
+  if (this._invitationToken.getValue().token !== token) {
     throw new Error("Token de invitación inválido.");
   }
 
-  if (this._invitationToken.isExpired(now)) {
+  if (this._invitationToken.getValue().isExpired(now)) {
     throw new Error("La invitación ha expirado.");
   }
 }
 
-get invitation(): GroupInvitationToken | null {
+get invitation(): Optional<GroupInvitationToken> {
   return this._invitationToken;
 }
 
@@ -377,11 +388,12 @@ generateInvitation(
     ttlDays: number,
     now: Date,
   ): void {
-    this._invitationToken = GroupInvitationToken.fromGenerator(
+    const token = GroupInvitationToken.fromGenerator(
       generator,
       ttlDays,
       now,
     );
+    this._invitationToken = new Optional(token);
     this._updatedAt = now;
   }
 
@@ -392,14 +404,14 @@ generateInvitation(
     return {
       id: this._id.value,
       name: this._name.value,
-      description: this._description.value,
+      description: this._description.hasValue() ? this._description.getValue().value : "",
       adminId: this._adminId.value,
       createdAt: this._createdAt.toISOString(),
       updatedAt: this._updatedAt.toISOString(),
       members: this._members.map((m) => m.toPlainObject()),
       quizAssignments: this._quizAssignments.map((qa) =>qa.toPlainObject()),
       completions: this._completions.map((c) => c.toPlainObject()),
-      invitation: this._invitationToken? this._invitationToken.toPlainObject(): null,
+      invitation: this._invitationToken.hasValue() ? this._invitationToken.getValue().toPlainObject() : null,
     };
   }
 }

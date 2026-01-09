@@ -5,8 +5,8 @@ import { GetGroupQuizLeaderboardResponseDto } from "../../dtos/GroupResponse.dto
 import { GroupRepository } from "../../../domain/port/GroupRepository";
 import { GroupId } from "../../../domain/valueObject/GroupId";
 import { UserId } from "src/lib/user/domain/valueObject/UserId";
-import { GroupNotFoundError } from "../../../domain/GroupNotFoundError";
-import { UserNotMemberOfGroupError } from "../../../domain/NotMemberGroupError";
+import { GroupNotFoundError } from "../../../../shared/exceptions/GroupNotFoundError";
+import { UserNotMemberOfGroupError } from "../../../../shared/exceptions/NotMemberGroupError";
 import { GameProgressStatus } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 
 export class GetGroupQuizLeaderboardQueryHandler
@@ -22,9 +22,10 @@ export class GetGroupQuizLeaderboardQueryHandler
     const quizId = query.quizId;
     const currentUserId = new UserId(query.currentUserId);
 
-    const group = await this.groupRepository.findById(groupId);
-    if (!group) throw new GroupNotFoundError(groupId.value);
+    const groupOptional = await this.groupRepository.findById(groupId);
+    if (!groupOptional.hasValue()) throw new GroupNotFoundError(groupId.value);
 
+    const group = groupOptional.getValue();
     const plain = group.toPlainObject();
     const isMember = plain.members.some(
       (m) => m.userId === currentUserId.value,

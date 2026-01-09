@@ -29,7 +29,19 @@ export class GroupInvitationToken {
     return new GroupInvitationToken(token, expiresAt);
   }
 
- static fromGenerator(
+//
+  static fromPersistence(token: string, expiresAt: Date): GroupInvitationToken {
+    if (!token || typeof token !== "string") {
+       throw new Error("Token malo en base de datos");
+    }
+        if (!expiresAt || isNaN(expiresAt.getTime())) {
+        throw new Error("Fecha de expiración mala en base de datos");
+    }
+    return new GroupInvitationToken(token, expiresAt);
+  }
+  //
+
+  static fromGenerator(
     generator: InvitationTokenGenerator,
     ttlDays: number,
     now: Date,
@@ -62,4 +74,3 @@ export class GroupInvitationToken {
     };
   }
 }
-

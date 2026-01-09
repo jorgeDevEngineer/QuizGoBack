@@ -113,8 +113,11 @@ export class GroupsController {
       currentUserId,
       availableUntil,
     );
-
-    return this.assignQuizToGroupCommandHandler.execute(command);
+    const result = await this.assignQuizToGroupCommandHandler.execute(command);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
 }
 
 @Get(':groupId/quizzes')
@@ -124,16 +127,22 @@ async getAssignedQuizzes(
 ) {
   const currentUserId = this.getCurrentUserId(req);
   const query = new GetGroupQuizzesQuery(groupId, currentUserId);
-
-  return this.getGroupAssignedQuizzesQueryHandler.execute(query);
+  const result = await this.getGroupAssignedQuizzesQueryHandler.execute(query);
+  if (result.isLeft()) {
+    throw result.getLeft();
+  }
+  return result.getRight();
 }
 
   @Get()
   async getMyGroups(@Req() req: Request) {
     const currentUserId = this.getCurrentUserId(req);
     const query = new GetUserGroupsQuery(currentUserId);
-
-    return this.getUserGroupsQueryHandler.execute(query);
+    const result = await this.getUserGroupsQueryHandler.execute(query);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
   @Get(":id")
@@ -141,7 +150,11 @@ async getAssignedQuizzes(
     const currentUserId = this.getCurrentUserId(req);
     const query = new GetGroupDetailsQuery(id, currentUserId);
 
-    return this.getGroupDetailsQueryHandler.execute(query);
+    const result = await this.getGroupDetailsQueryHandler.execute(query);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
 
@@ -149,8 +162,11 @@ async getAssignedQuizzes(
   async getGroupmembers(@Param("id") id: string, @Req() req: Request) {
     const currentUserId = this.getCurrentUserId(req);
     const query = new GetGroupMembersQuery(id, currentUserId);
-
-    return this.getGroupMembersQueryHandler.execute(query);
+    const result = await this.getGroupMembersQueryHandler.execute(query);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
   @Post(":id/invitation")
@@ -160,8 +176,11 @@ async getAssignedQuizzes(
       id,
       currentUserId,
     );
-
-    return this.generateGroupInvitationHandler.execute(command);
+    const result = await this.generateGroupInvitationHandler.execute(command);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
   @Post("join")
@@ -174,7 +193,11 @@ async getAssignedQuizzes(
       body.token,
       currentUserId,
     );
-    return this.joinGroupByInvitationHandler.execute(command);
+    const result = await this.joinGroupByInvitationHandler.execute(command);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
 
@@ -185,8 +208,11 @@ async getAssignedQuizzes(
       id,
       currentUserId,
     );
-
-    return this.leaveGroupCommandHandler.execute(command);
+    const result = await this.leaveGroupCommandHandler.execute(command);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
 
@@ -202,8 +228,11 @@ async getAssignedQuizzes(
       memberId,
       currentUserId,
     );
-
-    return this.removeGroupMemberCommandHandler.execute(command);
+    const result = await this.removeGroupMemberCommandHandler.execute(command);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
 
@@ -220,9 +249,11 @@ async getAssignedQuizzes(
       body.name,
       body.description,
     );
-  
-
-    return this.updateGroupDetailsHandler.execute(command);
+    const result = await this.updateGroupDetailsHandler.execute(command);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
 
@@ -238,8 +269,11 @@ async getAssignedQuizzes(
       currentUserId,
       body.newAdminUserId,
     );
-
-    return this.transferGroupAdminCommandHandler.execute(command);
+    const result = await this.transferGroupAdminCommandHandler.execute(command);
+    if (result.isLeft()) {
+      throw result.getLeft();
+    }
+    return result.getRight();
   }
 
   @Get(':groupId/leaderboard')
@@ -249,7 +283,11 @@ async getGroupLeaderboard(
 ) {
   const userId = this.getCurrentUserId(req);
   const query = new GetGroupLeaderboardQuery(groupId, userId);
-  return await this.getGroupLeaderboardQueryHandler.execute(query);
+  const result = await this.getGroupLeaderboardQueryHandler.execute(query);
+  if (result.isLeft()) {
+    throw result.getLeft();
+  }
+  return result.getRight();
 }
 
 @Get(":groupId/quizzes/:quizId/leaderboard")

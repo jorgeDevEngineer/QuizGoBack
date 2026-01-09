@@ -1,9 +1,13 @@
 import { IHandler } from "src/lib/shared/IHandler";
+import { Either } from "src/lib/shared/Type Helpers/Either";
+import { DomainException } from "src/lib/shared/exceptions/DomainException";
+import { DomainUnexpectedException } from "src/lib/shared/exceptions/DomainUnexpectedException";
+import { GroupNotFoundError } from "src/lib/shared/exceptions/GroupNotFoundError";
+
 import { GetGroupLeaderboardQuery } from "../../parameterObjects/GetGroupLeaderboardQuery";
 import { GetGroupLeaderboardResponseDto } from "../../dtos/GroupResponse.dto";
 
-import { GroupNotFoundError } from "../../../domain/GroupNotFoundError";
-import { UserNotMemberOfGroupError } from "../../../domain/NotMemberGroupError";
+import { UserNotMemberOfGroupError } from "../../../../shared/exceptions/NotMemberGroupError";
 
 import { GroupRepository } from "../../../domain/port/GroupRepository";
 import { GroupId } from "../../../domain/valueObject/GroupId";
@@ -11,22 +15,24 @@ import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { GameProgressStatus } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
 
 export class GetGroupLeaderboardQueryHandler
-  implements IHandler<GetGroupLeaderboardQuery, GetGroupLeaderboardResponseDto>
+  implements IHandler<GetGroupLeaderboardQuery, Either<DomainException, GetGroupLeaderboardResponseDto>>
 {
   constructor(private readonly groupRepository: GroupRepository) {}
 
-  async execute(query: GetGroupLeaderboardQuery): Promise<GetGroupLeaderboardResponseDto> {
+  async execute(query: GetGroupLeaderboardQuery): Promise<Either<DomainException, GetGroupLeaderboardResponseDto>> {
+    try {
     const groupId = GroupId.of(query.groupId);
     const currentUserId = new UserId(query.currentUserId);
 
-    const group = await this.groupRepository.findById(groupId);
-    if (!group) throw new GroupNotFoundError(groupId.value);
+    const groupOptional = await this.groupRepository.findById(groupId);
+    if (!groupOptional.hasValue()) return Either.makeLeft(new GroupNotFoundError(query.groupId));
 
+    const group = groupOptional.getValue();
     const plain = group.toPlainObject();
 
     const isMember = plain.members.some(m => m.userId === currentUserId.value);
     if (!isMember) {
-      throw new UserNotMemberOfGroupError(currentUserId.value, groupId.value);
+      return Either.makeLeft(new UserNotMemberOfGroupError(currentUserId.value, groupId.value));
     }
 
     //quizzes asignados al grupo
@@ -82,6 +88,9 @@ export class GetGroupLeaderboardQueryHandler
     // cambios de posicion
     items.forEach((x, i) => (x.position = i + 1));
 
-    return { leaderboard: items };
+    return Either.makeRight({ leaderboard: items });
+    } catch (e) { 
+      return Either.makeLeft(new DomainUnexpectedException(e.message));
+    }
   }
 }

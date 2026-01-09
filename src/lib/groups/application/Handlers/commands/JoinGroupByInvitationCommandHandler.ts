@@ -1,32 +1,42 @@
 import { GroupRepository } from "../../../domain/port/GroupRepository";
-import{ UserId } from "src/lib/user/domain/valueObject/UserId";
+import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { IHandler } from "src/lib/shared/IHandler";
-import {JoinGroupByInvitationCommand} from "../../parameterObjects/JoinGroupByInvitationCommand";
+import { JoinGroupByInvitationCommand} from "../../parameterObjects/JoinGroupByInvitationCommand";
 import { JoinGroupByInvitationResponseDto } from "../../dtos/GroupResponse.dto";
 
+import { Either } from "src/lib/shared/Type Helpers/Either";
+import { DomainException } from "src/lib/shared/exceptions/DomainException";
+import { DomainUnexpectedException } from "src/lib/shared/exceptions/DomainUnexpectedException";
+import { GroupBusinessException } from "src/lib/shared/exceptions/GroupGenException";
+
 export class JoinGroupByInvitationCommandHandler
-  implements IHandler<JoinGroupByInvitationCommand, JoinGroupByInvitationResponseDto>
+  implements IHandler<JoinGroupByInvitationCommand, Either<DomainException, JoinGroupByInvitationResponseDto>>
 {
   constructor(private readonly groupRepository: GroupRepository) {}
 
   async execute(
     command: JoinGroupByInvitationCommand,
-  ): Promise<JoinGroupByInvitationResponseDto> {
+  ): Promise<Either<DomainException, JoinGroupByInvitationResponseDto>> {
+
+  try {  
     const now = command.now ?? new Date();
     const userId = new UserId(command.currentUserId);
 
-    const group = await this.groupRepository.findByInvitationToken(command.token);
-    if (!group) {
-      throw new Error("Invalid invitation token");
+    const groupOptional = await this.groupRepository.findByInvitationToken(command.token);
+    if (!groupOptional.hasValue()) {
+       return Either.makeLeft(new GroupBusinessException("Invalid invitation token"));
     }
-
+    const group = groupOptional.getValue();
+    
     const invitation = group.invitationToken;
-    if (!invitation) {
-      throw new Error("This group has no active invitation");
+    if (!invitation.hasValue()) {
+      return Either.makeLeft(new GroupBusinessException("This group has no active invitation"));
     }
 
-    if (invitation.isExpired(now)) {
-      throw new Error("Invitation token has expired");
+    const invitationValue = invitation.getValue();
+
+    if (invitationValue.isExpired(now)) {
+      return Either.makeLeft(new GroupBusinessException("Invitation token has expired"));
     }
 
     // Regla de máximo 5 miembros en free se debe implementar la validacion
@@ -34,13 +44,20 @@ export class JoinGroupByInvitationCommandHandler
       console.log("Grupo alcanzó el límite free de 5 miembros (dominio no lo rompe).");
     }
 
-    group.addMember(userId, now);
+    try {
+      group.addMember(userId, now);
+    } catch (e) {
+        return Either.makeLeft(new GroupBusinessException(e.message));
+    }
 
     await this.groupRepository.save(group);
 
-    return {
-      groupId: group.id.value,
-      joinedAs: "member",
-    };
+    return Either.makeRight({
+        groupId: group.id.value,
+        joinedAs: "member",
+      });
+  } catch (error) {
+      return Either.makeLeft(new DomainUnexpectedException(error.message));
+    }
   }
 }

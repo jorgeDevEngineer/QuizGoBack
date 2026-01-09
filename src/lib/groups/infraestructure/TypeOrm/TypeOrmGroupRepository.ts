@@ -1,6 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, In} from "typeorm";
+import { Repository, In } from "typeorm";
+import { Collection, Db } from "mongodb";
+
 import { GroupRepository } from "../../domain/port/GroupRepository";
 import { CompletedAttemptPrimitive, Group, GroupQuizAssignmentPrimitive, QuizBasicPrimitive } from "../../domain/entity/Group";
 import { GroupId } from "../../domain/valueObject/GroupId";
@@ -20,13 +22,31 @@ import { GroupMemberOrmEntity } from "./GroupOrnMember";
 import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 import { TypeOrmQuizEntity } from "src/lib/search/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { GameProgressStatus } from "src/lib/singlePlayerGame/domain/valueObjects/SinglePlayerGameVOs";
+import { Optional } from "src/lib/shared/Type Helpers/Optional";
+import { DynamicMongoAdapter } from "src/lib/shared/infrastructure/database/dynamic-mongo.adapter";
+
+interface MongoGroupDocument {
+  _id: string;
+  name: string;
+  description: string;
+  adminId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  invitationToken: string | null;
+  invitationExpiresAt: Date | null;
+  members: any[];
+  assignments: any[];
+  // completions: any[]; 
+}
 
 @Injectable()
 export class TypeOrmGroupRepository implements GroupRepository {
+  private readonly logger = new Logger(TypeOrmGroupRepository.name);
+
   constructor(
     @InjectRepository(GroupOrmEntity)
-    private readonly ormRepo: Repository<GroupOrmEntity>,
-
+    private readonly pgRepo: Repository<GroupOrmEntity>, 
+    private readonly mongoAdapter: DynamicMongoAdapter,
     @InjectRepository(GroupMemberOrmEntity)
     private readonly memberRepo: Repository<GroupMemberOrmEntity>,
 
@@ -36,123 +56,58 @@ export class TypeOrmGroupRepository implements GroupRepository {
     @InjectRepository(TypeOrmQuizEntity) private readonly quizRepo: Repository<TypeOrmQuizEntity>,
 
     @InjectRepository(TypeOrmSinglePlayerGameEntity) private readonly gameRepo: Repository<TypeOrmSinglePlayerGameEntity>,
+
   ) {}
 
- 
-
-  async findAssignmentsByGroupId(groupId: GroupId): Promise<GroupQuizAssignmentPrimitive[]> {
-  const rows = await this.groupQuizAssignmentRepo.find({
-    where: { group: { id: groupId.value } },
-    order: { createdAt: "DESC" },
-  });
-
-  return rows.map(r => ({
-    id: r.id,
-    quizId: r.quizId,
-    assignedBy: r.assignedBy,
-    createdAt: r.createdAt,
-    availableFrom: r.availableFrom ?? null,
-    availableUntil: r.availableUntil ?? null,
-    isActive: r.isActive,
-  }));
-}
-
-async findQuizzesBasicByIds(quizIds: string[]): Promise<QuizBasicPrimitive[]> {
-  if (quizIds.length === 0) return [];
-
-  const quizzes = await this.quizRepo.find({
-    where: { id: In(quizIds) },
-    select: { id: true, title: true },
-  });
-
-  return quizzes.map(q => ({ id: q.id, title: q.title }));
-}
-
-
-async findCompletedAttemptsByUserAndQuizIds(userId: string, quizIds: string[]): Promise<CompletedAttemptPrimitive[]> {
-  if (quizIds.length === 0) return [];
-
-  const games = await this.gameRepo.find({
-    where: {
-      playerId: userId,
-      quizId: In(quizIds),
-      status: GameProgressStatus.COMPLETED,
-    },
-    order: { startedAt: "DESC" },
-  });
-
-  // Filtramos sólo los que tienen completedAt
-  return games
-    .filter(g => !!g.completedAt)
-    .map(g => ({
-      gameId: g.gameId,
-      quizId: g.quizId,
-      score: g.score,
-      startedAt: g.startedAt,
-      completedAt: g.completedAt!,
-    }));
-}
-
-
-async getGroupLeaderboardByGroupId(
-  groupId: GroupId,
-  memberUserIds: string[],
-): Promise<{ userId: string; completedQuizzes: number; totalPoints: number }[]> {
-
-  //traer assignments del grupo
-  const assignments = await this.findAssignmentsByGroupId(groupId);
-  const quizIds = assignments
-    .filter(a => a.isActive) 
-    .map(a => a.quizId);
-
-  if (quizIds.length === 0 || memberUserIds.length === 0) return [];
-
-  //aggregate en asyncgame
-  const raw = await this.gameRepo
-    .createQueryBuilder("g")
-    .select("g.playerId", "userId")
-    .addSelect("COUNT(DISTINCT g.quizId)", "completedQuizzes")
-    .addSelect("COALESCE(SUM(g.score), 0)", "totalPoints")
-    .where("g.status = :status", { status: GameProgressStatus.COMPLETED })
-    .andWhere("g.quizId IN (:...quizIds)", { quizIds })
-    .andWhere("g.playerId IN (:...userIds)", { userIds: memberUserIds })
-    .groupBy("g.playerId")
-    .orderBy("COALESCE(SUM(g.score), 0)", "DESC")
-    .addOrderBy("COUNT(DISTINCT g.quizId)", "DESC")
-    .getRawMany<{ userId: string; completedQuizzes: string; totalPoints: string }>();
-
-  return raw.map(r => ({
-    userId: r.userId,
-    completedQuizzes: Number(r.completedQuizzes ?? 0),
-    totalPoints: Number(r.totalPoints ?? 0),
-  }));
-}
-
-
-  //Metodos de la interface GroupRepository
+  // --- HELPER MONGO ---
+  private async getMongoCollection(): Promise<Collection<MongoGroupDocument>> {
+    const db: Db = await this.mongoAdapter.getConnection('groups'); 
+    return db.collection<MongoGroupDocument>('groups');
+  }
 
   async save(group: Group): Promise<void> {
-  //se trae el grupo de la base de datos si existe 
-    let groupOrm = await this.ormRepo.findOne({
+    try {
+      const collection = await this.getMongoCollection();
+      const mongoDoc = this.mapDomainToMongo(group);
+      // Si existe actualiza, si no crea
+      await collection.replaceOne({ _id: mongoDoc._id }, mongoDoc, { upsert: true });
+      return;
+    } catch (error) {
+      this.logger.warn(`MongoDB save failed (or inactive), falling back to Postgres. Error: ${error.message}`);
+    }
+    // FALLBACK POSTGRES
+    let groupOrm = await this.pgRepo.findOne({
       where: { id: group.id.value },
       relations: ["members"],
     });
-  //si no existe se crea uno nuevo
+
     if (!groupOrm) {
       groupOrm = new GroupOrmEntity();
       groupOrm.id = group.id.value;
       groupOrm.createdAt = group.createdAt;
       groupOrm.members = [];
     }
-  //si existe se mantiene y se actualizan los campos
+
     groupOrm.name = group.name.value;
-    groupOrm.description = group.description?.value ?? "";
+    
+    if (group.description.hasValue()) {
+      groupOrm.description = group.description.getValue().value;
+    } else {
+      groupOrm.description = "";
+    }
+    
     groupOrm.adminId = group.adminId.value;
     groupOrm.updatedAt = group.updatedAt;
-    groupOrm.invitationToken = group.invitationToken?.token ?? null;
-    groupOrm.invitationExpiresAt = group.invitationToken?.expiresAt ?? null;
 
-  //borrar los miembros que ya no estan en el dominio
+    if (group.invitationToken.hasValue()) {
+      const token = group.invitationToken.getValue();
+      groupOrm.invitationToken = token.token;
+      groupOrm.invitationExpiresAt = token.expiresAt;
+    } else {
+      groupOrm.invitationToken = null;
+      groupOrm.invitationExpiresAt = null;
+    }
+
     const existingMembers = groupOrm.members ?? [];
     const domainUserIds = new Set(group.members.map((m) => m.userId.value));
 
@@ -162,27 +117,71 @@ async getGroupLeaderboardByGroupId(
     if (membersToDelete.length > 0) {
       await this.memberRepo.remove(membersToDelete);
     }
-  //sincronizar los miembros y asignaciones con el estado en el domain
+
     groupOrm.members = this.syncMembers(groupOrm, group.members);
     groupOrm.assignments = this.syncAssignments(groupOrm, group.quizAssignments);
-  //guardar los cambios en la base de datos
-    await this.ormRepo.save(groupOrm);
+
+    await this.pgRepo.save(groupOrm);
   }
 
-  //buscar un grupo por su id
-  async findById(id: GroupId): Promise<Group | null> {
-    const orm = await this.ormRepo.findOne({
-      where: { id: id.value },
-      relations: ["members"],
+  async findById(id: GroupId): Promise<Optional<Group>> {
+    // 1. INTENTO MONGO
+    try {
+      const collection = await this.getMongoCollection();
+      const doc = await collection.findOne({ _id: id.value });
+      
+      if (doc) {
+        return new Optional(this.mapMongoToDomain(doc));
+      }
+
+      return new Optional(); 
+
+    } catch (error) {
+      this.logger.warn(`MongoDB findById failed, falling back to Postgres.`);
+    }
+    const orm = await this.pgRepo.findOne({
+        where: { id: id.value }, 
+        relations: ["members", "assignments"] 
+    });
+    
+    const domainEntity = orm ? this.mapToDomain(orm) : undefined;
+    return new Optional(domainEntity);
+  }
+
+  async findByInvitationToken(token: string): Promise<Optional<Group>> {
+    // 1. INTENTO MONGO
+    try {
+        const collection = await this.getMongoCollection();
+        const doc = await collection.findOne({ invitationToken: token });
+        
+        if (doc) {
+          return new Optional(this.mapMongoToDomain(doc));
+        }
+        return new Optional();
+  
+      } catch (error) {
+        this.logger.warn(`MongoDB findByToken failed, falling back to Postgres.`);
+      }
+    const orm = await this.pgRepo.findOne({ 
+        where: { invitationToken: token }, 
+        relations: ["members", "assignments"], 
     });
 
-    if (!orm) return null;
-    return this.mapToDomain(orm);
+    const domainEntity = orm ? this.mapToDomain(orm) : undefined;
+    return new Optional(domainEntity);
   }
 
   async findByMember(userId: UserId): Promise<Group[]> {
-  //buscar los grupos donde el usuario es miembro
-    const rows = await this.ormRepo
+    try {
+        const collection = await this.getMongoCollection();
+        const docs = await collection.find({ "members.userId": userId.value }).toArray();
+        
+        return docs.map(doc => this.mapMongoToDomain(doc));
+  
+      } catch (error) {
+        this.logger.warn(`MongoDB findByMember failed, falling back to Postgres.`);
+      }
+    const rows = await this.pgRepo
       .createQueryBuilder("g")
       .innerJoin("g.members", "m", "m.userId = :userId", {
         userId: userId.value,
@@ -193,26 +192,177 @@ async getGroupLeaderboardByGroupId(
     if (rows.length === 0) return [];
     const ids = rows.map((r) => r.id);
 
-    //traer los grupos completos por sus ids
-    const orms = await this.ormRepo.find({
+    const orms = await this.pgRepo.find({
       where: { id: In(ids) },
-      relations: ["members"],
+      relations: ["members", "assignments"],
     });
 
     return orms.map((orm) => this.mapToDomain(orm));
   }
 
-  async findByInvitationToken(token: string): Promise<Group | null> {
-    const orm = await this.ormRepo.findOne({
-      where: { invitationToken: token },
-      relations: ["members"],
+  async findAssignmentsByGroupId(groupId: GroupId): Promise<GroupQuizAssignmentPrimitive[]> {
+    try {
+      const collection = await this.getMongoCollection();
+      const doc = await collection.findOne({ _id: groupId.value });
+
+      if (doc) {
+
+        const assignments = doc.assignments || [];
+        
+        return assignments.map((a: any) => ({
+          id: a.id,
+          quizId: a.quizId,
+          assignedBy: a.assignedBy,
+          createdAt: new Date(a.createdAt), // Asegurar que sea Date
+          availableFrom: a.availableFrom ? new Date(a.availableFrom) : null,
+          availableUntil: a.availableUntil ? new Date(a.availableUntil) : null,
+          isActive: a.isActive,
+        }));
+      }
+
+      if (doc === null) return [];
+
+    } catch (error) {
+      this.logger.warn(`MongoDB findAssignments failed, falling back to Postgres.`);
+    }
+
+    const rows = await this.groupQuizAssignmentRepo.find({
+      where: { group: { id: groupId.value } },
+      order: { createdAt: "DESC" },
     });
 
-    if (!orm) return null;
-    return this.mapToDomain(orm);
+    return rows.map(r => ({
+      id: r.id,
+      quizId: r.quizId,
+      assignedBy: r.assignedBy,
+      createdAt: r.createdAt,
+      availableFrom: r.availableFrom ?? null,
+      availableUntil: r.availableUntil ?? null,
+      isActive: r.isActive,
+    }));
   }
 
-//metodos privados de mapeo y sincronizacion
+  async findQuizzesBasicByIds(quizIds: string[]): Promise<QuizBasicPrimitive[]> {
+    if (quizIds.length === 0) return [];
+    const quizzes = await this.quizRepo.find({
+      where: { id: In(quizIds) },
+      select: { id: true, title: true },
+    });
+    return quizzes.map(q => ({ id: q.id, title: q.title }));
+  }
+
+  async findCompletedAttemptsByUserAndQuizIds(userId: string, quizIds: string[]): Promise<CompletedAttemptPrimitive[]> {
+    if (quizIds.length === 0) return [];
+    const games = await this.gameRepo.find({
+      where: {
+        playerId: userId,
+        quizId: In(quizIds),
+        status: GameProgressStatus.COMPLETED,
+      },
+      order: { startedAt: "DESC" },
+    });
+
+    return games
+      .filter(g => !!g.completedAt)
+      .map(g => ({
+        gameId: g.gameId,
+        quizId: g.quizId,
+        score: g.score,
+        startedAt: g.startedAt,
+        completedAt: g.completedAt!,
+      }));
+  }
+
+  async getGroupLeaderboardByGroupId(
+    groupId: GroupId,
+    memberUserIds: string[],
+  ): Promise<{ userId: string; completedQuizzes: number; totalPoints: number }[]> {
+    const assignments = await this.findAssignmentsByGroupId(groupId);
+    const quizIds = assignments
+      .filter(a => a.isActive)
+      .map(a => a.quizId);
+
+    if (quizIds.length === 0 || memberUserIds.length === 0) return [];
+
+    const raw = await this.gameRepo
+      .createQueryBuilder("g")
+      .select("g.playerId", "userId")
+      .addSelect("COUNT(DISTINCT g.quizId)", "completedQuizzes")
+      .addSelect("COALESCE(SUM(g.score), 0)", "totalPoints")
+      .where("g.status = :status", { status: GameProgressStatus.COMPLETED })
+      .andWhere("g.quizId IN (:...quizIds)", { quizIds })
+      .andWhere("g.playerId IN (:...userIds)", { userIds: memberUserIds })
+      .groupBy("g.playerId")
+      .orderBy("COALESCE(SUM(g.score), 0)", "DESC")
+      .addOrderBy("COUNT(DISTINCT g.quizId)", "DESC")
+      .getRawMany<{ userId: string; completedQuizzes: string; totalPoints: string }>();
+
+    return raw.map(r => ({
+      userId: r.userId,
+      completedQuizzes: Number(r.completedQuizzes ?? 0),
+      totalPoints: Number(r.totalPoints ?? 0),
+    }));
+  }
+
+  // --- MAPPERS PARA MONGO ---
+
+  private mapDomainToMongo(group: Group): MongoGroupDocument {
+      const plain = group.toPlainObject();
+      return {
+          _id: plain.id,
+          name: plain.name,
+          description: plain.description,
+          adminId: plain.adminId,
+          createdAt: new Date(plain.createdAt),
+          updatedAt: new Date(plain.updatedAt),
+          invitationToken: plain.invitation ? plain.invitation.token : null,
+          invitationExpiresAt: plain.invitation ? new Date(plain.invitation.expiresAt) : null,
+          members: plain.members, 
+          assignments: plain.quizAssignments,
+          // completions: plain.completions 
+      };
+  }
+
+  private mapMongoToDomain(doc: MongoGroupDocument): Group {
+      const members = (doc.members || []).map(m => {
+          const member = GroupMember.create(
+              new UserId(m.userId),
+              GroupRole.fromString(m.role),
+              new Date(m.joinedAt)
+          );
+          for(let i=0; i < (m.completedQuizzes || 0); i++) member.incrementCompletedQuizzes();
+          return member;
+      });
+      const assignments = (doc.assignments || []).map(a => {
+          const assignment = GroupQuizAssignment.create(
+              GroupQuizAssignmentId.of(a.id),
+              QuizId.of(a.quizId),
+              new UserId(a.assignedBy),
+              a.availableFrom ? new Date(a.availableFrom) : null,
+              a.availableUntil ? new Date(a.availableUntil) : null,
+              new Date(a.createdAt)
+          );
+          if (!a.isActive) assignment.deactivate();
+          return assignment;
+      });
+
+      return Group.createFromdb(
+          GroupId.of(doc._id),
+          GroupName.of(doc.name),
+          doc.description ? GroupDescription.of(doc.description) : null,
+          new UserId(doc.adminId),
+          members,
+          assignments,
+          [],
+          (doc.invitationToken && doc.invitationExpiresAt) 
+            ? GroupInvitationToken.fromPersistence(doc.invitationToken, new Date(doc.invitationExpiresAt))
+            : null,
+          new Date(doc.createdAt),
+          new Date(doc.updatedAt)
+      );
+  }
+
+  // --- MAPPERS Y SYNC PARA POSTGRES (ORIGINALES) ---
 
   private syncMembers(
     groupOrm: GroupOrmEntity,
@@ -228,13 +378,13 @@ async getGroupLeaderboardByGroupId(
     for (const member of domainMembers) {
       const userId = member.userId.value;
       const existing = existingByUserId.get(userId);
-  // actualizar registro existente
+
       if (existing) {
         existing.role = member.role.value;
         existing.joinedAt = member.joinedAt;
         existing.completedQuizzes = member.completedQuizzes;
         nextMembers.push(existing);
-      } else {// crear nuevo registro
+      } else {
         const m = new GroupMemberOrmEntity();
         m.group = groupOrm;
         m.userId = userId;
@@ -310,7 +460,7 @@ async getGroupLeaderboardByGroupId(
     if (!orm.invitationToken || !orm.invitationExpiresAt) {
       return null;
     }
-    return GroupInvitationToken.create(
+    return GroupInvitationToken.fromPersistence(
       orm.invitationToken,
       orm.invitationExpiresAt,
     );
