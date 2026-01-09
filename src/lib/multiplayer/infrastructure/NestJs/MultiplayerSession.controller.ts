@@ -13,6 +13,8 @@ import {
 import { CreateSessionRequestDto } from "../requestesDto/CreateSessionRequest.dto";
 import { CreateSessionResponseDto } from "../../application/responseDtos/CreateSessionResponse.dto";
 import { CreateSessionCommand } from "../../application/parameterObjects/CreateSessionCommand";
+import { GetPinWithQrTokenResponseDto } from "../../application/responseDtos/GetPinWithQrTokenResponse.dto";
+import { GetPinWithQrTokenQuery } from "../../application/parameterObjects/GetPinWithQrTokenQuery";
 import { IHandler } from "src/lib/shared/IHandler";
 
 @Controller('multiplayer-sessions')
@@ -20,7 +22,10 @@ export class MultiplayerSessionControler {
 
     constructor(
         @Inject('CreateSessionCommandHandler')
-        private readonly CreateSessionHandler: IHandler<CreateSessionCommand, CreateSessionResponseDto>
+        private readonly CreateSessionHandler: IHandler<CreateSessionCommand, CreateSessionResponseDto>,
+
+        @Inject('GetPinWithQrTokenQueryHandler')
+        private readonly GetPinWithQrTokenHandler: IHandler<GetPinWithQrTokenQuery, GetPinWithQrTokenResponseDto>
     ) {}
 
     //Mientras no esté hecho el modulo de autentición
@@ -51,6 +56,19 @@ export class MultiplayerSessionControler {
             return await this.CreateSessionHandler.execute({
                 kahootId: body.kahootId,
                 hostId: hostId
+            });
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Get('qr-token/:qrToken')
+    async getSessionPinWithQrToken(
+        @Param('qrToken') qrToken: string
+    ): Promise<GetPinWithQrTokenResponseDto> {
+        try {
+            return await this.GetPinWithQrTokenHandler.execute({
+                qrToken: qrToken
             });
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

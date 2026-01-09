@@ -12,6 +12,7 @@ import { TypeOrmQuizRepository } from "src/lib/kahoot/infrastructure/TypeOrm/Typ
 import { FileSystemPinRepository } from "../repositories/FileSystemPinRepository";
 import { CryptoGeneratePinService } from "../adapters/CryptoGeneratePin";
 import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
+import { GetPinWithQrTokenQueryHandler } from "../../application/handlers/GetPinWithQrTokenQueryHandler";
 
 @Module({
     imports: [
@@ -25,6 +26,10 @@ import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrm
     {
       provide: 'CreateSessionCommandHandler',
       useClass: CreateSessionCommandHandler,
+    },
+    {
+      provide: 'GetPinWithQrTokenQueryHandler',
+      useClass: GetPinWithQrTokenQueryHandler,
     },
     
     // Repositorios
