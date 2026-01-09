@@ -1,9 +1,9 @@
 import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import {
     GameProgress,
-    GameScore,
     QuestionResult
 } from "../valueObjects/SinglePlayerGameVOs";
+import { GameScore } from "src/lib/shared/domain/valueObjects";
 import { QuestionId } from "src/lib/kahoot/domain/valueObject/Question";
 import { QuizId } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
@@ -11,7 +11,7 @@ import { Optional } from "src/lib/shared/Type Helpers/Optional";
 
 export class SinglePlayerGame {
 
-    constructor(
+    private constructor(
         private readonly gameId: SinglePlayerGameId,
         private readonly quizId: QuizId,
         private readonly totalQuestions: number,
