@@ -13,15 +13,28 @@ import { FileSystemPinRepository } from "../repositories/FileSystemPinRepository
 import { CryptoGeneratePinService } from "../adapters/CryptoGeneratePin";
 import { TypeOrmQuizEntity } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { GetPinWithQrTokenQueryHandler } from "../../application/handlers/GetPinWithQrTokenQueryHandler";
+import { TypeOrmUserEntity } from "src/lib/user/infrastructure/TypeOrm/TypeOrmUserEntity";
+import { UserModule } from "src/lib/user/infrastructure/NestJS/user.module";
+import { TypeOrmUserRepository } from "src/lib/user/infrastructure/TypeOrm/TypeOrmUserRepository";
+import { PlayerJoinCommandHandler } from "../../application/handlers/PlayerJoinCommandHandler";
+import { MultiplayerSessionsGateway } from "./MultiplayerSession.gateway";
+import { MultiplayerSessionsTracingService } from "./MultiplayerSession.tracing.service";
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([TypeOrmMultiplayerSessionEntity, TypeOrmQuizEntity]), 
-        KahootModule,
-        SinglePlayerGameModule,
-    ],
-    controllers: [MultiplayerSessionControler],
-    providers: [
+  imports: [
+    TypeOrmModule.forFeature([TypeOrmMultiplayerSessionEntity, TypeOrmQuizEntity, TypeOrmUserEntity]), 
+    KahootModule,
+    UserModule,
+    SinglePlayerGameModule,
+  ],
+
+  controllers: [MultiplayerSessionControler],
+
+  providers: [
+    //Gateway
+    MultiplayerSessionsGateway,                     
+    MultiplayerSessionsTracingService,  
+
     //Handlers
     {
       provide: 'CreateSessionCommandHandler',
@@ -31,7 +44,11 @@ import { GetPinWithQrTokenQueryHandler } from "../../application/handlers/GetPin
       provide: 'GetPinWithQrTokenQueryHandler',
       useClass: GetPinWithQrTokenQueryHandler,
     },
-    
+    {
+      provide: 'PlayerJoinCommandHandler',
+      useClass: PlayerJoinCommandHandler,
+    },
+
     // Repositorios
     {
       provide: 'IActiveMultiplayerSessionRepository',
@@ -40,6 +57,10 @@ import { GetPinWithQrTokenQueryHandler } from "../../application/handlers/GetPin
     {
       provide: 'QuizRepository',
       useClass: TypeOrmQuizRepository,
+    },
+    {
+      provide: 'UserRepository',
+      useClass: TypeOrmUserRepository,
     },
     {
       provide: 'IPinRepository',
@@ -65,8 +86,8 @@ import { GetPinWithQrTokenQueryHandler } from "../../application/handlers/GetPin
     CryptoUuidGenerator,
     FileSystemPinRepository,
     MultiplayerSessionHistoryTypeOrmRepository,
-    
   ],
+
   exports: [
     'IActiveMultiplayerSessionRepository',
     'IMultiplayerSessionHistoryRepository',
