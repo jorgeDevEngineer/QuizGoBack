@@ -4,12 +4,12 @@ import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 import { 
     EvaluatedAnswer, 
     GameProgress, 
-    GameProgressStatus, 
-    GameScore,  
+    GameProgressStatus,  
     PlayerAnswer, 
     QuestionResult, 
     QuestionResultJSON
 } from '../../domain/valueObjects/SinglePlayerGameVOs';
+import { GameScore } from 'src/lib/shared/domain/valueObjects';
 import { QuestionId } from 'src/lib/kahoot/domain/valueObject/Question';
 import { QuizId, UserId } from 'src/lib/kahoot/domain/valueObject/Quiz';
 import { Optional } from "src/lib/shared/Type Helpers/Optional";

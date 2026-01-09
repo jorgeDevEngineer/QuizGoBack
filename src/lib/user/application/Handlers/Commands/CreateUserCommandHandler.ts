@@ -19,7 +19,7 @@ import { IHandler } from "src/lib/shared/IHandler";
 import { Either } from "src/lib/shared/Type Helpers/Either";
 import { DomainException } from "src/lib/shared/exceptions/DomainException";
 import { CreateUser } from "../../Parameter Objects/CreateUser";
-import { Result } from "src/lib/shared/Type Helpers/Result";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export class CreateUserCommandHandler
   implements IHandler<CreateUser, Result<void>>

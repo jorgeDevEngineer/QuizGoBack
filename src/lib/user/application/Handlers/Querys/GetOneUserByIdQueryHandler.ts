@@ -4,7 +4,7 @@ import { User } from "../../../domain/aggregate/User";
 import { UserNotFoundError } from "../../error/UserNotFoundError";
 import { IHandler } from "src/lib/shared/IHandler";
 import { GetOneUserById } from "../../Parameter Objects/GetOneUserById";
-import { Result } from "src/lib/shared/Type Helpers/Result";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export class GetOneUserByIdQueryHandler
   implements IHandler<GetOneUserById, Result<User>>
