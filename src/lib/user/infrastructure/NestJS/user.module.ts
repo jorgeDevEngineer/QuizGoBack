@@ -164,5 +164,6 @@ import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logge
       inject: [LOGGER_PORT, "UserRepository"],
     },
   ],
+  exports: ['UserRepository', TypeOrmModule]
 })
 export class UserModule {}
