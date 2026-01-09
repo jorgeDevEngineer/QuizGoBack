@@ -84,7 +84,7 @@ export class SinglePlayerEvaluationService {
             return 0;
         } 
         const timeLimit: number = question.timeLimit.getValue();
-        const basePoints: number = question.getPoints().getValue();
+        const basePoints: number = question.points.getValue();
 
         const timeLeftRatio: number = (timeLimit - (timeUsed/1000)) / timeLimit;
         const speedMultiplier: number = 1 + Math.pow(timeLeftRatio, 1.5) * 0.8;

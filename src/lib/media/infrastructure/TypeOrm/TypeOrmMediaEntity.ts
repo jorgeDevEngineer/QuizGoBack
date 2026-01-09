@@ -1,25 +1,38 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
+import { MediaType } from '../../domain/entity/Media';
 
 @Entity('media')
 export class TypeOrmMediaEntity {
-  @PrimaryColumn()
-  id: string;
+    @PrimaryColumn('uuid')
+    id: string;
 
-  @Column({ type: 'bytea' })
-  data: Buffer;
+    @Column()
+    url: string;
 
-  @Column({ type: 'bytea', nullable: true }) // Columna para la miniatura
-  thumbnail: Buffer;
+    @Column()
+    key: string;
 
-  @Column()
-  mimeType: string;
+    @Column({ type: 'enum', enum: ['single', 'multiple'] })
+    type: MediaType;
 
-  @Column()
-  size: number;
+    @Column()
+    category: string;
 
-  @Column()
-  originalName: string;
+    @Column({ name: 'mime_type' })
+    mimeType: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @Column('int')
+    size: number;
+
+    @Column({ name: 'author_id' })
+    authorId: string;
+
+    @Column({ name: 'original_name' })
+    originalName: string;
+
+    @Column({ name: 'thumbnail_url', nullable: true })
+    thumbnailUrl: string;
+
+    @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+    createdAt: Date;
 }

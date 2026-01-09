@@ -1,40 +1,20 @@
-import { Repository } from 'typeorm';
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Collection, Db } from 'mongodb';
+import { DynamicMongoAdapter } from '../../../shared/infrastructure/database/dynamic-mongo.adapter';
 import { QuizRepository } from '../../domain/port/QuizRepository';
 import { Quiz } from '../../domain/entity/Quiz';
-import {
-  QuizId,
-  UserId,
-  QuizTitle,
-  QuizDescription,
-  Visibility,
-  ThemeId,
-  QuizStatus,
-  QuizCategory,
-} from '../../domain/valueObject/Quiz';
-import { TypeOrmQuizEntity } from './TypeOrmQuizEntity';
 import { Question } from '../../domain/entity/Question';
 import { Answer } from '../../domain/entity/Answer';
-import {
-  QuestionId,
-  QuestionText,
-  QuestionType,
-  TimeLimit,
-  Points,
-} from '../../domain/valueObject/Question';
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
-import {
-  AnswerId,
-  AnswerText,
-  IsCorrect,
-} from '../../domain/valueObject/Answer';
-import { DynamicMongoAdapter } from '../../../shared/infrastructure/database/dynamic-mongo.adapter';
-import { Collection, Db } from 'mongodb';
+import { QuizId, UserId, QuizTitle, QuizDescription, Visibility, ThemeId, QuizStatus, QuizCategory } from '../../domain/valueObject/Quiz';
+import { QuestionId, QuestionText, QuestionType, TimeLimit, Points } from '../../domain/valueObject/Question';
+import { AnswerId, AnswerText, IsCorrect } from '../../domain/valueObject/Answer';
+import { TypeOrmQuizEntity } from './TypeOrmQuizEntity';
 
-// Defines the shape of the quiz document stored in MongoDB
 interface MongoQuizDocument {
-  _id: string; // The primary key is a string (UUID)
+  _id: string;
   authorId: string;
   title: string;
   description: string;
@@ -45,7 +25,7 @@ interface MongoQuizDocument {
   coverImageId: string | null;
   createdAt: Date;
   playCount: number;
-  questions: any[]; // Kept as any for simplicity
+  questions: any[];
 }
 
 @Injectable()
@@ -56,139 +36,25 @@ export class TypeOrmQuizRepository implements QuizRepository {
     private readonly mongoAdapter: DynamicMongoAdapter,
   ) {}
 
-  // The collection is now typed with the interface
   private async getMongoCollection(): Promise<Collection<MongoQuizDocument>> {
     const db: Db = await this.mongoAdapter.getConnection('kahoot');
     return db.collection<MongoQuizDocument>('quizzes');
-  }
-
-  private mapPgToDomain(q: TypeOrmQuizEntity): Quiz {
-    const questions = q.questions.map((qData) => {
-      const answers = qData.answers.map((aData) => {
-        if (aData.text) {
-          return Answer.createTextAnswer(
-            AnswerId.of(aData.id),
-            AnswerText.of(aData.text),
-            IsCorrect.fromBoolean(aData.isCorrect),
-          );
-        }
-        return Answer.createMediaAnswer(
-          AnswerId.of(aData.id),
-          aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
-          IsCorrect.fromBoolean(aData.isCorrect),
-        );
-      });
-      return Question.create(
-        QuestionId.of(qData.id),
-        QuestionText.of(qData.text),
-        qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
-        QuestionType.fromString(qData.type),
-        TimeLimit.of(qData.timeLimit),
-        Points.of(qData.points),
-        answers,
-      );
-    });
-
-    return Quiz.fromDb(
-      QuizId.of(q.id),
-      UserId.of(q.userId),
-      QuizTitle.of(q.title),
-      QuizDescription.of(q.description),
-      Visibility.fromString(q.visibility),
-      QuizStatus.fromString(q.status),
-      QuizCategory.of(q.category),
-      ThemeId.of(q.themeId),
-      q.coverImageId ? MediaIdVO.of(q.coverImageId) : null,
-      q.createdAt,
-      q.playCount,
-      questions,
-    );
-  }
-
-  // The document parameter is now strongly typed
-  private mapMongoToDomain(mongoDoc: MongoQuizDocument): Quiz {
-    const questions = mongoDoc.questions.map((qData) => {
-      const answers = qData.answers.map((aData) => {
-        if (aData.text) {
-          return Answer.createTextAnswer(
-            AnswerId.of(aData.id),
-            AnswerText.of(aData.text),
-            IsCorrect.fromBoolean(aData.isCorrect),
-          );
-        }
-        return Answer.createMediaAnswer(
-          AnswerId.of(aData.id),
-          aData.mediaId ? MediaIdVO.of(aData.mediaId) : null,
-          IsCorrect.fromBoolean(aData.isCorrect),
-        );
-      });
-      return Question.create(
-        QuestionId.of(qData.id),
-        QuestionText.of(qData.text),
-        qData.mediaId ? MediaIdVO.of(qData.mediaId) : null,
-        QuestionType.fromString(qData.type), // Corrected field name
-        TimeLimit.of(qData.timeLimit),
-        Points.of(qData.points),
-        answers,
-      );
-    });
-
-    return Quiz.fromDb(
-      QuizId.of(mongoDoc._id),
-      UserId.of(mongoDoc.authorId),
-      QuizTitle.of(mongoDoc.title),
-      QuizDescription.of(mongoDoc.description),
-      Visibility.fromString(mongoDoc.visibility),
-      QuizStatus.fromString(mongoDoc.status),
-      QuizCategory.of(mongoDoc.category),
-      ThemeId.of(mongoDoc.themeId),
-      mongoDoc.coverImageId ? MediaIdVO.of(mongoDoc.coverImageId) : null,
-      new Date(mongoDoc.createdAt),
-      mongoDoc.playCount,
-      questions,
-    );
   }
 
   async save(quiz: Quiz): Promise<void> {
     try {
       const collection = await this.getMongoCollection();
       const plainQuiz = quiz.toPlainObject();
-      const { id, ...restOfQuiz } = plainQuiz;
-      
-      const documentToInsert: MongoQuizDocument = {
-        _id: id,
-        authorId: restOfQuiz.authorId,
-        title: restOfQuiz.title,
-        description: restOfQuiz.description,
-        visibility: restOfQuiz.visibility,
-        status: restOfQuiz.status,
-        category: restOfQuiz.category,
-        themeId: restOfQuiz.themeId,
-        coverImageId: restOfQuiz.coverImageId,
-        createdAt: restOfQuiz.createdAt,
-        playCount: restOfQuiz.playCount,
-        questions: restOfQuiz.questions,
+      const mongoDoc = {
+        _id: plainQuiz.id,
+        ...plainQuiz,
+        questions: plainQuiz.questions.map(q => ({ ...q, answers: q.answers.map(a => ({ ...a }))})),
       };
-
-      await collection.insertOne(documentToInsert);
+      await collection.replaceOne({ _id: mongoDoc._id }, mongoDoc, { upsert: true });
     } catch (error) {
-      console.error("Failed to save to MongoDB, falling back to PostgreSQL.", error);
-      const plainQuiz = quiz.toPlainObject();
-      const entity = this.pgRepository.create({
-        id: plainQuiz.id,
-        userId: plainQuiz.authorId,
-        title: plainQuiz.title,
-        description: plainQuiz.description,
-        visibility: plainQuiz.visibility as 'public' | 'private',
-        status: plainQuiz.status as 'draft' | 'published',
-        category: plainQuiz.category,
-        themeId: plainQuiz.themeId,
-        coverImageId: plainQuiz.coverImageId,
-        createdAt: plainQuiz.createdAt,
-        playCount: plainQuiz.playCount,
-        questions: plainQuiz.questions,
-      });
-      await this.pgRepository.save(entity);
+      console.log('MongoDB connection not available, falling back to PostgreSQL for save.');
+      const pgEntity = this.mapDomainToPg(quiz);
+      await this.pgRepository.save(pgEntity);
     }
   }
 
@@ -196,40 +62,131 @@ export class TypeOrmQuizRepository implements QuizRepository {
     try {
       const collection = await this.getMongoCollection();
       const quizDoc = await collection.findOne({ _id: id.value });
-      if (!quizDoc) return null;
-      return this.mapMongoToDomain(quizDoc);
+      return quizDoc ? this.mapMongoToDomain(quizDoc) : null;
     } catch (error) {
-      console.error("Failed to find in MongoDB, falling back to PostgreSQL.", error);
-      const quizEntity = await this.pgRepository.findOne({
-        where: { id: id.value },
-      });
-      if (!quizEntity) return null;
-      return this.mapPgToDomain(quizEntity);
+      console.log('MongoDB connection not available, falling back to PostgreSQL for find.');
+      const pgEntity = await this.pgRepository.findOne({ where: { id: id.value } });
+      return pgEntity ? this.mapPgToDomain(pgEntity) : null;
     }
   }
 
   async searchByAuthor(authorId?: UserId): Promise<Quiz[]> {
-    const query = authorId ? { authorId: authorId.value } : {};
     try {
-        const collection = await this.getMongoCollection();
-        const quizzesCursor = await collection.find(query);
-        const quizzesDocs = await quizzesCursor.toArray();
-        return quizzesDocs.map(doc => this.mapMongoToDomain(doc));
+      const query = authorId ? { authorId: authorId.value } : {};
+      const collection = await this.getMongoCollection();
+      const quizzesCursor = await collection.find(query);
+      const quizzesDocs = await quizzesCursor.toArray();
+      return quizzesDocs.map(doc => this.mapMongoToDomain(doc));
     } catch (error) {
-        console.error("Failed to search in MongoDB, falling back to PostgreSQL.", error);
-        const findOptions = authorId ? { where: { userId: authorId.value } } : {};
-        const quizzes = await this.pgRepository.find(findOptions);
-        return quizzes.map((q) => this.mapPgToDomain(q));
+        console.log('MongoDB connection not available, falling back to PostgreSQL for search.');
+        if (authorId) {
+            const pgEntities = await this.pgRepository.find({ where: { userId: authorId.value } });
+            return pgEntities.map(entity => this.mapPgToDomain(entity));
+        }
+        else {
+            const pgEntities = await this.pgRepository.find();
+            return pgEntities.map(entity => this.mapPgToDomain(entity));
+        }
     }
   }
 
   async delete(id: QuizId): Promise<void> {
     try {
-        const collection = await this.getMongoCollection();
-        await collection.deleteOne({ _id: id.value });
+      const collection = await this.getMongoCollection();
+      await collection.deleteOne({ _id: id.value });
     } catch (error) {
-        console.error("Failed to delete in MongoDB, falling back to PostgreSQL.", error);
-        await this.pgRepository.delete(id.value);
+      console.log('MongoDB connection not available, falling back to PostgreSQL for delete.');
+      await this.pgRepository.delete(id.value);
     }
+  }
+  
+  // MAPPERS
+
+  private mapMongoToDomain(mongoDoc: MongoQuizDocument): Quiz {
+    const questions = mongoDoc.questions.map((qData) => {
+        const answers = qData.answers.map((aData) => {
+            if (aData.text) {
+                return Answer.createTextAnswer(AnswerId.of(aData.id), AnswerText.of(aData.text), IsCorrect.fromBoolean(aData.isCorrect));
+            } else {
+                return Answer.createMediaAnswer(AnswerId.of(aData.id), aData.mediaId, IsCorrect.fromBoolean(aData.isCorrect));
+            }
+        });
+        return Question.create(
+            QuestionId.of(qData.id),
+            QuestionText.of(qData.text),
+            qData.mediaId,
+            QuestionType.fromString(qData.type),
+            TimeLimit.of(qData.timeLimit),
+            Points.of(qData.points),
+            answers
+        );
+    });
+    return Quiz.fromDb(
+        QuizId.of(mongoDoc._id),
+        UserId.of(mongoDoc.authorId),
+        QuizTitle.of(mongoDoc.title),
+        QuizDescription.of(mongoDoc.description),
+        Visibility.fromString(mongoDoc.visibility),
+        QuizStatus.fromString(mongoDoc.status),
+        QuizCategory.of(mongoDoc.category),
+        ThemeId.of(mongoDoc.themeId),
+        mongoDoc.coverImageId,
+        new Date(mongoDoc.createdAt),
+        mongoDoc.playCount,
+        questions
+    );
+  }
+
+  private mapPgToDomain(pgEntity: TypeOrmQuizEntity): Quiz {
+    const questions = pgEntity.questions.map((qData) => {
+      const answers = qData.answers.map((aData) => {
+          if (aData.text) {
+              return Answer.createTextAnswer(AnswerId.of(aData.id), AnswerText.of(aData.text), IsCorrect.fromBoolean(aData.isCorrect));
+          } else {
+              return Answer.createMediaAnswer(AnswerId.of(aData.id), aData.mediaId, IsCorrect.fromBoolean(aData.isCorrect));
+          }
+      });
+      return Question.create(
+          QuestionId.of(qData.id),
+          QuestionText.of(qData.text),
+          qData.mediaId,
+          QuestionType.fromString(qData.type),
+          TimeLimit.of(qData.timeLimit),
+          Points.of(qData.points),
+          answers
+      );
+    });
+    return Quiz.fromDb(
+        QuizId.of(pgEntity.id),
+        UserId.of(pgEntity.userId),
+        QuizTitle.of(pgEntity.title),
+        QuizDescription.of(pgEntity.description),
+        Visibility.fromString(pgEntity.visibility),
+        QuizStatus.fromString(pgEntity.status),
+        QuizCategory.of(pgEntity.category),
+        ThemeId.of(pgEntity.themeId),
+        pgEntity.coverImageId,
+        pgEntity.createdAt,
+        pgEntity.playCount,
+        questions
+    );
+  }
+
+  private mapDomainToPg(quiz: Quiz): TypeOrmQuizEntity {
+    const plain = quiz.toPlainObject();
+    const quizEntity = new TypeOrmQuizEntity();
+    quizEntity.id = plain.id;
+    quizEntity.userId = plain.authorId;
+    quizEntity.title = plain.title;
+    quizEntity.description = plain.description;
+    quizEntity.visibility = plain.visibility;
+    quizEntity.status = plain.status;
+    quizEntity.category = plain.category;
+    quizEntity.themeId = plain.themeId;
+    quizEntity.coverImageId = plain.coverImageId;
+    quizEntity.createdAt = plain.createdAt;
+    quizEntity.playCount = plain.playCount;
+    quizEntity.questions = plain.questions;
+    return quizEntity;
   }
 }

@@ -24,6 +24,8 @@ export class Create {
   userType: "student" | "teacher" | "personal";
   @IsString()
   avatarUrl: string;
+  @IsString()
+  status: "Active" | "Blocked";
 }
 
 export class Edit {
@@ -45,4 +47,6 @@ export class Edit {
   language: string;
   @IsString()
   gameStreak: number;
+  @IsString()
+  status: "Active" | "Blocked";
 }

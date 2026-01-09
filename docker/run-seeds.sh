@@ -8,7 +8,7 @@ set -e
 
 SEED_DIR="/seed-data"
 MARKER_FILE="/seed-data/.seeded"
-APP_URL="${APP_URL:-http://localhost:3000}"
+APP_URL="${APP_URL:-http://app:3000}"
 MAX_RETRIES=60
 RETRY_INTERVAL=5
 
@@ -42,12 +42,40 @@ echo ""
 # ============================================
 # Esperar a que la aplicación esté lista
 # ============================================
+echo "⏳ Esperando a que la aplicación NestJS esté lista..."
+echo "   URL: $APP_URL"
+echo ""
 
+# Instalar curl si no está disponible
+if ! command -v curl &> /dev/null; then
+    echo "📦 Instalando curl..."
+    apt-get update -qq && apt-get install -qq -y curl > /dev/null 2>&1
+fi
+
+retry_count=0
+while [ $retry_count -lt $MAX_RETRIES ]; do
+    # Intentar conectar a la app
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" 2>/dev/null || echo "000")
+    
+    if echo "$http_code" | grep -qE "^[234]"; then
+        echo "✅ Aplicación lista! (HTTP $http_code)"
+        break
+    fi
+    
+    retry_count=$((retry_count + 1))
+    echo "   Intento $retry_count/$MAX_RETRIES - App no disponible (HTTP $http_code), esperando ${RETRY_INTERVAL}s..."
+    sleep $RETRY_INTERVAL
+done
+
+if [ $retry_count -eq $MAX_RETRIES ]; then
+    echo "❌ Error: La aplicación no respondió después de $MAX_RETRIES intentos"
+    exit 1
+fi
 
 # Esperar un poco más para asegurar que TypeORM haya sincronizado las tablas
 echo ""
-echo "⏳ Esperando 10 segundos adicionales para que TypeORM sincronice las tablas..."
-sleep 10
+echo "⏳ Esperando 15 segundos adicionales para que TypeORM sincronice las tablas..."
+sleep 15
 
 # ============================================
 # Ejecutar los scripts SQL

@@ -1,6 +1,6 @@
 import { Quiz } from 'src/lib/kahoot/domain/entity/Quiz';
 import { UserId } from 'src/lib/user/domain/valueObject/UserId';
-import { QuizQueryParamsDTO } from '../../DTOs/QuizQueryParamsDTO';
+import { QuizQueryParamsDTO } from '../../../infrastructure/DTOs/QuizQueryParamsDTO';
 import { QuizResponse, toQuizResponse } from '../../Response Types/QuizResponse';
 import { Either } from 'src/lib/shared/Type Helpers/Either';
 import { QueryWithPaginationResponse} from '../../Response Types/QueryWithPaginationResponse';

@@ -1,4 +1,4 @@
-import { QuizQueryParamsDTO } from "../../DTOs/QuizQueryParamsDTO";
+import { QuizQueryParamsDTO } from "../../../infrastructure/DTOs/QuizQueryParamsDTO";
 import { QuizResponse, toQuizResponse } from "../../Response Types/QuizResponse";
 import { UserId as UserIdVO} from "src/lib/kahoot/domain/valueObject/Quiz";
 import { QueryWithPaginationResponse } from "../../Response Types/QueryWithPaginationResponse";

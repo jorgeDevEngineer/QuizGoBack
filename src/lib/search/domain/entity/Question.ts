@@ -6,7 +6,7 @@ import {
   Points,
 } from "../valueObject/Question";
 import { QuizId } from "../valueObject/Quiz";
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
+import { MediaId as MediaIdVO } from '../../../media/domain/value-object/MediaId';
 import { Answer } from "../entity/Answer";
 
 export class Question {
@@ -94,7 +94,7 @@ export class Question {
       id: this._id.value,
       quizId: this._quiz.value,
       text: this._text.value,
-      mediaId: this._mediaId ? this._mediaId.value : null,
+      mediaId: this._mediaId ? this._mediaId.getId() : null,
       type: this._type.value,
       timeLimit: this._timeLimit.value,
       points: this._points.value,

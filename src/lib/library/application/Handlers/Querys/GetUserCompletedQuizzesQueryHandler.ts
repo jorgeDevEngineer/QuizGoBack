@@ -2,7 +2,7 @@ import { UserId as UserIdQuizVo } from "src/lib/kahoot/domain/valueObject/Quiz";
 import { PlayingQuizResponse, toPlayingQuizResponse } from "../../Response Types/PlayingQuizResponse";
 import { QueryWithPaginationResponse } from "../../Response Types/QueryWithPaginationResponse";
 import { Either } from "src/lib/shared/Type Helpers/Either";
-import { QuizQueryParamsDTO, QuizQueryParamsInput } from "../../DTOs/QuizQueryParamsDTO";
+import { QuizQueryParamsDTO, QuizQueryParamsInput } from "../../../infrastructure/DTOs/QuizQueryParamsDTO";
 import { DomainUnexpectedException } from "../../../../shared/exceptions/DomainUnexpectedException";
 import { GetUserCompletedQuizzesDomainService } from "../../../domain/services/Queries/GetUserCompletedQuizzesDomainService";
 import { DomainException } from "src/lib/shared/exceptions/DomainException";

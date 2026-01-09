@@ -19,7 +19,7 @@ import {
   QuizStatus,
   QuizCategory,
 } from "../valueObject/Quiz";
-import { MediaId as MediaIdVO } from '../../../media/domain/valueObject/Media';
+import { MediaId as MediaIdVO } from '../../../media/domain/value-object/MediaId';
 import { Question } from "../entity/Question";
 
 export class Quiz {
@@ -150,7 +150,7 @@ export class Quiz {
       status: this._status.value,
       category: this._category.value,
       themeId: this._themeId.value,
-      coverImageId: this._coverImageId ? this._coverImageId.value : null,
+      coverImageId: this._coverImageId ? this._coverImageId.getId() : null,
       createdAt: this._createdAt,
       playCount: this._playCount,
       questions: this._questions.map((q) => q.toPlainObject()),
