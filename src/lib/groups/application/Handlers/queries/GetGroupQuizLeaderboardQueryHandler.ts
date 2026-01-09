@@ -1,5 +1,5 @@
 import { IHandler } from "src/lib/shared/IHandler";
-import { GetGroupQuizLeaderboardQuery } from "../../parameterObjects/GetGroupQuizLeaderboarquery";
+import { GetGroupQuizLeaderboardQuery } from "../../parameterObjects/GetGroupQuizLeaderboarQuery";
 import { GetGroupQuizLeaderboardResponseDto } from "../../dtos/GroupResponse.dto";
 
 import { GroupRepository } from "../../../domain/port/GroupRepository";
