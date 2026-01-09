@@ -8,7 +8,7 @@ import { GetUserInProgressQuizzesQueryHandler } from "../../application/Handlers
 import { GetUserCompletedQuizzesQueryHandler } from "../../application/Handlers/Querys/GetUserCompletedQuizzesQueryHandler";
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { TypeOrmPostgresUserFavoriteQuizEntity } from "../TypeOrm/Postgres/Entities/TypeOrmPostgresUserFavoriteQuizEntity";
+import { TypeOrmPostgresUserFavoriteQuizEntity } from "../TypeOrm/Entities/TypeOrmPostgresUserFavoriteQuizEntity";
 import { TypeOrmQuizEntity } from "../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { UserRepository } from "../../../user/domain/port/UserRepository";
 import { TypeOrmUserEntity } from "../../../user/infrastructure/TypeOrm//TypeOrmUserEntity";
@@ -48,9 +48,7 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
         dataSource: DataSource,
         mongoAdapter: DynamicMongoAdapter
       ) => {
-        const dbType: "postgres" | "mongo" =
-          (process.env.LIBRARY_DB_TYPE as "postgres" | "mongo") || "postgres";
-        return new LibraryRepositoryBuilder(dbType, dataSource, mongoAdapter)
+        return new LibraryRepositoryBuilder(dataSource, mongoAdapter)
           .withEntity("UserFavoriteQuiz")
           .withEntity("Quiz")
           .withEntity("User")

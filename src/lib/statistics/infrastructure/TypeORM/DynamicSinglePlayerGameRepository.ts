@@ -16,6 +16,7 @@ import { MongoCriteriaApplier, MongoFindParams } from "./Criteria Appliers/Mongo
 export class DynamicSinglePlayerGameRepository implements SinglePlayerGameRepository {
 
   constructor(
+    @InjectRepository(TypeOrmSinglePlayerGameEntity)
     private readonly gameRepo: Repository<TypeOrmSinglePlayerGameEntity>,
     private readonly pgCriteriaApplier: TypeOrmPostgresCriteriaApplier<TypeOrmSinglePlayerGameEntity>,
     private readonly mongoAdapter: DynamicMongoAdapter,
