@@ -3,56 +3,77 @@ import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastr
 import { DataSource, Repository } from "typeorm";
 import { TypeOrmQuizRepository } from "src/lib/kahoot/infrastructure/TypeOrm/TypeOrmQuizRepository";
 import { TypeOrmPostgresCriteriaApplier } from "./Criteria Appliers/Postgres/TypeOrmPostgresCriteriaApplier";
-import { DynamicSinglePlayerGameRepository } from "./DynamicSinglePlayerGameRepository";
+import { DynamicSinglePlayerGameRepository } from "./Repositories/DynamicSinglePlayerGameRepository";
 import { SinglePlayerGameRepository } from "../../domain/port/SinglePlayerRepository";
 import { QuizRepository } from "src/lib/kahoot/domain/port/QuizRepository";
 import { DynamicMongoAdapter } from "src/lib/shared/infrastructure/database/dynamic-mongo.adapter";
 import { MongoCriteriaApplier } from "./Criteria Appliers/Mongo/MongoCriteriaApplier";
-
-type DbType = "postgres" | "mongo";
+import { TypeOrmMultiplayerSessionEntity } from "src/lib/multiplayer/infrastructure/repositories/TypeOrm/TypeOrmMultiplayerSessionEntity";
+import { DynamicMultiplayerGameRepository } from "./Repositories/DynamicMultiplayerGameRepository";
+import { MultiplayerSessionHistoryRepository } from "../../domain/port/MultiplayerSessionHistoryRepository";
 
 const entityMap = {
   postgres: {
     Quiz: TypeOrmQuizEntity,
     SinglePlayerGame: TypeOrmSinglePlayerGameEntity,
+    MultiplayerSession: TypeOrmMultiplayerSessionEntity,
   },
 };
 
 export class StatisticsRepositoryBuilder {
   private quizRepo?: Repository<TypeOrmQuizEntity>;
   private singleGameRepo?: Repository<TypeOrmSinglePlayerGameEntity>;
+  private sessionRepository?: Repository<TypeOrmMultiplayerSessionEntity>;
 
-  constructor(private readonly dbType: DbType, private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly mongoAdapter: DynamicMongoAdapter,
+    private readonly dataSource: DataSource
+  ) {}
 
   withEntity(entityName: keyof (typeof entityMap)["postgres"]) {
-    const entityClass = entityMap[this.dbType][entityName];
+    const entityClass = entityMap["postgres"][entityName];
     if (entityName === "Quiz")
-      this.quizRepo = this.dataSource.getRepository(entityClass);
+      this.quizRepo = this.dataSource.getRepository(
+        entityClass as typeof TypeOrmQuizEntity
+      );
     if (entityName === "SinglePlayerGame")
-      this.singleGameRepo = this.dataSource.getRepository(entityClass);
+      this.singleGameRepo = this.dataSource.getRepository(
+        entityClass as typeof TypeOrmSinglePlayerGameEntity
+      );
+    if (entityName === "MultiplayerSession") {
+      this.sessionRepository = this.dataSource.getRepository(
+        entityClass as typeof TypeOrmMultiplayerSessionEntity
+      );
+    }
 
     return this;
   }
 
   buildQuizRepository(): QuizRepository {
-    if (this.dbType === "postgres") {
-      return new TypeOrmQuizRepository(this.quizRepo!, null);
-    }
-    throw new Error("Mongo QuizRepository no implementado aún");
+    return new TypeOrmQuizRepository(this.quizRepo!, this.mongoAdapter);
   }
 
-  buildSinglePlayerGameRepository( mongoAdapter: DynamicMongoAdapter
-  ): SinglePlayerGameRepository {
-    if (this.dbType === "postgres") {
-      const criteriaApplier = new TypeOrmPostgresCriteriaApplier<TypeOrmSinglePlayerGameEntity>();
-      const mongoCriteriaApplier = new MongoCriteriaApplier<any>();
-      return new DynamicSinglePlayerGameRepository(
-        this.singleGameRepo!,
-        criteriaApplier,
-        mongoAdapter,
-        mongoCriteriaApplier
-      );
-    }
-    throw new Error("Mongo SinglePlayerGameRepository no implementado aún");
+  buildSinglePlayerGameRepository(): SinglePlayerGameRepository {
+    const criteriaApplier =
+      new TypeOrmPostgresCriteriaApplier<TypeOrmSinglePlayerGameEntity>();
+    const mongoCriteriaApplier = new MongoCriteriaApplier<any>();
+    return new DynamicSinglePlayerGameRepository(
+      this.singleGameRepo!,
+      criteriaApplier,
+      this.mongoAdapter,
+      mongoCriteriaApplier
+    );
+  }
+
+  buildMultiplayerSessionHistoryRepository(): MultiplayerSessionHistoryRepository {
+    const criteriaAplier =
+      new TypeOrmPostgresCriteriaApplier<TypeOrmMultiplayerSessionEntity>();
+    const mongoCriteriaApplier = new MongoCriteriaApplier<any>();
+    return new DynamicMultiplayerGameRepository(
+      this.sessionRepository!,
+      criteriaAplier,
+      this.mongoAdapter,
+      mongoCriteriaApplier
+    );
   }
 }
