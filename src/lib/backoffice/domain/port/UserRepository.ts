@@ -39,4 +39,45 @@ export interface UserRepository {
       status: string;
     };
   }>;
+
+  UnblockUser(id: UserId): Promise<{
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      userType: string;
+      createdAt: Date;
+      status: string;
+    };
+  }>;
+
+  GiveAdminRole(id: UserId): Promise<{
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      userType: string;
+      createdAt: Date;
+      status: string;
+      isadmin: boolean;
+    };
+  }>;
+
+  RemoveAdminRole(id: UserId): Promise<{
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      userType: string;
+      createdAt: Date;
+      status: string;
+      isadmin: boolean;
+    };
+  }>;
+
+  getOneById(id: UserId): Promise<User | null>;
+
+  getEmailNoadmin(): Promise<string[]>;
+
+  getEmailAdmin(): Promise<string[]>;
 }

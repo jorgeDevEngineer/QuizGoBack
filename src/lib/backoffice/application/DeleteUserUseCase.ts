@@ -1,6 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { UserRepository } from "../domain/port/UserRepository";
 import { UserId } from "../domain/valueObject/UserId";
+import { BadRequestException } from "@nestjs/common";
+import { UnauthorizedException } from "@nestjs/common";
 
 @Injectable()
 export class DeleteUserUseCase {
@@ -10,7 +12,14 @@ export class DeleteUserUseCase {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async run(id: string): Promise<void> {
+  async run(userheader: string, id: string): Promise<void> {
+    const user = await this.userRepository.getOneById(new UserId(userheader));
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    if (!user.isadmin) {
+      throw new UnauthorizedException('Unauthorized');
+    }
     const userId = new UserId(id);
     await this.userRepository.deleteUser(userId);
   }

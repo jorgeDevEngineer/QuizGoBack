@@ -1,10 +1,9 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { UserRepository } from "../domain/port/UserRepository"
 import { UserId } from "../domain/valueObject/UserId";
-import { BadRequestException } from "@nestjs/common";
-import { UnauthorizedException } from "@nestjs/common";
 
-export interface BlockedUserDto {
+
+export interface UnblockedUserDto {
     user: {
         id: string;
         name: string;
@@ -16,13 +15,13 @@ export interface BlockedUserDto {
 }
 
 @Injectable()
-export class BlockUserUseCase {
+export class UnblockUserUseCase {
     constructor(
         @Inject('UserRepository')
         private readonly userRepository: UserRepository,
     ) {}
 
-    async run(userheader: string, id: string): Promise<BlockedUserDto> {
+    async run(userheader: string, id: string): Promise<UnblockedUserDto> {
         const user = await this.userRepository.getOneById(new UserId(userheader));
         if (!user) {
             throw new BadRequestException('User not found');
@@ -31,7 +30,7 @@ export class BlockUserUseCase {
             throw new UnauthorizedException('Unauthorized');
         }
         const userId = new UserId(id);
-        const result = await this.userRepository.blockUser(userId);
+        const result = await this.userRepository.UnblockUser(userId);
         return result;
     }
 }
