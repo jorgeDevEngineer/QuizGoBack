@@ -1,6 +1,7 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { QuizRepository } from "../domain/port/QuizRepository";
-import { Quiz } from "../domain/entity/Quiz";
+import { IHandler } from "src/lib/shared/IHandler";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export interface SearchParamsDto {
     q?: string,
@@ -34,20 +35,18 @@ export interface SearchResultDto {
       totalCount: number;
       totalPages: number;
     };
-  }
-
-
+}
 
 @Injectable()
-export class SearchQuizzesUseCase {
+export class SearchQuizzesUseCase implements IHandler<SearchParamsDto, Result<SearchResultDto>> {
     constructor(
         @Inject('QuizRepository')
         private readonly quizRepository: QuizRepository,
     ) {}
 
-    async run(params: SearchParamsDto): Promise<SearchResultDto> {
+    async execute(params: SearchParamsDto): Promise<Result<SearchResultDto>> {
         const result = await this.quizRepository.search(params);
         // Devolver el resultado incluso si data está vacío (es válido)
-        return result;
+        return Result.ok<SearchResultDto>(result);
     }
 }

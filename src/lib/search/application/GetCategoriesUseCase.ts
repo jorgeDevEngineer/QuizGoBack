@@ -1,6 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { QuizRepository } from "../domain/port/QuizRepository";
 import { QuizCategory } from "../domain/valueObject/Quiz";
+import { IHandler } from "src/lib/shared/IHandler";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export interface CategoriesDTO {
     categories: {
@@ -9,14 +11,14 @@ export interface CategoriesDTO {
 }
 
 @Injectable()
-export class GetCategoriesUseCase {
+export class GetCategoriesUseCase implements IHandler<void, Result<CategoriesDTO>> {
     constructor(
         @Inject('QuizRepository')
         private readonly quizRepository: QuizRepository,
     ) {}
 
-    async run(): Promise<CategoriesDTO> {
+    async execute(): Promise<Result<CategoriesDTO>> {
         const categories = await this.quizRepository.getCategories();
-        return { categories };
+        return Result.ok<CategoriesDTO>({ categories });
     }
 }

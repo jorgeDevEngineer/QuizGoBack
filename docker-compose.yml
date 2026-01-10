@@ -45,6 +45,17 @@ services:
       DATABASE_SSL: ${DATABASE_SSL:-false}
       # Synchronize crea las tablas automáticamente (solo para desarrollo/testing)
       DATABASE_SYNCHRONIZE: ${DATABASE_SYNCHRONIZE:-true}
+
+      Endpoint: https://touhrqqlyjvbtkzmokuf.supabase.co
+      Secretaccesskey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdWhycXFseWp2YnRrem1va3VmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzY4MDMwMCwiZXhwIjoyMDc5MjU2MzAwfQ.DvcgFBXs3D2_avbNfY0Lc3i08b4WkFcohsMdqTZZ60s
+      PIN_GENERATION_ATTEMPTS: ${PIN_GENERATION_ATTEMPTS:-100}
+      PIN_STORAGE_PATH: ${PIN_STORAGE_PATH:-"./active_pins.txt"}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
     ports:
       - "${PORT:-3000}:3000"
     volumes:
