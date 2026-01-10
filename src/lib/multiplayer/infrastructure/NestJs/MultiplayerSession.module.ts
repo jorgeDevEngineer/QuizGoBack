@@ -20,6 +20,7 @@ import { PlayerJoinCommandHandler } from "../../application/handlers/PlayerJoinC
 import { MultiplayerSessionsGateway } from "./MultiplayerSession.gateway";
 import { MultiplayerSessionsTracingService } from "./MultiplayerSession.tracing.service";
 import { SyncStateCommandHandler } from "../../application/handlers/SyncStateCommandHandler";
+import { HostStartGameCommandHandler } from "../../application/handlers/HostStartGameCommandHandler";
 
 @Module({
   imports: [
@@ -52,6 +53,10 @@ import { SyncStateCommandHandler } from "../../application/handlers/SyncStateCom
     {
       provide: 'SyncStateCommandHandler',
       useClass: SyncStateCommandHandler,
+    },
+    {
+      provide: 'HostStartGameCommandHandler',
+      useClass: HostStartGameCommandHandler,
     },
 
     // Repositorios
