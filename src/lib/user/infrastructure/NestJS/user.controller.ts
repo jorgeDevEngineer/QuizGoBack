@@ -145,17 +145,20 @@ export class UserController {
       body.theme,
       body.language,
       body.gameStreak,
-      body.status
+      body.status,
+      userId
     );
     const editResult = await this.editUser.execute(editUserCommand);
     return this.handleResult(editResult);
   }
 
   @Patch("profile/:id")
-  async editProfileById(@Param() params: FindByIdParams, @Body() body: Edit) {
+  async editProfileById(@Param() params: FindByIdParams, @Body() body: Edit, @Headers("authorization") auth: string) {
+    const requesterUserId = await this.getCurrentUserId(auth);
     const query = new GetOneUserById(params.id);
     const userResult = await this.getOneUserById.execute(query);
     const user = this.handleResult(userResult);
+
     const editUserCommand = new EditUser(
       body.userName,
       body.email,
@@ -167,7 +170,8 @@ export class UserController {
       body.theme,
       body.language,
       body.gameStreak,
-      body.status
+      body.status,
+      requesterUserId
     );
     const editResult = await this.editUser.execute(editUserCommand);
     return this.handleResult(editResult);
@@ -179,17 +183,18 @@ export class UserController {
     const query = new GetOneUserById(userId);
     const userResult = await this.getOneUserById.execute(query);
     this.handleResult(userResult);
-    const deleteUserCommand = new DeleteUser(userId);
+    const deleteUserCommand = new DeleteUser(userId, userId);
     const deleteResult = await this.deleteUser.execute(deleteUserCommand);
     return this.handleResult(deleteResult);
   }
 
   @Delete("profile/:id")
-  async deleteProfileById(@Param() params: FindByIdParams) {
+  async deleteProfileById(@Param() params: FindByIdParams, @Headers("authorization") auth: string) {
+    const requesterUserId = await this.getCurrentUserId(auth);
     const query = new GetOneUserById(params.id);
     const userResult = await this.getOneUserById.execute(query);
     this.handleResult(userResult);
-    const deleteUserCommand = new DeleteUser(params.id);
+    const deleteUserCommand = new DeleteUser(params.id, requesterUserId);
     const deleteResult = await this.deleteUser.execute(deleteUserCommand);
     return this.handleResult(deleteResult);
   }
@@ -227,14 +232,15 @@ export class UserController {
   @Post("subscription/premium")
   async enablePremiumSubscriptionPlan(@Headers("authorization") auth: string) {
     const userId = await this.getCurrentUserId(auth);
-    const command = new EnablePremiumMembership(userId);
+    const command = new EnablePremiumMembership(userId, userId);
     const result = await this.enablePremiumMembership.execute(command);
     return this.handleResult(result);
   }
 
   @Post("subscription/premium/:id")
-  async enablePremiumSubscriptionPlanById(@Param() params: FindByIdParams) {
-    const command = new EnablePremiumMembership(params.id);
+  async enablePremiumSubscriptionPlanById(@Param() params: FindByIdParams, @Headers("authorization") auth: string) {
+    const requesterUserId = await this.getCurrentUserId(auth);
+    const command = new EnablePremiumMembership(params.id, requesterUserId);
     const result = await this.enablePremiumMembership.execute(command);
     return this.handleResult(result);
   }
@@ -242,14 +248,15 @@ export class UserController {
   @Delete("subscription/free")
   async enableFreeSubscriptionPlan(@Headers("authorization") auth: string) {
     const userId = await this.getCurrentUserId(auth);
-    const command = new EnableFreeMembership(userId);
+    const command = new EnableFreeMembership(userId, userId);
     const result = await this.enableFreeMembership.execute(command);
     return this.handleResult(result);
   }
 
   @Delete("subscription/free/:id")
-  async enableFreeSubscriptionPlanById(@Param() params: FindByIdParams) {
-    const command = new EnableFreeMembership(params.id);
+  async enableFreeSubscriptionPlanById(@Param() params: FindByIdParams, @Headers("authorization") auth: string) {
+    const requesterUserId = await this.getCurrentUserId(auth);
+    const command = new EnableFreeMembership(params.id, requesterUserId);
     const result = await this.enableFreeMembership.execute(command);
     return this.handleResult(result);
   }

@@ -10,7 +10,7 @@ export class DeleteUserCommandHandler
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(command: DeleteUser): Promise<Result<void>> {
-    const userId = new UserId(command.id);
+    const userId = new UserId(command.targetUserId);
     await this.userRepository.delete(userId);
     return Result.ok(undefined);
   }
