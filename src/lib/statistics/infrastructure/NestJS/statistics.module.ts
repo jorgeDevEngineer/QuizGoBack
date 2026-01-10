@@ -18,6 +18,8 @@ import { StatisticsRepositoryBuilder } from "../TypeORM/statisticsBuilder";
 import { DynamicMongoAdapter } from "src/lib/shared/infrastructure/database/dynamic-mongo.adapter";
 import { DatabaseModule } from "src/lib/shared/infrastructure/database/database.module";
 import { MultiplayerSessionHistoryRepository } from "../../domain/port/MultiplayerSessionHistoryRepository";
+import { GetSessionReportDomainService } from "../../domain/services/GetSessionReportDomainService";
+import { GetSessionReportQueryHandler } from "../../application/Handlers/GetSessionReportQueryHandler";
 
 @Module({
   imports: [
@@ -136,6 +138,34 @@ import { MultiplayerSessionHistoryRepository } from "../../domain/port/Multiplay
         );
       },
       inject: ["ILoggerPort", "GetSingleCompletedQuizSummaryDomainService"],
+    },
+    {
+      provide: "GetSessionReportDomainService",
+      useFactory: (
+        multiSessionRepo: MultiplayerSessionHistoryRepository,
+        quizRepo: QuizRepository
+      ) => new GetSessionReportDomainService(multiSessionRepo, quizRepo),
+      inject: ["MultiplayerSessionHistoryRepository", "QuizRepository"],
+    },
+    {
+      provide: "GetSessionReportQueryHandler",
+      useFactory: (
+        logger: ILoggerPort,
+        dService: GetSessionReportDomainService
+      ) => {
+        const realHandler = new GetSessionReportQueryHandler(dService);
+        const withErrorHandling = new ErrorHandlingDecoratorWithEither(
+          realHandler,
+          logger,
+          "GetSessionReportQueryHandler"
+        );
+        return new LoggingUseCaseDecorator(
+          withErrorHandling,
+          logger,
+          "GetSessionReportQueryHandler"
+        );
+      },
+      inject: ["ILoggerPort", "GetSessionReportDomainService"],
     },
   ],
 })
