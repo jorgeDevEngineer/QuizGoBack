@@ -9,12 +9,15 @@ import type { SessionSocket } from '../helpers/SocketInterface';
 import { SyncType } from '../../application/responseDtos/enums/SyncType.enum';
 import { LobbydditionalData, QuestionAdditionalData } from '../../application/responseDtos/SyncStateResponse.dto';
 import { COMMON_ERRORS } from '../../application/handlers/Errors/CommonErrors';
+import { HostNextPhaseType } from '../../application/responseDtos/enums/HostNextPhaseType.enum';
 
 //Commands and Handlers
 import { PlayerJoinCommandHandler } from '../../application/handlers/PlayerJoinCommandHandler';
 import { SyncStateCommandHandler } from '../../application/handlers/SyncStateCommandHandler';
 import { HostStartGameCommandHandler } from '../../application/handlers/HostStartGameCommandHandler';
 import { PlayerSubmitAnswerCommandHandler } from '../../application/handlers/PlayerSubmitAnswerCommandHandler';
+import { HostNextPhaseCommand } from '../../application/parameterObjects/HostNextPhaseCommand';
+import { HostNextPhaseCommandHandler } from '../../application/handlers/HostNextPhaseCommandHandler';
 
 //Dtos
 import { HostLobbyUpdateResponseDto } from '../../application/responseDtos/LobbyStateUpdateResponse.dto';
@@ -24,6 +27,9 @@ import { HostEndGameResponseDto, PlayerEndGameResponseDto } from '../../applicat
 import { PlayerLobbyUpdateResponseDto } from '../../application/responseDtos/LobbyStateUpdateResponse.dto';
 import { PlayerJoinDto } from '../requestesDto/PlayerJoin.dto';
 import { PlayerSubmitAnswerDto } from '../requestesDto/PlayerSubmitAnswer.dto';
+import { QuestionStartedResponseDto } from '../../application/responseDtos/QuestionStartedResponse.dto';
+import { QuestionResultsResponseDto } from '../../application/responseDtos/QuestionResultResponses.dto';
+import { GameEndedResponseDto } from '../../application/responseDtos/GameEndedResponses.dto';
 
 //Repositorios
 import { IActiveMultiplayerSessionRepository } from '../../domain/repositories/IActiveMultiplayerSessionRepository';
@@ -60,6 +66,9 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
 
         @Inject('PlayerSubmitAnswerCommandHandler')
         private readonly playerSubmitAnswerHandler: PlayerSubmitAnswerCommandHandler,
+
+        @Inject('HostNextPhaseCommandHandler')
+        private readonly hostNextPhaseHandler: HostNextPhaseCommandHandler,
 
         private readonly tracingWsService: MultiplayerSessionsTracingService,
     ) {
@@ -716,6 +725,65 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
         }
     }
 
+    @SubscribeMessage(HostUserEvents.HOST_NEXT_PHASE)
+    async handleHostNextPhase(client: SessionSocket) {
+        this.logger.debug(`Recibido HOST_NEXT_PHASE de ${client.id}`);
+
+        try {
+            // 1. Validaciones básicas según API
+            if (client.data.role !== SessionRoles.HOST) {
+                throw new WsException("El cliente no es Host");
+            }
+
+            if (!client.rooms.has(client.data.roomPin as string)) {
+                throw new WsException("FATAL: El HOST no se encuentra conectado a la sala solicitada");
+            }
+
+            // 2. Validar que el usuario sea el host de la sesión
+            await this.verifyHostAuthorization(client.data.roomPin, client.data.userId);
+
+            // 3. Ejecutar el comando de siguiente fase
+            const result = await this.hostNextPhaseHandler.execute({sessionPin: client.data.roomPin});
+
+            // 4. Manejar la respuesta según el tipo
+            switch (result.type) {
+                case HostNextPhaseType.QUESTION_STARTED:
+                    await this.handleQuestionStarted(result as QuestionStartedResponseDto, client);
+                    break;
+
+                case HostNextPhaseType.QUESTION_RESULTS:
+                    await this.handleResults(result as QuestionResultsResponseDto, client);
+                    break;
+
+                case HostNextPhaseType.GAME_END:
+                    await this.handleGameEnd(result as GameEndedResponseDto, client);
+                    break;
+
+                default:
+                    throw new WsException(`Tipo de respuesta no reconocido`);
+            }
+
+            this.logger.debug(`Host avanzó fase exitosamente en sala ${client.data.roomPin}`);
+
+        } catch (error) {
+            this.logger.error(`Error en HOST_NEXT_PHASE para cliente ${client.id}:`, error);
+        
+            let errorMessage = 'Error al avanzar a la siguiente fase';
+        
+            if (error instanceof WsException) {
+                errorMessage = error.message;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+        
+            // Enviar error solo al host según API
+            client.emit(ServerErrorEvents.GAME_ERROR, { 
+                statusCode: 400, 
+                message: errorMessage 
+            });
+        }
+    }
+
 
     
     //Metodos de apoyo
@@ -764,6 +832,92 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
         }
     }
 
+     /**
+     * Manejar transición a QUESTION_STARTED
+     * API: Broadcast a todos (host y jugadores)
+     */
+    private async handleQuestionStarted(response: QuestionStartedResponseDto, hostClient: SessionSocket): Promise<void> {
+        // Emitir QUESTION_STARTED a todos en la sala (broadcast según API)
+        this.wss.to(hostClient.data.roomPin).emit(ServerEvents.QUESTION_STARTED, response.data);
+        
+        this.logger.debug(`QUESTION_STARTED emitido a sala ${hostClient.data.roomPin}`);
+    }
+
+    /**
+     * Manejar transición a RESULTS
+     * API: host_results solo al host, player_results a cada jugador individualmente
+     */
+    private async handleResults(response: QuestionResultsResponseDto, hostClient: SessionSocket): Promise<void> {
+        const roomPin = hostClient.data.roomPin;
+        
+        // 1. Emitir HOST_RESULTS solo al host
+        hostClient.emit(ServerEvents.HOST_RESULTS, response.hostData);
+        
+        this.logger.debug(`HOST_RESULTS emitido a host ${hostClient.id}`);
+        
+        // 2. Emitir PLAYER_RESULTS a cada jugador individualmente
+        const sockets = await this.wss.in(roomPin).fetchSockets();
+        
+        for (const socket of sockets) {
+            if (socket.data.role === SessionRoles.PLAYER) {
+                const playerId = socket.data.userId;
+                const playerData = response.playerData.get(playerId);
+                
+                if (playerData) {
+                    socket.emit(
+                        ServerEvents.PLAYER_RESULTS, 
+                        playerData
+                    );
+                    this.logger.debug(`PLAYER_RESULTS emitido a jugador ${playerId}`);
+                } else {
+                    this.logger.warn(`No se encontraron datos para jugador ${playerId} en RESULTS`);
+                }
+            }
+        }
+    }
+
+    /**
+     * Manejar transición a GAME_END
+     * API: host_game_end solo al host, player_game_end a cada jugador individualmente
+     *      session_closed broadcast a todos al final
+     */
+    private async handleGameEnd(response: GameEndedResponseDto, hostClient: SessionSocket): Promise<void> {
+        const roomPin = hostClient.data.roomPin;
+        
+        // 1. Emitir HOST_GAME_END solo al host
+        hostClient.emit(ServerEvents.HOST_GAME_END, response.hostData);
+        
+        this.logger.debug(`HOST_GAME_END emitido a host ${hostClient.id}`);
+        
+        // 2. Emitir PLAYER_GAME_END a cada jugador individualmente
+        const sockets = await this.wss.in(roomPin).fetchSockets();
+        
+        for (const socket of sockets) {
+            if (socket.data.role === SessionRoles.PLAYER) {
+                const playerId = socket.data.userId;
+                const playerData = response.playerData.get(playerId);
+                
+                if (playerData) {
+                    socket.emit(
+                        ServerEvents.PLAYER_GAME_END, 
+                        playerData
+                    );
+                    this.logger.debug(`PLAYER_GAME_END emitido a jugador ${playerId}`);
+                } else {
+                    this.logger.warn(`No se encontraron datos para jugador ${playerId} en GAME_END`);
+                }
+            }
+        }
+
+        setTimeout(() => {
+            this.wss.to(roomPin).emit(ServerEvents.SESSION_CLOSED, {
+                reason: "GAME_COMPLETED",
+                message: "El juego ha finalizado"
+            });
+            this.logger.debug(`SESSION_CLOSED emitido a sala ${roomPin}`);
+        }, 1000); // Dar tiempo para recibir los resultados
+    }
+
     private async verifyPin(pin: string): Promise<void> {
         const sessionContext = await this.sessionRepository.findByPin(pin);
     
@@ -795,6 +949,21 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
         // Verificar que no haya otro host conectado
         if (this.tracingWsService.roomHasHost(pin)) {
             throw new WsException('Ya hay un host conectado a esta sesión');
+        }
+    }
+
+    private async verifyHostAuthorization(pin: string, userId: string): Promise<void> {
+        const sessionContext = await this.sessionRepository.findByPin(pin);
+    
+        if (!sessionContext) {
+            throw new WsException(`No se encontró sesión con PIN: ${pin}`);
+        }
+    
+        const session = sessionContext.session;
+        const hostId = session.getHostId().getValue();
+    
+        if (userId !== hostId) {
+            throw new WsException('No eres el host autorizado de esta sesión');
         }
     }
 

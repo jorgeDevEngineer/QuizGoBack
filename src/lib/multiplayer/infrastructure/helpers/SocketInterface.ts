@@ -1,8 +1,7 @@
 import { Socket } from "socket.io";
-
 import { HostLobbyUpdateResponseDto } from "../../application/responseDtos/LobbyStateUpdateResponse.dto";
 import { PlayerLobbyUpdateResponseDto } from "../../application/responseDtos/LobbyStateUpdateResponse.dto";
-
+import { SessionClosedResponseDto } from "../requestesDto/SessionClosedResponse.dto";
 import { HostUserEvents, PlayerUserEvents, ServerErrorEvents, ServerEvents, ClientEvents } from "./WebSocketEvents.enum";
 import { SessionRoles } from "./SessionRoles.enum";
 import { PlayerSubmitAnswerDto } from "../requestesDto/PlayerSubmitAnswer.dto";
@@ -35,7 +34,7 @@ export interface ServerToClientEvents {
   [ServerEvents.PLAYER_LEFT_SESSION]:(payload: { userId: string, nickname: string, message: string}) => void; 
   [ServerEvents.HOST_LEFT_SESSION]:(payload: { message: string }) => void; 
   [ServerEvents.HOST_RETURNED_TO_SESSION]:(payload: { message: string }) => void; 
-  //[ServerEvents.SESSION_CLOSED]:(payload: SessionClosed ) => void; 
+  [ServerEvents.SESSION_CLOSED]:(payload: SessionClosedResponseDto ) => void; 
 
 
    // Errores

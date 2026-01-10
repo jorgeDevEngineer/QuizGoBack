@@ -22,7 +22,10 @@ import { MultiplayerSessionsTracingService } from "./MultiplayerSession.tracing.
 import { SyncStateCommandHandler } from "../../application/handlers/SyncStateCommandHandler";
 import { HostStartGameCommandHandler } from "../../application/handlers/HostStartGameCommandHandler";
 import { PlayerSubmitAnswerCommandHandler } from "../../application/handlers/PlayerSubmitAnswerCommandHandler";
+import { HostNextPhaseCommandHandler } from "../../application/handlers/HostNextPhaseCommandHandler";
 import { MultiplayerEvaluationService } from "../../domain/services/MultiplayerEvaluationService";
+import { UpdateSessionProgressAndLeaderboardService } from "../../domain/services/UpdateSessionProgressAndLeaderboardService";
+import { SessionArchiverService } from "../../domain/services/SessionArchiverService";
 
 @Module({
   imports: [
@@ -64,6 +67,10 @@ import { MultiplayerEvaluationService } from "../../domain/services/MultiplayerE
       provide: 'PlayerSubmitAnswerCommandHandler',
       useClass: PlayerSubmitAnswerCommandHandler,
     },
+    {
+      provide: 'HostNextPhaseCommandHandler',
+      useClass: HostNextPhaseCommandHandler,
+    },
 
     // Repositorios
     {
@@ -100,6 +107,15 @@ import { MultiplayerEvaluationService } from "../../domain/services/MultiplayerE
       provide: 'MultiplayerEvaluationService',
       useClass: MultiplayerEvaluationService,
     },
+    {
+      provide: 'UpdateSessionProgressAndLeaderboardService',
+      useClass: UpdateSessionProgressAndLeaderboardService,
+    },
+    {
+      provide: 'SessionArchiverService',
+      useClass: SessionArchiverService,
+    },
+    
     
     InMemoryActiveSessionRepository,
     CryptoGeneratePinService,
