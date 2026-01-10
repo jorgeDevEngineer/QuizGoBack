@@ -1,7 +1,7 @@
 import { IHandler } from "src/lib/shared/IHandler";
 import { Result } from "src/lib/shared/Type Helpers/result";
 import { CheckTokenStatusQuery } from "../../parameterObjects/CheckTokenStatusQuery";
-import { ITokenProvider } from "../../ITokenProvider";
+import { ITokenProvider } from "../../providers/ITokenProvider";
 import { Inject } from "@nestjs/common";
 
 export class CheckTokenStatusQueryHandler

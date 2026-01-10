@@ -35,7 +35,7 @@ import { EnablePremiumMembership } from "../../application/Parameter Objects/Ena
 import { Result } from "src/lib/shared/Type Helpers/result";
 import { User } from "../../domain/aggregate/User";
 import { get } from "http";
-import { ITokenProvider } from "src/lib/auth/application/ITokenProvider";
+import { ITokenProvider } from "src/lib/auth/application/providers/ITokenProvider";
 
 @Controller("user")
 export class UserController {

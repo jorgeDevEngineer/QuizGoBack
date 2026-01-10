@@ -3,7 +3,7 @@ import { Result } from "src/lib/shared/Type Helpers/result";
 import { LoginCommand } from "../../parameterObjects/LoginCommand";
 import { GetOneUserByEmailQueryHandler } from "src/lib/user/application/Handlers/Querys/GetOneUserByEmailQueryHandler";
 import { GetOneUserByEmail } from "src/lib/user/application/Parameter Objects/GetOneUserByEmail";
-import { ITokenProvider } from "src/lib/auth/application/ITokenProvider";
+import { ITokenProvider } from "src/lib/auth/application/providers/ITokenProvider";
 import { Get, Inject } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 import { User } from "src/lib/user/domain/aggregate/User";

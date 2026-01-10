@@ -1,7 +1,7 @@
 import { Module, forwardRef } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from "./auth.controller";
-import { JwtTokenProvider } from "../JwtTokenProvider";
+import { JwtTokenProvider } from "../providers/JwtTokenProvider";
 import { LoginCommandHandler } from "../../application/Handlers/Commands/LoginCommandHandler";
 import { RegisterCommandHandler } from "../../application/Handlers/Commands/RegisterCommandHandler";
 import { LogoutCommandHandler } from "../../application/Handlers/Commands/LogoutCommandHandler";
