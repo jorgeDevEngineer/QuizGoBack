@@ -22,7 +22,11 @@ import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logge
 import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmUserEntity]), forwardRef(() => AuthModule), LoggerModule],
+  imports: [
+    TypeOrmModule.forFeature([TypeOrmUserEntity]),
+    forwardRef(() => AuthModule),
+    LoggerModule,
+  ],
   controllers: [UserController],
   providers: [
     {

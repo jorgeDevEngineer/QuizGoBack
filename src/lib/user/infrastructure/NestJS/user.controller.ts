@@ -126,7 +126,10 @@ export class UserController {
   }
 
   @Patch("profile")
-  async editProfile(@Headers("authorization") auth: string, @Body() body: Edit) {
+  async editProfile(
+    @Headers("authorization") auth: string,
+    @Body() body: Edit
+  ) {
     const userId = await this.getCurrentUserId(auth);
     const query = new GetOneUserById(userId);
     const userResult = await this.getOneUserById.execute(query);
