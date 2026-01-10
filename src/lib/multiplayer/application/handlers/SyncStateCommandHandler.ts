@@ -1,0 +1,10 @@
+import { Inject } from "@nestjs/common";
+import { SessionStateType } from "../../domain/valueObjects/multiplayerVOs";
+import { IActiveMultiplayerSessionRepository } from "../../domain/repositories/IActiveMultiplayerSessionRepository";
+import { SyncStateCommand } from "../parameterObjects/SyncStateCommand";
+import { SyncStateResponseDto } from "../responseDtos/SyncStateResponse.dto";
+import { MapEndToSyncState } from "../mappers/MapEndToSyncState";
+import { MapLobbyToSyncState } from "../mappers/MapLobbyToSyncState";
+import { MapQuestionToSyncState } from "../mappers/MapQuestionToSyncState";
+import { MapResultsToSyncState } from "../mappers/MapResultsToSyncState";
+import { MapToQuestionResponse } from "../mappers/MapToQuestionResponse";

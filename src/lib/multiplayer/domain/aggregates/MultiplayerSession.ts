@@ -234,7 +234,7 @@ export class MultiplayerSession {
         return this.getOnePlayerAnswerForAQuestion( questionId, playerId ) !== undefined;
     }
 
-    public calculateAnswerDistributionForASlide( questionId: QuestionId, possibleOptionIds: string[] ): Record<string, number> {
+    public calculateAnswerDistributionForAQuestion( questionId: QuestionId, possibleOptionIds: string[] ): Record<string, number> {
         const distribution: Record<string, number> = {};
         possibleOptionIds.forEach(id => {
             distribution[id] = 0;

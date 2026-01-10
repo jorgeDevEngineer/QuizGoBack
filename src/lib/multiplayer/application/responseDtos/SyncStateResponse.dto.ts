@@ -10,7 +10,7 @@ export interface LobbydditionalData {
     isJoined: boolean
 }
 
-export interface SyncStateResponse { 
+export interface SyncStateResponseDto { 
 
     type: SyncType
 

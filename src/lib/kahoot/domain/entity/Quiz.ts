@@ -173,5 +173,17 @@ export class Quiz {
     return this._visibility.value === 'private';
   }
 
+  public getQuestionPosition(questionId: QuestionId): number {
+    const index = this._questions.findIndex(question => 
+      question.id.equals(questionId)
+    );
+    
+    if (index === -1) {
+      throw new Error(`Question with id ${questionId.getValue()} not found in this quiz.`);
+    }
+    
+    return index + 1;
+  }
+
 }
 
