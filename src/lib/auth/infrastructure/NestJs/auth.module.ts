@@ -25,7 +25,6 @@ import { UserModule } from "../../../user/infrastructure/NestJS/user.module";
       useClass: JwtTokenProvider,
     },
     LoginCommandHandler,
-    RegisterCommandHandler,
     LogoutCommandHandler,
     CheckTokenStatusQueryHandler,
   ],
