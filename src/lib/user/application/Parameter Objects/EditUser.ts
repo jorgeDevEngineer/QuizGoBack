@@ -2,7 +2,7 @@ export class EditUser {
   constructor(
     public readonly userName: string,
     public readonly email: string,
-    public readonly hashedPassword: string,
+    public readonly password: string,
     public readonly userType: "student" | "teacher" | "personal",
     public readonly avatarUrl: string,
     public readonly targetUserId: string,

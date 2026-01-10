@@ -16,6 +16,7 @@ import { UserStatus } from "../../../domain/valueObject/UserStatus";
 import { IHandler } from "src/lib/shared/IHandler";
 import { EditUser } from "../../Parameter Objects/EditUser";
 import { Result } from "src/lib/shared/Type Helpers/result";
+import * as bcrypt from "bcrypt";
 
 export class EditUserCommandHandler
   implements IHandler<EditUser, Result<void>>
@@ -44,7 +45,7 @@ export class EditUserCommandHandler
     const user = new User(
       new UserName(command.userName),
       new UserEmail(command.email),
-      new UserHashedPassword(command.hashedPassword),
+      new UserHashedPassword(await bcrypt.hash(command.password, 12)),
       new UserType(command.userType),
       new UserAvatarUrl(command.avatarUrl),
       new UserId(command.targetUserId),

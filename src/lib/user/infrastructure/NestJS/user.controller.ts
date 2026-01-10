@@ -137,7 +137,7 @@ export class UserController {
     const editUserCommand = new EditUser(
       body.userName,
       body.email,
-      body.hashedPassword,
+      body.password,
       body.userType,
       body.avatarUrl,
       user.id.value,
@@ -166,7 +166,7 @@ export class UserController {
     const editUserCommand = new EditUser(
       body.userName,
       body.email,
-      body.hashedPassword,
+      body.password,
       body.userType,
       body.avatarUrl,
       user.id.value,
@@ -324,7 +324,7 @@ export class UserController {
     const editUserCommand = new EditUser(
       body.userName,
       body.email,
-      body.hashedPassword,
+      body.password,
       body.userType,
       body.avatarUrl,
       user.id.value,
