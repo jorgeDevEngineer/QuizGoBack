@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { NestLoggerAdapter } from "../adapters/nest-logger-adapter";
+import { NestLoggerAdapter } from "./adapters/nest-logger.adapter";
 
 @Module({
   providers: [
