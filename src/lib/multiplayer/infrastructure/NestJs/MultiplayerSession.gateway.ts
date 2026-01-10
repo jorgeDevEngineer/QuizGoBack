@@ -1,4 +1,4 @@
-//Necesario para el Gateway
+// Gateway y helpers
 import { BadRequestException, Logger, Inject, Injectable } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from '@nestjs/websockets';
 import { Server } from 'socket.io';
@@ -6,19 +6,28 @@ import { MultiplayerSessionsTracingService } from './MultiplayerSession.tracing.
 import { SessionRoles } from '../helpers/SessionRoles.enum';
 import { ClientEvents, HostUserEvents, PlayerUserEvents, ServerErrorEvents, ServerEvents } from '../helpers/WebSocketEvents.enum';
 import type { SessionSocket } from '../helpers/SocketInterface';
+import { SyncType } from '../../application/responseDtos/enums/SyncType.enum';
+import { LobbydditionalData, QuestionAdditionalData } from '../../application/responseDtos/SyncStateResponse.dto';
+import { COMMON_ERRORS } from '../../application/handlers/Errors/CommonErrors';
 
 //Commands and Handlers
-import { PlayerJoinCommand } from '../../application/parameterObjects/PlayerJoinCommand';
 import { PlayerJoinCommandHandler } from '../../application/handlers/PlayerJoinCommandHandler';
+import { SyncStateCommandHandler } from '../../application/handlers/SyncStateCommandHandler';
 
 //Dtos
 import { HostLobbyUpdateResponseDto } from '../../application/responseDtos/LobbyStateUpdateResponse.dto';
 import { LobbyStateUpdateResponseDto } from '../../application/responseDtos/LobbyStateUpdateResponse.dto';
+import { QuestionResultsHostResponseDto, QuestionResultsPlayerResponseDto } from '../../application/responseDtos/QuestionResultResponses.dto';
+import { HostEndGameResponseDto, PlayerEndGameResponseDto } from '../../application/responseDtos/GameEndedResponses.dto';
+import { QuestionStartedResponseDto } from '../../application/responseDtos/QuestionStartedResponse.dto';
 import { PlayerLobbyUpdateResponseDto } from '../../application/responseDtos/LobbyStateUpdateResponse.dto';
 import { PlayerJoinDto } from '../requestesDto/PlayerJoin.dto';
 
 //Repositorios
 import { IActiveMultiplayerSessionRepository } from '../../domain/repositories/IActiveMultiplayerSessionRepository';
+
+//
+
 
 @WebSocketGateway( 
   { namespace: 'multiplayer-sessions', cors: true }
@@ -40,6 +49,9 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
     
         @Inject('PlayerJoinCommandHandler')
         private readonly playerJoinHandler: PlayerJoinCommandHandler,
+
+        @Inject('SyncStateCommandHandler')
+        private readonly syncStateHandler: SyncStateCommandHandler,
 
         private readonly tracingWsService: MultiplayerSessionsTracingService,
     ) {
@@ -262,6 +274,184 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
     }
 
 
+    private async syncClientState(client: SessionSocket): Promise<void> {
+        try {
+            // Ejecutar el comando de sincronización
+            const response = await this.syncStateHandler.execute({
+                sessionPin: client.data.roomPin,
+                userId: client.data.userId,
+            });
+
+            // Determinar el rol del cliente
+            const isHost = client.data.role === SessionRoles.HOST;
+            const isPlayer = client.data.role === SessionRoles.PLAYER;
+
+            // Procesar la respuesta según el tipo de sincronización
+            switch (response.type) {
+                case SyncType.HOST_LOBBY_UPDATE:
+                    // Verificar que no haya otro host conectado
+                    if (this.tracingWsService.roomHasHost(client.data.roomPin)) {
+                        throw new WsException("Ya hay un host conectado a la partida");
+                    }
+
+                    // Emitir eventos específicos para host
+                    client.emit(ServerEvents.HOST_CONNECTED_SUCCESS, { 
+                        status: 'IN_LOBBY - CONNECTED TO SERVER' 
+                    });
+                    // response.data ya es HostLobbyUpdateResponseDto
+                    client.emit(ServerEvents.HOST_LOBBY_UPDATE, response.data as HostLobbyUpdateResponseDto);
+                    break;
+
+                case SyncType.PLAYER_LOBBY_STATE_UPDATE:
+                    // Verificar si el jugador ya estaba registrado (reconexión)
+                    const lobbyData = response.data as LobbyStateUpdateResponseDto;
+                
+                    if (response.additionalData && (response.additionalData as LobbydditionalData)?.isJoined) {
+                        // Jugador reconectando (ya tenía nickname)
+                        const playerData = lobbyData.playerLobbyUpdate;
+                        client.data.nickname = playerData.nickname;
+                    
+                        // Enviar datos de lobby al jugador
+                        client.emit(ServerEvents.PLAYER_CONNECTED_TO_SESSION, playerData);
+                    
+                        // Registrar nickname en el servicio de tracing
+                        this.tracingWsService.registerClientNickname(client);
+                    
+                        // Notificar al host sobre la reconexión del jugador
+                        const hostSocketId = this.tracingWsService.getRoomHostSocketId(client.data.roomPin);
+                        if (hostSocketId) {
+                            const hostSocket = this.wss.sockets.sockets.get(hostSocketId);
+                            if (hostSocket) {
+                                hostSocket.emit(ServerEvents.HOST_LOBBY_UPDATE, lobbyData.hostLobbyUpdate);
+                            }
+                        }
+                    } else {
+                        // Jugador nuevo que nunca se ha unido - solo necesita confirmación de conexión
+                        client.emit(ServerEvents.PLAYER_CONNECTED_TO_SERVER, { 
+                            status: 'IN_LOBBY - CONNECTED TO SERVER' 
+                        });
+                    }
+                    break;
+
+                case SyncType.QUESTION_STARTED:
+                    // response es SyncStateResponseDto genérico
+                    // Necesitamos construir el payload según la estructura esperada
+    
+                    // Extraer los datos según la estructura de SyncStateResponseDto
+                    // Para QUESTION_STARTED, data debería contener state y currentSlideData
+                    const syncData = response.data as any; // Usamos any temporalmente
+    
+                    // Construir el payload según la API esperada
+                    const questionPayload = {
+                        state: syncData.state,
+                        currentSlideData: syncData.currentSlideData,
+                    };
+    
+                    // Agregar datos adicionales si existen (para reconexiones)
+                    if (response.additionalData) {
+                        const additionalData = response.additionalData as QuestionAdditionalData;
+        
+                        // Para host: solo timeRemainingMs
+                        if (client.data.role === SessionRoles.HOST) {
+                            (questionPayload as any).timeRemainingMs = additionalData.timeRemainingMs;
+                        }
+                        // Para jugador: ambos campos
+                        else if (client.data.role === SessionRoles.PLAYER) {
+                            (questionPayload as any).timeRemainingMs = additionalData.timeRemainingMs;
+                            (questionPayload as any).hasAnswered = additionalData.hasAnswered || false;
+                        }
+                    }
+    
+                    client.emit(ServerEvents.QUESTION_STARTED, questionPayload);
+                    break;
+
+                case SyncType.HOST_RESULTS:
+                    // Solo para host
+                    if (isHost) {
+                        client.emit(ServerEvents.HOST_RESULTS, response.data as QuestionResultsHostResponseDto);
+                    } else {
+                        this.logger.warn(`Jugador ${client.id} recibió tipo HOST_RESULTS - ignorando`);
+                    }
+                    break;
+
+                case SyncType.PLAYER_RESULTS:
+                    // Solo para jugadores
+                    if (isPlayer) {
+                    client.emit(ServerEvents.PLAYER_RESULTS, response.data as QuestionResultsPlayerResponseDto);
+                    } else {
+                        this.logger.warn(`Host ${client.id} recibió tipo PLAYER_RESULTS - ignorando`);
+                    }
+                    break;
+
+                case SyncType.HOST_END_GAME:
+                    // Solo para host
+                    if (isHost) {
+                        client.emit(ServerEvents.HOST_GAME_END, response.data as HostEndGameResponseDto);
+                    } else {
+                        this.logger.warn(`Jugador ${client.id} recibió tipo HOST_END_GAME - ignorando`);
+                    }
+                    break;
+
+                case SyncType.PLAYER_END_GAME:
+                    // Solo para jugadores
+                    if (isPlayer) {
+                        client.emit(ServerEvents.PLAYER_GAME_END, response.data as PlayerEndGameResponseDto);
+                    } else {
+                        this.logger.warn(`Host ${client.id} recibió tipo PLAYER_END_GAME - ignorando`);
+                    }
+                    break;
+
+                default:
+                    this.logger.error(`Tipo de sincronización no reconocido: ${response.type}`);
+                    throw new WsException(`Tipo de sincronización no reconocido: ${response.type}`);
+            }
+
+            // Registrar cliente en el servicio de tracing después de sincronización exitosa
+            if (isHost) {
+                this.tracingWsService.registerClient(client);
+            }
+            // Para jugadores, solo registrar si no tiene nickname (nuevo jugador)
+            else if (isPlayer && !client.data.nickname) {
+                this.tracingWsService.registerClient(client);
+            }
+
+            this.logger.debug(`Cliente ${client.id} (${client.data.role}) sincronizado con tipo: ${response.type}`);
+
+        } catch (error) {
+            this.logger.error(`Error en syncClientState para cliente ${client.id}:`, error);
+        
+            // Manejar errores específicos del dominio
+            if (error instanceof Error) {
+                // Error del dominio (sesión no encontrada, etc.)
+                if (error.message.includes(COMMON_ERRORS.SESSION_NOT_FOUND)) {
+                    client.emit(ServerErrorEvents.UNAVAILABLE_SESSION, {
+                        statusCode: 404,
+                        message: 'Sesión no encontrada'
+                    });
+                    throw new WsException('La sesión ya no está disponible');
+                }
+            
+                // Otros errores del dominio
+                client.emit(ServerErrorEvents.SYNC_ERROR, {
+                    statusCode: 500,
+                    message: `Error de sincronización: ${error.message}`
+                });
+                throw new WsException(`Error de sincronización: ${error.message}`);
+            } else if (error instanceof WsException) {
+                // Re-lanzar WsException para manejo superior
+                throw error;
+            } else {
+                // Error genérico
+                client.emit(ServerErrorEvents.SYNC_ERROR, {
+                    statusCode: 500,
+                    message: 'Error interno del servidor durante la sincronización'
+                });
+                throw new WsException('Error interno del servidor');
+            }
+        }
+    }
+
+    
     //Metodos de apoyo
 
     private async closeSession(roomPin: string): Promise<void> {

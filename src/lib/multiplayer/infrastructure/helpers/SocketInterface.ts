@@ -10,6 +10,8 @@ import { QuestionResultsHostResponseDto } from "../../application/responseDtos/Q
 import { QuestionResultsPlayerResponseDto } from "../../application/responseDtos/QuestionResultResponses.dto";
 import { HostEndGameResponseDto } from "../../application/responseDtos/GameEndedResponses.dto";
 import { PlayerEndGameResponseDto } from "../../application/responseDtos/GameEndedResponses.dto";
+import { SessionStateType } from "../../domain/valueObjects/multiplayerVOs";
+import { QuestionWithoutAnswers } from "../../application/responseDtos/types/QuestionWithoutAnswers.interface";
 
 export interface ServerToClientEvents { 
    // Eventos exitosos
@@ -17,7 +19,12 @@ export interface ServerToClientEvents {
   [ServerEvents.PLAYER_CONNECTED_TO_SERVER]: (payload: { status: 'IN_LOBBY - CONNECTED TO SERVER' }) => void;
   [ServerEvents.HOST_LOBBY_UPDATE]: (payload: HostLobbyUpdateResponseDto) => void;
   [ServerEvents.PLAYER_CONNECTED_TO_SESSION]: (payload: PlayerLobbyUpdateResponseDto ) => void;  
-  [ServerEvents.QUESTION_STARTED]:(payload: QuestionStartedResponseDto) => void; 
+  [ServerEvents.QUESTION_STARTED]:(payload: {
+    state: SessionStateType;
+    currentSlideData: QuestionWithoutAnswers;
+    timeRemainingMs?: number;
+    hasAnswered?: boolean;
+  }) => void;
   //[ServerEvents.HOST_ANSWERS_UPDATE]:(payload: PlayerSubmitAnswerResponse ) => void; 
 
   [ServerEvents.PLAYER_ANSWER_CONFIRMATION]:(payload: { status: 'ANSWER SUCCESFULLY SUBMITTED' }) => void; 
