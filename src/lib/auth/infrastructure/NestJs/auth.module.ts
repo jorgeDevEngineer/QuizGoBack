@@ -3,18 +3,17 @@ import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from "./auth.controller";
 import { JwtTokenProvider } from "../providers/JwtTokenProvider";
 import { LoginCommandHandler } from "../../application/Handlers/Commands/LoginCommandHandler";
-import { RegisterCommandHandler } from "../../application/Handlers/Commands/RegisterCommandHandler";
+import { RegisterCommandHandler } from "../../application/Handlers/Commands/RegisterCommandHandler"; // Ensure this is used or remove
 import { LogoutCommandHandler } from "../../application/Handlers/Commands/LogoutCommandHandler";
 import { CheckTokenStatusQueryHandler } from "../../application/Handlers/Querys/CheckTokenStatusQueryHandler";
-import { GetOneUserByEmailQueryHandler } from "../../../user/application/Handlers/Querys/GetOneUserByEmailQueryHandler";
-import { CreateUserCommandHandler } from "../../../user/application/Handlers/Commands/CreateUserCommandHandler";
 import { UserModule } from "../../../user/infrastructure/NestJS/user.module";
 
 @Module({
   imports: [
+    // We import UserModule to get access to its exported handlers
     forwardRef(() => UserModule),
     JwtModule.register({
-      secret: "your-secret-key", // TODO: move to config
+      secret: "your-secret-key",
       signOptions: { expiresIn: "1h" },
     }),
   ],
@@ -27,6 +26,8 @@ import { UserModule } from "../../../user/infrastructure/NestJS/user.module";
     LoginCommandHandler,
     LogoutCommandHandler,
     CheckTokenStatusQueryHandler,
+    // REMOVED: GetOneUserByEmailQueryHandler
+    // REMOVED: GetOneUserByIdQueryHandler
   ],
   exports: ["ITokenProvider"],
 })

@@ -7,6 +7,7 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Get,
 } from "@nestjs/common";
 import { LoginCommandHandler } from "../../application/Handlers/Commands/LoginCommandHandler";
 import { RegisterCommandHandler } from "../../application/Handlers/Commands/RegisterCommandHandler";
@@ -16,6 +17,12 @@ import { LoginCommand } from "../../application/parameterObjects/LoginCommand";
 import { RegisterCommand } from "../../application/parameterObjects/RegisterCommand";
 import { LogoutCommand } from "../../application/parameterObjects/LogoutCommand";
 import { CheckTokenStatusQuery } from "../../application/parameterObjects/CheckTokenStatusQuery";
+import { GetOneUserByEmail } from "src/lib/user/application/Parameter Objects/GetOneUserByEmail";
+import { GetOneUserByEmailQueryHandler } from "src/lib/user/application/Handlers/Querys/GetOneUserByEmailQueryHandler";
+import { In } from "typeorm";
+import { GetOneUserByIdQueryHandler } from "src/lib/user/application/Handlers/Querys/GetOneUserByIdQueryHandler";
+import { GetOneUserById } from "src/lib/user/application/Parameter Objects/GetOneUserById";
+import { ITokenProvider } from "../../application/providers/ITokenProvider";
 
 @Controller("auth")
 export class AuthController {
@@ -25,7 +32,12 @@ export class AuthController {
     @Inject(LogoutCommandHandler)
     private readonly logoutHandler: LogoutCommandHandler,
     @Inject(CheckTokenStatusQueryHandler)
-    private readonly checkTokenHandler: CheckTokenStatusQueryHandler
+    private readonly checkTokenHandler: CheckTokenStatusQueryHandler,
+    @Inject(GetOneUserByEmailQueryHandler)
+    private readonly getUserByEmailHandler: GetOneUserByEmailQueryHandler,
+    @Inject(GetOneUserByIdQueryHandler)
+    private readonly getUserByIdHandler: GetOneUserByIdQueryHandler,
+    @Inject("ITokenProvider") private readonly tokenProvider: ITokenProvider
   ) {}
 
   @Post("login")
@@ -36,7 +48,10 @@ export class AuthController {
     if (result.isFailure) {
       throw new HttpException(result.error.message, HttpStatus.UNAUTHORIZED);
     }
-    return { token: result.getValue() };
+    const user = await this.getUserByEmailHandler.execute(
+      new GetOneUserByEmail(body.email)
+    );
+    return { token: result.getValue(), user: user.getValue().toPlainObject() };
   }
 
   @Post("logout")
@@ -67,6 +82,16 @@ export class AuthController {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
-    return { valid: result.getValue() };
+    const decodedToken = await this.tokenProvider.validateToken(token);
+    const user = await this.getUserByIdHandler.execute(
+      new GetOneUserById(decodedToken.sub)
+    );
+    if (user.isFailure) {
+      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+    }
+    return {
+      valid: result.getValue() === true,
+      user: user.getValue().toPlainObject(),
+    };
   }
 }
