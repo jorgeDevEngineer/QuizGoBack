@@ -10,8 +10,6 @@ export class ErrorHandlingDecorator<
     error: Error,
     command: TParameterObject
   ): Result<TResponse> {
-    console.log("entra al decorator");
-    console.log(typeof error);
     if (error instanceof DomainException) {
       // Errores de dominio → log como warning y devolvemos Result.fail con el error
       this.logger.warn(

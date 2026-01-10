@@ -169,6 +169,24 @@ export class TypeOrmUserRepository implements UserRepository {
     }
   }
 
+  async getOneByEmail(email: UserEmail): Promise<User | null> {
+    try {
+      const collection = await this.getMongoCollection();
+      const doc = await collection.findOne({ email: email.value });
+      if (!doc) return null;
+      return this.mapMongoToDomain(doc);
+    } catch (error) {
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for getOneByEmail operation."
+      );
+      const user = await this.pgRepository.findOne({
+        where: { email: email.value },
+      });
+      if (!user) return null;
+      return this.mapToDomain(user);
+    }
+  }
+
   async create(user: User): Promise<void> {
     try {
       const collection = await this.getMongoCollection();

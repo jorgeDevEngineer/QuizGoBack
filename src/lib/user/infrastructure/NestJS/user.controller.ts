@@ -33,6 +33,7 @@ import { EnableFreeMembership } from "../../application/Parameter Objects/Enable
 import { EnablePremiumMembership } from "../../application/Parameter Objects/EnablePremiumMembership";
 import { Result } from "src/lib/shared/Type Helpers/result";
 import { User } from "../../domain/aggregate/User";
+import { get } from "http";
 
 @Controller("user")
 export class UserController {
@@ -65,12 +66,124 @@ export class UserController {
     return result.getValue()!;
   }
 
+  /////////////////////////////////////CURRENT ENDPOINTS//////////////////////////////////////
+
+  @Post("register")
+  async register(@Body() body: Create) {
+    const createUser = new CreateUser(
+      body.userName,
+      body.email,
+      body.hashedPassword,
+      body.userType,
+      body.avatarUrl
+    );
+    const result = await this.createUserCommandHandler.execute(createUser);
+    return this.handleResult(result);
+  }
+
+  @Get("profile")
+  async getProfile() {}
+
+  @Get("profile/id/:id")
+  async getProfileById(@Param() params: FindByIdParams) {
+    const query = new GetOneUserById(params.id);
+    const result = await this.getOneUserById.execute(query);
+    return this.handleResult(result).toPlainObject();
+  }
+
+  @Get("profile/username/:userName")
+  async getProfileByUserName(@Param() params: FindByUserNameParams) {
+    const query = new GetOneUserByUserName(params.userName);
+    const result = await this.getOneUserByUserName.execute(query);
+    return this.handleResult(result).toPlainObject();
+  }
+
   @Get()
-  async getAll() {
+  async getAllProfiles() {
     const query = new GetAllUsers();
     const result = await this.getAllUsers.execute(query);
     return this.handleResult(result).map((user) => user.toPlainObject());
   }
+
+  @Patch("profile")
+  async editProfile(@Body() body: Edit) {}
+
+  @Patch("profile/:id")
+  async editProfileById(@Param() params: FindByIdParams, @Body() body: Edit) {
+    const query = new GetOneUserById(params.id);
+    const userResult = await this.getOneUserById.execute(query);
+    const user = this.handleResult(userResult);
+    const editUserCommand = new EditUser(
+      body.userName,
+      body.email,
+      body.hashedPassword,
+      body.userType,
+      body.avatarUrl,
+      user.id.value,
+      body.name,
+      body.theme,
+      body.language,
+      body.gameStreak,
+      body.status
+    );
+    const editResult = await this.editUser.execute(editUserCommand);
+    return this.handleResult(editResult);
+  }
+
+  @Delete("profile")
+  async deleteProfile() {}
+
+  @Delete("profile/:id")
+  async deleteProfileById(@Param() params: FindByIdParams) {
+    const query = new GetOneUserById(params.id);
+    const userResult = await this.getOneUserById.execute(query);
+    this.handleResult(userResult);
+    const deleteUserCommand = new DeleteUser(params.id);
+    const deleteResult = await this.deleteUser.execute(deleteUserCommand);
+    return this.handleResult(deleteResult);
+  }
+
+  @Get("subscription/plans")
+  async getSubscriptionPlans() {
+    return [...Object.values(MEMBERSHIP_TYPES)];
+  }
+
+  @Get("subscription/status")
+  async getProfileSubscriptionStatus() {}
+
+  @Get("subscription/status/:id")
+  async getSubscriptionStatusById(@Param() params: FindByIdParams) {
+    const query = new GetOneUserById(params.id);
+    const userResult = await this.getOneUserById.execute(query);
+    const user = this.handleResult(userResult);
+    return {
+      membershipType: user.membership.type.value,
+      status: user.membership.isEnabled() ? "enabled" : "disabled",
+      expiresAt: user.membership.expiresAt.value,
+    };
+  }
+
+  @Post("subscription/premium")
+  async enablePremiumSubscriptionPlan() {}
+
+  @Post("subscription/premium/:id")
+  async enablePremiumSubscriptionPlanById(@Param() params: FindByIdParams) {
+    const command = new EnablePremiumMembership(params.id);
+    const result = await this.enablePremiumMembership.execute(command);
+    return this.handleResult(result);
+  }
+
+  @Delete("subscription/free")
+  async enableFreeSubscriptionPlan() {}
+
+  @Delete("subscription/free/:id")
+  async enableFreeSubscriptionPlanById(@Param() params: FindByIdParams) {
+    const command = new EnableFreeMembership(params.id);
+    const result = await this.enableFreeMembership.execute(command);
+    return this.handleResult(result);
+  }
+
+  /////////////////////////////////////LEGACY ENDPOINTS//////////////////////////////////////
 
   @Get(":id")
   async getOneById(@Param() params: FindByIdParams) {
@@ -84,6 +197,13 @@ export class UserController {
     const query = new GetOneUserByUserName(params.userName);
     const result = await this.getOneUserByUserName.execute(query);
     return this.handleResult(result).toPlainObject();
+  }
+
+  @Get()
+  async getAll() {
+    const query = new GetAllUsers();
+    const result = await this.getAllUsers.execute(query);
+    return this.handleResult(result).map((user) => user.toPlainObject());
   }
 
   @Post()
