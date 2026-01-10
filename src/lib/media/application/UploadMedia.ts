@@ -5,7 +5,8 @@ import { IMediaRepository } from '../domain/port/IMediaRepository';
 import { Result } from '../../shared/Type Helpers/result';
 import { IHandler } from '../../shared/IHandler';
 import { Injectable } from '@nestjs/common';
-import { AuthorId, MediaCategory, MediaName, MediaUrl } from '../domain/value-object/MediaId';
+import { AuthorId, MediaCategory, MediaName, MediaUrl, MediaMimeType, MediaSize, MediaFormat } from '../domain/value-object/MediaId';
+import * as path from 'path';
 
 export interface UploadMediaDTO {
     file: Buffer;
@@ -44,6 +45,9 @@ export class UploadMedia implements IHandler<UploadMediaDTO, Result<Media>> {
                 AuthorId.of(authorId),
                 MediaName.of(fileName),
                 MediaUrl.of(url),
+                MediaMimeType.of(mimeType),
+                MediaSize.of(file.length),
+                MediaFormat.of(path.extname(fileName)),
                 MediaCategory.of(category ?? 'generic'),
             );
 

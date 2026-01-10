@@ -3,6 +3,7 @@
 /node_modules
 /build
 /themesImages
+/.idx
 
 # Logs
 logs

@@ -4,7 +4,7 @@ import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
 @Entity('media')
 export class TypeOrmMediaEntity {
     @PrimaryColumn('uuid')
-    id: string;
+    mediaId: string;
 
     @Column({ name: 'author_id' })
     authorId: string;
@@ -14,6 +14,15 @@ export class TypeOrmMediaEntity {
 
     @Column()
     url: string;
+
+    @Column({ name: 'mime_type' })
+    mimeType: string;
+
+    @Column('int')
+    size: number;
+
+    @Column()
+    format: string;
 
     @Column()
     category: string;

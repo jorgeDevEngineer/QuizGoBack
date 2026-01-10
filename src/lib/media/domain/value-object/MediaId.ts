@@ -32,6 +32,24 @@ export class MediaUrl {
     public getValue(): string { return this.value; }
 }
 
+export class MediaMimeType {
+    private constructor(public readonly value: string) { if (!value.includes('/')) { throw new DomainException("MimeType is not in a valid format."); } }
+    public static of(value: string): MediaMimeType { return new MediaMimeType(value); }
+    public getValue(): string { return this.value; }
+}
+
+export class MediaSize {
+    private constructor(public readonly value: number) { if (value < 0) { throw new DomainException("MediaSize cannot be negative."); } }
+    public static of(value: number): MediaSize { return new MediaSize(value); }
+    public getValue(): number { return this.value; }
+}
+
+export class MediaFormat {
+    private constructor(public readonly value: string) { if (value.length === 0) { throw new DomainException("MediaFormat cannot be empty."); } }
+    public static of(value: string): MediaFormat { return new MediaFormat(value); }
+    public getValue(): string { return this.value; }
+}
+
 export class MediaCategory {
     private constructor(public readonly value: string) { if (value.length < 3 || value.length > 50) { throw new DomainException("MediaCategory must be between 3 and 50 characters."); } }
     public static of(value: string): MediaCategory { return new MediaCategory(value); }

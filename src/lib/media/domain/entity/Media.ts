@@ -1,11 +1,14 @@
 
-import { MediaId, AuthorId, MediaName, MediaUrl, MediaCategory, CreatedAt } from '../value-object/MediaId';
+import { MediaId, AuthorId, MediaName, MediaUrl, MediaMimeType, MediaSize, MediaFormat, MediaCategory, CreatedAt } from '../value-object/MediaId';
 
 export interface MediaProps {
-  id: MediaId;
+  mediaId: MediaId;
   authorId: AuthorId;
   name: MediaName;
   url: MediaUrl;
+  mimeType: MediaMimeType;
+  size: MediaSize;
+  format: MediaFormat;
   category: MediaCategory;
   createdAt: CreatedAt;
 }
@@ -17,39 +20,56 @@ export class Media {
     this.props = props;
   }
 
-  public static create(authorId: AuthorId, name: MediaName, url: MediaUrl, category: MediaCategory): Media {
+  public static create(authorId: AuthorId, name: MediaName, url: MediaUrl, mimeType: MediaMimeType, size: MediaSize, format: MediaFormat, category: MediaCategory): Media {
     return new Media({
-        id: MediaId.generate(),
-        authorId: authorId,
-        name: name,
-        url: url,
-        category: category,
-        createdAt: CreatedAt.now()
+      mediaId: MediaId.generate(),
+      authorId: authorId,
+      name: name,
+      url: url,
+      mimeType: mimeType,
+      size: size,
+      format: format,
+      category: category,
+      createdAt: CreatedAt.now()
     });
   }
 
-  public static fromDb(id: MediaId, authorId: AuthorId, name: MediaName, url: MediaUrl, category: MediaCategory, createdAt: CreatedAt): Media {
-    return new Media({ id, authorId, name, url, category, createdAt });
+  public static fromDb(mediaId: MediaId, authorId: AuthorId, name: MediaName, url: MediaUrl, mimeType: MediaMimeType, size: MediaSize, format: MediaFormat, category: MediaCategory, createdAt: CreatedAt): Media {
+    return new Media({ mediaId, authorId, name, url, mimeType, size, format, category, createdAt });
   }
   
   public toPlainObject(): { [key: string]: any } {
     return {
-        id: this.props.id.getId(),
-        authorId: this.props.authorId.getId(),
-        name: this.props.name.getValue(),
-        url: this.props.url.getValue(),
-        category: this.props.category.getValue(),
-        createdAt: this.props.createdAt.getValue()
+      mediaId: this.props.mediaId.getId(),
+      authorId: this.props.authorId.getId(),
+      name: this.props.name.getValue(),
+      url: this.props.url.getValue(),
+      mimeType: this.props.mimeType.getValue(),
+      size: this.props.size.getValue(),
+      format: this.props.format.getValue(),
+      category: this.props.category.getValue(),
+      createdAt: this.props.createdAt.getValue()
     };
   }
 
   public properties(): { [key: string]: any } {
-    return this.toPlainObject();
+    const props = this.toPlainObject();
+    return {
+      id: props.mediaId,
+      originalName: props.name,
+      url: props.url,
+      mimeType: props.mimeType,
+      size: props.size,
+      format: props.format,
+      category: props.category,
+      authorId: props.authorId,
+      createdAt: props.createdAt,
+    };
   }
 
   public toResponse() {
     return {
-      id: this.props.id.getId(),
+      mediaId: this.props.mediaId.getId(),
       url: this.props.url.getValue(),
     };
   }

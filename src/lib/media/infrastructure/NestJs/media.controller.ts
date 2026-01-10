@@ -14,7 +14,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadMedia, UploadMediaDTO } from "../../application/UploadMedia";
 import { ListThemesUseCase } from "../../application/ListThemesUseCase";
 
-interface UploadedFile {
+interface MulterFile {
   buffer: Buffer;
   originalname: string;
   mimetype: string;
@@ -33,7 +33,7 @@ export class MediaController {
   @Post("upload")
   @UseInterceptors(FileInterceptor("file"))
   async upload(
-    @UploadedFile() file: UploadedFile,
+    @UploadedFile() file: MulterFile,
     @Body() body: any,
     @Headers("Authorization") authHeader: string
   ) {
