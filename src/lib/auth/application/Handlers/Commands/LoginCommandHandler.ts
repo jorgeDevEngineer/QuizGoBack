@@ -7,16 +7,14 @@ import { ITokenProvider } from "src/lib/auth/application/providers/ITokenProvide
 import { Get, Inject } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 import { User } from "src/lib/user/domain/aggregate/User";
-import { GetOneUserByUserName } from "src/lib/user/application/Parameter Objects/GetOneUserByUserName";
-import { GetOneUserByUserNameQueryHandler } from "src/lib/user/application/Handlers/Querys/GetOneUserByUserNameQueryHandler";
 
 export class LoginCommandHandler
   implements IHandler<LoginCommand, Result<string>>
 {
   constructor(
-    @Inject(GetOneUserByUserNameQueryHandler)
-    private readonly getUserByNameHandler: IHandler<
-      GetOneUserByUserName,
+    @Inject(GetOneUserByEmailQueryHandler)
+    private readonly getUserByEmailHandler: IHandler<
+      GetOneUserByEmail,
       Result<User>
     >,
     @Inject("ITokenProvider") private readonly tokenProvider: ITokenProvider
@@ -26,8 +24,8 @@ export class LoginCommandHandler
     if (!command.password || command.password.trim() === "") {
       return Result.fail(new Error("Password is required"));
     }
-    const getUserResult = await this.getUserByNameHandler.execute(
-      new GetOneUserByUserName(command.name)
+    const getUserResult = await this.getUserByEmailHandler.execute(
+      new GetOneUserByEmail(command.email)
     );
     if (getUserResult.isFailure) {
       return Result.fail(getUserResult.error);

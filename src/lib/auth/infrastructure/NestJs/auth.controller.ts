@@ -29,9 +29,9 @@ export class AuthController {
   ) {}
 
   @Post("login")
-  async login(@Body() body: { name: string; password: string }) {
+  async login(@Body() body: { email: string; password: string }) {
     const result = await this.loginHandler.execute(
-      new LoginCommand(body.name, body.password)
+      new LoginCommand(body.email, body.password)
     );
     if (result.isFailure) {
       throw new HttpException(result.error.message, HttpStatus.UNAUTHORIZED);
