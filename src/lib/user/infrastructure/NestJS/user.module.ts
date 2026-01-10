@@ -14,11 +14,13 @@ import { EnablePremiumMembershipCommandHandler } from "../../application/Handler
 import { EnableFreeMembershipCommandHandler } from "../../application/Handlers/Commands/EnableFreeMembershipCommandHandler";
 import { ErrorHandlingDecorator } from "src/lib/shared/aspects/error-handling/application/decorators/error-handling.decorator";
 import { LoggingUseCaseDecorator } from "src/lib/shared/aspects/logger/application/decorators/logging.decorator";
+import { AuthorizationDecorator } from "src/lib/shared/aspects/auth/application/decorators/authorization.decorator";
 import {
   ILoggerPort,
   LOGGER_PORT,
 } from "src/lib/shared/aspects/logger/domain/ports/logger.port";
 import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logger.module";
+import { AuthAspectModule } from "src/lib/shared/aspects/auth/infrastructure/auth.module";
 import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
 
 @Module({
@@ -26,6 +28,7 @@ import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
     TypeOrmModule.forFeature([TypeOrmUserEntity]),
     forwardRef(() => AuthModule),
     LoggerModule,
+    AuthAspectModule,
   ],
   controllers: [UserController],
   providers: [
@@ -127,10 +130,13 @@ import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
           logger,
           "DeleteUserCommandHandler"
         );
-        return new LoggingUseCaseDecorator(
+        const withLogging = new LoggingUseCaseDecorator(
           withErrorHandling,
           logger,
           "DeleteUserCommandHandler"
+        );
+        return new AuthorizationDecorator(
+          withLogging
         );
       },
       inject: [LOGGER_PORT, "UserRepository"],
@@ -144,10 +150,13 @@ import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
           logger,
           "EditUserCommandHandler"
         );
-        return new LoggingUseCaseDecorator(
+        const withLogging = new LoggingUseCaseDecorator(
           withErrorHandling,
           logger,
           "EditUserCommandHandler"
+        );
+        return new AuthorizationDecorator(
+          withLogging
         );
       },
       inject: [LOGGER_PORT, "UserRepository"],
@@ -161,10 +170,13 @@ import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
           logger,
           "EnablePremiumMembershipCommandHandler"
         );
-        return new LoggingUseCaseDecorator(
+        const withLogging = new LoggingUseCaseDecorator(
           withErrorHandling,
           logger,
           "EnablePremiumMembershipCommandHandler"
+        );
+        return new AuthorizationDecorator(
+          withLogging
         );
       },
       inject: [LOGGER_PORT, "UserRepository"],
@@ -178,10 +190,13 @@ import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
           logger,
           "EnableFreeMembershipCommandHandler"
         );
-        return new LoggingUseCaseDecorator(
+        const withLogging = new LoggingUseCaseDecorator(
           withErrorHandling,
           logger,
           "EnableFreeMembershipCommandHandler"
+        );
+        return new AuthorizationDecorator(
+          withLogging
         );
       },
       inject: [LOGGER_PORT, "UserRepository"],

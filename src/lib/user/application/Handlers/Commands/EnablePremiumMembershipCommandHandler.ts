@@ -11,7 +11,7 @@ export class EnablePremiumMembershipCommandHandler
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(command: EnablePremiumMembership): Promise<Result<void>> {
-    const user = await this.userRepository.getOneById(new UserId(command.id));
+    const user = await this.userRepository.getOneById(new UserId(command.targetUserId));
     if (!user) {
       return Result.fail(new UserNotFoundException());
     }
