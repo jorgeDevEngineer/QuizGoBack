@@ -59,7 +59,7 @@ export class QuestionText {
 
 // --- VOs de Configuración y Estado ---
 
-type QuestionTypeValue = "quiz" | "true_false" | "multiple";
+export type QuestionTypeValue = "quiz" | "true_false" | "multiple";
 
 export class QuestionType {
   private constructor(public readonly value: QuestionTypeValue) {}

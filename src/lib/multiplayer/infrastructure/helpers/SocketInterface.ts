@@ -1,10 +1,17 @@
 import { Socket } from "socket.io";
-
 import { HostLobbyUpdateResponseDto } from "../../application/responseDtos/LobbyStateUpdateResponse.dto";
 import { PlayerLobbyUpdateResponseDto } from "../../application/responseDtos/LobbyStateUpdateResponse.dto";
-
+import { SessionClosedResponseDto } from "../requestesDto/SessionClosedResponse.dto";
 import { HostUserEvents, PlayerUserEvents, ServerErrorEvents, ServerEvents, ClientEvents } from "./WebSocketEvents.enum";
 import { SessionRoles } from "./SessionRoles.enum";
+import { PlayerSubmitAnswerDto } from "../requestesDto/PlayerSubmitAnswer.dto";
+import { QuestionResultsHostResponseDto } from "../../application/responseDtos/QuestionResultResponses.dto";
+import { QuestionResultsPlayerResponseDto } from "../../application/responseDtos/QuestionResultResponses.dto";
+import { HostEndGameResponseDto } from "../../application/responseDtos/GameEndedResponses.dto";
+import { PlayerEndGameResponseDto } from "../../application/responseDtos/GameEndedResponses.dto";
+import { SessionStateType } from "../../domain/valueObjects/multiplayerVOs";
+import { QuestionWithoutAnswers } from "../../application/responseDtos/types/QuestionWithoutAnswers.interface";
+import { PlayerSubmitAnswerResponseDto } from "../../application/responseDtos/PlayerSubmitAnswerResponse.dto";
 
 export interface ServerToClientEvents { 
    // Eventos exitosos
@@ -12,22 +19,27 @@ export interface ServerToClientEvents {
   [ServerEvents.PLAYER_CONNECTED_TO_SERVER]: (payload: { status: 'IN_LOBBY - CONNECTED TO SERVER' }) => void;
   [ServerEvents.HOST_LOBBY_UPDATE]: (payload: HostLobbyUpdateResponseDto) => void;
   [ServerEvents.PLAYER_CONNECTED_TO_SESSION]: (payload: PlayerLobbyUpdateResponseDto ) => void;  
-  //[ServerEvents.QUESTION_STARTED]:(payload: QuestionStartedResponse) => void; 
-  //[ServerEvents.HOST_ANSWERS_UPDATE]:(payload: PlayerSubmitAnswerResponse ) => void; 
-
-  //[ServerEvents.PLAYER_ANSWER_CONFIRMATION]:(payload: { status: 'ANSWER SUCCESFULLY SUBMITTED' }) => void; 
-  //[ServerEvents.HOST_RESULTS]:(payload: QuestionResultsHostResponse ) => void;
-  //[ServerEvents.PLAYER_RESULTS]:(payload: QuestionResultsPlayerResponse ) => void;
-  //[ServerEvents.HOST_GAME_END]:(payload: HostEndGameResponse ) => void; 
-  //[ServerEvents.PLAYER_GAME_END]:(payload: PlayerEndGameResponse ) => void;
+  [ServerEvents.QUESTION_STARTED]:(payload: {
+    state: SessionStateType;
+    currentSlideData: QuestionWithoutAnswers;
+    timeRemainingMs?: number;
+    hasAnswered?: boolean;
+  }) => void;
+  [ServerEvents.HOST_ANSWERS_UPDATE]:(payload: PlayerSubmitAnswerResponseDto ) => void; 
+  [ServerEvents.PLAYER_ANSWER_CONFIRMATION]:(payload: { status: 'ANSWER SUCCESFULLY SUBMITTED' }) => void; 
+  [ServerEvents.HOST_RESULTS]:(payload: QuestionResultsHostResponseDto ) => void;
+  [ServerEvents.PLAYER_RESULTS]:(payload: QuestionResultsPlayerResponseDto ) => void;
+  [ServerEvents.HOST_GAME_END]:(payload: HostEndGameResponseDto ) => void; 
+  [ServerEvents.PLAYER_GAME_END]:(payload: PlayerEndGameResponseDto ) => void;
   [ServerEvents.PLAYER_LEFT_SESSION]:(payload: { userId: string, nickname: string, message: string}) => void; 
   [ServerEvents.HOST_LEFT_SESSION]:(payload: { message: string }) => void; 
   [ServerEvents.HOST_RETURNED_TO_SESSION]:(payload: { message: string }) => void; 
-  //[ServerEvents.SESSION_CLOSED]:(payload: SessionClosed ) => void; 
+  [ServerEvents.SESSION_CLOSED]:(payload: SessionClosedResponseDto ) => void; 
 
 
    // Errores
   [ServerErrorEvents.FATAL_ERROR]: (payload: { statusCode: number, message: string }) => void;
+  [ServerErrorEvents.GAME_ERROR]: (payload: { statusCode: number, message: string }) => void;
   [ServerErrorEvents.UNAVAILABLE_SESSION]: (payload: { statusCode: number, message: string }) => void;
   [ServerErrorEvents.SYNC_ERROR]: (payload: { statusCode: number, message: string }) => void;
 
@@ -38,7 +50,7 @@ export interface ClientToServerEvents {
   [ClientEvents.CLIENT_READY]: () => void;
 
   [PlayerUserEvents.PLAYER_JOIN]: (payload: {}) => void;
-  //[PlayerUserEvents.PLAYER_SUBMIT_ANSWER]: (payload: PlayerSubmitAnswerDto ) => void;
+  [PlayerUserEvents.PLAYER_SUBMIT_ANSWER]: (payload: PlayerSubmitAnswerDto ) => void;
 
   [HostUserEvents.HOST_START_GAME]: (payload: {}) => void;
 

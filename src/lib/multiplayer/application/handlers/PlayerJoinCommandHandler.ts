@@ -7,6 +7,7 @@ import { UserRepository } from "src/lib/user/domain/port/UserRepository";
 import { IActiveMultiplayerSessionRepository } from "../../domain/repositories/IActiveMultiplayerSessionRepository";
 import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { MapJoinToLobbyUpdate } from "../mappers/MapJoinToLobbyUpdate";
+import { COMMON_ERRORS } from "./Errors/CommonErrors";
 
 export class PlayerJoinCommandHandler implements IHandler<PlayerJoinCommand, LobbyStateUpdateResponseDto> {
 
@@ -22,7 +23,7 @@ export class PlayerJoinCommandHandler implements IHandler<PlayerJoinCommand, Lob
 
         const sessionWrapper = await this.sessionRepository.findByPin( command.sessionPin );
         if ( !sessionWrapper ){
-            throw new Error('No se encontró la sesión');
+            throw new Error(COMMON_ERRORS.SESSION_NOT_FOUND);
         }
         const { session } = sessionWrapper
 

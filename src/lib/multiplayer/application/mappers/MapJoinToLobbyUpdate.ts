@@ -4,7 +4,6 @@ import { LobbyStateUpdateResponseDto } from "../responseDtos/LobbyStateUpdateRes
 import { MapHostLobbyData } from "../helpers/MapHostLobbyData";
 import { MapPlayerLobbyData } from "../helpers/MapPlayerLobbyData";
 
-
 export const MapJoinToLobbyUpdate = ( player: Player, session: MultiplayerSession ): LobbyStateUpdateResponseDto => {
 
     // Construimos la response del game_state_update
