@@ -200,6 +200,7 @@ import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
     CreateUserCommandHandler,
     GetOneUserByEmailQueryHandler,
     GetOneUserByUserNameQueryHandler,
+    GetOneUserByIdQueryHandler,
   ],
 })
 export class UserModule {}
