@@ -457,6 +457,8 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
                 this.logger.log(`Host reconectado a sala ${client.data.roomPin}. Cancelando cierre de sala.`);
                 clearTimeout(pendingTimer);
                 this.hostDisconnectionTimers.delete(client.data.roomPin);
+
+                this.tracingWsService.registerClient(client);
             
                 // Notificamos a los jugadores
                 this.wss.to(client.data.roomPin).emit(ServerEvents.HOST_RETURNED_TO_SESSION, { 
@@ -496,6 +498,78 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
             return;
         }
     }
+
+    @SubscribeMessage(PlayerUserEvents.PLAYER_JOIN)
+    async handlePlayerJoin(client: SessionSocket, payload: PlayerJoinDto) {
+        this.logger.debug(`Recibido PLAYER_JOIN de ${client.id} con nickname: ${payload.nickname}`);
+
+        try {
+            // 1. Validaciones básicas
+            if (!client.rooms.has(client.data.roomPin)) {
+                throw new WsException("FATAL: El cliente no se encuentra conectado a la sala solicitada");
+            }
+
+            if (client.data.role !== SessionRoles.PLAYER) {
+                throw new WsException("El Host de la partida no puede unirse a la sesión de juego");
+            }
+
+            // 2. Validar nickname según API (6-20 caracteres)
+            if (!payload.nickname || payload.nickname.length < 6 || payload.nickname.length > 20) {
+                throw new WsException("El nickname debe tener entre 6 y 20 caracteres");
+            }
+
+            // 3. Ejecutar el comando de unión de jugador
+            const result = await this.playerJoinHandler.execute({
+                userId: client.data.userId,
+                nickname: payload.nickname,
+                sessionPin: client.data.roomPin
+            });
+
+            // 4. Guardar el nickname en el socket
+            client.data.nickname = result.playerLobbyUpdate.nickname;
+        
+            // 5. Enviar confirmación al jugador según API
+            // PLAYER_CONNECTED_TO_SESSION con: state, nickname, score, connectedBefore
+            client.emit(ServerEvents.PLAYER_CONNECTED_TO_SESSION, result.playerLobbyUpdate);
+
+            // 6. Notificar al host sobre el nuevo jugador
+            const hostSocketId = this.tracingWsService.getRoomHostSocketId(client.data.roomPin);
+            if (hostSocketId) {
+                const sockets = await this.wss.in(hostSocketId).fetchSockets();
+                if (sockets.length > 0) {
+                    sockets[0].emit(ServerEvents.HOST_LOBBY_UPDATE, result.hostLobbyUpdate);
+                }
+            }
+
+            // 7. Actualizar el nickname en el servicio de tracing
+            this.tracingWsService.registerClientNickname(client);
+        
+            this.logger.debug(`Jugador ${payload.nickname} se unió exitosamente a la sala ${client.data.roomPin}`);
+
+        } catch (error) {
+            this.logger.error(`Error en PLAYER_JOIN para cliente ${client.id}:`, error);
+        
+            let errorMessage = 'Error al unirse a la sesión';
+        
+            if (error instanceof WsException) {
+                errorMessage = error.message;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+        
+            // Enviar error al cliente (podría ser FATAL_ERROR o game_error según API)
+            client.emit(ServerErrorEvents.FATAL_ERROR, { 
+                statusCode: 400, 
+                message: errorMessage 
+            });
+        
+        // NOTA: Según API página 6, player_join responde con:
+        // Éxito: host_lobby_update (solo al host) y player_connected_to_session (solo al cliente)
+        // Error: connection_error (solo al emisor)
+        // Tu gateway actual usa FATAL_ERROR, que también es válido
+        }
+    }
+
 
     
     //Metodos de apoyo
