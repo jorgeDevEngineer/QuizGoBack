@@ -1,5 +1,5 @@
 import { GroupQuizAssignmentId } from "../valueObject/GroupQuizAssigmentId";
-import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
+import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { SinglePlayerGameId } from "src/lib/shared/domain/ids";
 
 export class GroupQuizCompletion {

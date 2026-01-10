@@ -8,7 +8,7 @@ import { GetUserInProgressQuizzesQueryHandler } from "../../application/Handlers
 import { GetUserCompletedQuizzesQueryHandler } from "../../application/Handlers/Querys/GetUserCompletedQuizzesQueryHandler";
 import { UserFavoriteQuizRepository } from "../../domain/port/UserFavoriteQuizRepository";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { TypeOrmPostgresUserFavoriteQuizEntity } from "../TypeOrm/Postgres/Entities/TypeOrmPostgresUserFavoriteQuizEntity";
+import { TypeOrmPostgresUserFavoriteQuizEntity } from "../TypeOrm/Entities/TypeOrmPostgresUserFavoriteQuizEntity";
 import { TypeOrmQuizEntity } from "../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { UserRepository } from "../../../user/domain/port/UserRepository";
 import { TypeOrmUserEntity } from "../../../user/infrastructure/TypeOrm//TypeOrmUserEntity";
@@ -28,6 +28,7 @@ import { LoggingUseCaseDecorator } from "src/lib/shared/aspects/logger/applicati
 import { ErrorHandlingDecoratorWithEither } from "src/lib/shared/aspects/error-handling/application/decorators/error-handling-either";
 import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logger.module";
 import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
+import { MultiplayerSessionHistoryRepository } from "../../domain/port/MultiplayerSessionHistoryRepository";
 
 @Module({
   imports: [
@@ -48,13 +49,12 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
         dataSource: DataSource,
         mongoAdapter: DynamicMongoAdapter
       ) => {
-        const dbType: "postgres" | "mongo" =
-          (process.env.LIBRARY_DB_TYPE as "postgres" | "mongo") || "postgres";
-        return new LibraryRepositoryBuilder(dbType, dataSource, mongoAdapter)
+        return new LibraryRepositoryBuilder(dataSource, mongoAdapter)
           .withEntity("UserFavoriteQuiz")
           .withEntity("Quiz")
           .withEntity("User")
-          .withEntity("SinglePlayerGame");
+          .withEntity("SinglePlayerGame")
+          .withEntity("MultiplayerSession");
       },
       inject: [DataSource, DynamicMongoAdapter],
     },
@@ -80,6 +80,12 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
       provide: "SinglePlayerGameRepository",
       useFactory: (builder: LibraryRepositoryBuilder) =>
         builder.buildSinglePlayerGameRepository(),
+      inject: ["LibraryRepositoryBuilder"],
+    },
+    {
+      provide: "MultiplayerSessionHistoryRepository",
+      useFactory: (builder: LibraryRepositoryBuilder) =>
+        builder.buildMultiplayerSessionHistoryRepository(),
       inject: ["LibraryRepositoryBuilder"],
     },
     {
@@ -247,17 +253,20 @@ import { LibraryRepositoryBuilder } from "../TypeOrm/libraryBuilder";
       useFactory: (
         quizRepository: QuizRepository,
         userRepo: UserRepository,
-        singlePlayerRepo: SinglePlayerGameRepository
+        singlePlayerRepo: SinglePlayerGameRepository,
+        multiPlayerRepo: MultiplayerSessionHistoryRepository
       ) =>
         new GetUserCompletedQuizzesDomainService(
           quizRepository,
           userRepo,
-          singlePlayerRepo
+          singlePlayerRepo,
+          multiPlayerRepo
         ),
       inject: [
         "QuizRepository",
         "UserRepository",
         "SinglePlayerGameRepository",
+        "MultiplayerSessionHistoryRepository",
       ],
     },
     {

@@ -1,4 +1,4 @@
-import { UserId } from "src/lib/kahoot/domain/valueObject/Quiz";
+import { UserId } from "src/lib/user/domain/valueObject/UserId";
 import { GroupId } from "../valueObject/GroupId";
 import { GroupRole } from "../valueObject/GroupMemberRole";
 

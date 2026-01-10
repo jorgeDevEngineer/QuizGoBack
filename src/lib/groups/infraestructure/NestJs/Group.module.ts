@@ -12,21 +12,25 @@ import { GroupRepository } from "../../domain/port/GroupRepository";
 import { InvitationTokenGenerator } from "../../domain/port/GroupInvitationTokenGenerator";
 import { cryptoInvitationTokenGenerator } from "../Token/InvitationTokenGenerator";
 
-import { CreateGroupUseCase } from "../../application/CrearteGroupUseCase";
-import { GetUserGroupsUseCase } from "../../application/GetUserGroupsUseCase";
-import { GetGroupDetailUseCase } from "../../application/GroupDetailsUseCase";
-import { GenerateGroupInvitationUseCase } from "../../application/GenerateGroupInvitationUseCase";
-import { JoinGroupByInvitationUseCase } from "../../application/JoinGroupByInvitation";
-import { LeaveGroupUseCase } from "../../application/LeaveGroupUseCase";
-import { RemoveGroupMemberUseCase } from "../../application/RemoveGroupMemberUseCase";
-import { UpdateGroupInfoUseCase } from "../../application/UpdateGroupDetailsUseCase";
-import { TransferGroupAdminUseCase } from "../../application/TransferGroupAdminUseCase";
-import { GetGroupMembersUseCase } from "../../application/GetGroupMembers";
-import { AssignQuizToGroupUseCase } from "../../application/AssignQuizToGroupUseCase";
+import { CreateGroupCommandHandler } from "../../application/Handlers/commands/CreateGroupCommandHandler";
+import { UpdateGroupDetailsCommandHandler} from "../../application/Handlers/commands/UpdateGroupDetailsCommandHandler";
+import { JoinGroupByInvitationCommandHandler } from "../../application/Handlers/commands/JoinGroupByInvitationCommandHandler";
+import { GenerateGroupInvitationCommandHandler } from "../../application/Handlers/commands/GenerateGroupInvitationCommandHandler";
+import { LeaveGroupCommandHandler } from "../../application/Handlers/commands/LeaveGroupCommandHandler";
+import { RemoveGroupMemberCommandHandler } from "../../application/Handlers/commands/RemoveGroupMemberCommandHandler";
+import { TransferGroupAdminCommandHandler } from "../../application/Handlers/commands/TransferGroupAdminCommandHandler";
+import { AssignQuizToGroupCommandHandler } from "../../application/Handlers/commands/AssignQuizToGroupCommandHandler";
+import { GetUserGroupsQueryHandler } from "../../application/Handlers/queries/GetUserGroupsQueryHandler";
+import { GetGroupMembersQueryHandler } from "../../application/Handlers/queries/GetGroupMembersQueryHandler";
+import { GetGroupDetailsQueryHandler } from "../../application/Handlers/queries/GetGroupDetailsQueryHandler";
+import { GetGroupQuizzesQueryHandler } from "../../application/Handlers/queries/GetGroupQuizzesQueryHandler";
+import { GetGroupLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupLeaderboardQUeryHandler";
+import { GetGroupQuizLeaderboardQueryHandler } from "../../application/Handlers/queries/GetGroupQuizLeaderboardQueryHandler";
 
 import { TypeOrmQuizEntity } from "../../../kahoot/infrastructure/TypeOrm/TypeOrmQuizEntity";
 import { TypeOrmQuizReadService } from "../TypeOrm/QuizReadServiceImplementation";
 import { QuizReadService } from "../../domain/port/QuizReadService";
+import { TypeOrmSinglePlayerGameEntity } from "src/lib/singlePlayerGame/infrastructure/TypeOrm/TypeOrmSinglePlayerGameEntity";
 
 @Module({
   imports: [
@@ -35,6 +39,7 @@ import { QuizReadService } from "../../domain/port/QuizReadService";
       GroupMemberOrmEntity,
       GroupQuizAssignmentOrmEntity,
       TypeOrmQuizEntity,
+      TypeOrmSinglePlayerGameEntity,
     ]),
   ],
   controllers: [GroupsController],
@@ -53,69 +58,88 @@ import { QuizReadService } from "../../domain/port/QuizReadService";
     },
 
     {
-      provide: CreateGroupUseCase,
-      useFactory: (repo: GroupRepository) => new CreateGroupUseCase(repo),
+      provide: CreateGroupCommandHandler,
+      useFactory: (repo: GroupRepository) => new CreateGroupCommandHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: GetUserGroupsUseCase,
-      useFactory: (repo: GroupRepository) => new GetUserGroupsUseCase(repo),
+      provide: GetUserGroupsQueryHandler,
+      useFactory: (repo: GroupRepository) => new GetUserGroupsQueryHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: GetGroupDetailUseCase,
-      useFactory: (repo: GroupRepository) => new GetGroupDetailUseCase(repo),
+      provide: GetGroupDetailsQueryHandler,
+      useFactory: (repo: GroupRepository) => new GetGroupDetailsQueryHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: GetGroupMembersUseCase,
-      useFactory: (repo: GroupRepository) => new GetGroupMembersUseCase(repo),
+      provide: GetGroupMembersQueryHandler,
+      useFactory: (repo: GroupRepository) => new GetGroupMembersQueryHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: GenerateGroupInvitationUseCase,
+      provide: GenerateGroupInvitationCommandHandler,
       useFactory: (
         repo: GroupRepository,
         generator: InvitationTokenGenerator,
-      ) => new GenerateGroupInvitationUseCase(repo, generator),
+      ) => new GenerateGroupInvitationCommandHandler(repo, generator),
       inject: ["GroupRepository", "InvitationTokenGenerator"],
     },
     {
-      provide: JoinGroupByInvitationUseCase,
+      provide: JoinGroupByInvitationCommandHandler,
       useFactory: (repo: GroupRepository) =>
-        new JoinGroupByInvitationUseCase(repo),
+        new JoinGroupByInvitationCommandHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: LeaveGroupUseCase,
-      useFactory: (repo: GroupRepository) => new LeaveGroupUseCase(repo),
+      provide: LeaveGroupCommandHandler,
+      useFactory: (repo: GroupRepository) => new LeaveGroupCommandHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: RemoveGroupMemberUseCase,
+      provide: RemoveGroupMemberCommandHandler,
       useFactory: (repo: GroupRepository) =>
-        new RemoveGroupMemberUseCase(repo),
+        new RemoveGroupMemberCommandHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: UpdateGroupInfoUseCase,
+      provide: UpdateGroupDetailsCommandHandler,
       useFactory: (repo: GroupRepository) =>
-        new UpdateGroupInfoUseCase(repo),
+        new UpdateGroupDetailsCommandHandler(repo),
       inject: ["GroupRepository"],
     },
     {
-      provide: TransferGroupAdminUseCase,
+      provide: TransferGroupAdminCommandHandler,
       useFactory: (repo: GroupRepository) =>
-        new TransferGroupAdminUseCase(repo),
+        new TransferGroupAdminCommandHandler(repo),
       inject: ["GroupRepository"],
     },
+    
     {
-      provide: AssignQuizToGroupUseCase,
+      provide: AssignQuizToGroupCommandHandler,
       useFactory: (
         groupRepo: GroupRepository,
         quizReadService: QuizReadService,
-      ) => new AssignQuizToGroupUseCase(groupRepo, quizReadService),
+      ) => new AssignQuizToGroupCommandHandler(groupRepo, quizReadService),
       inject: ["GroupRepository", "QuizReadService"],
+    },
+    {
+      provide: GetGroupQuizzesQueryHandler,
+      useFactory: (groupRepository: GroupRepository
+      ) =>new GetGroupQuizzesQueryHandler(groupRepository),
+      inject: ["GroupRepository"],
+    },
+    {
+      provide: GetGroupLeaderboardQueryHandler,
+      useFactory: (groupRepository: GroupRepository
+      ) =>new GetGroupLeaderboardQueryHandler(groupRepository),
+      inject: ["GroupRepository"],
+    },
+    {
+      provide: GetGroupQuizLeaderboardQueryHandler,
+      useFactory: (groupRepository: GroupRepository 
+      ) =>new GetGroupQuizLeaderboardQueryHandler(groupRepository),
+      inject: ["GroupRepository"],
     },
   ],
 })

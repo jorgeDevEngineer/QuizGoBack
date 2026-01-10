@@ -15,7 +15,7 @@ import { UserNotFoundError } from "../../error/UserNotFoundError";
 import { UserStatus } from "../../../domain/valueObject/UserStatus";
 import { IHandler } from "src/lib/shared/IHandler";
 import { EditUser } from "../../Parameter Objects/EditUser";
-import { Result } from "src/lib/shared/Type Helpers/Result";
+import { Result } from "src/lib/shared/Type Helpers/result";
 
 export class EditUserCommandHandler
   implements IHandler<EditUser, Result<void>>
