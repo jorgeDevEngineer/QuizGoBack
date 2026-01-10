@@ -16,7 +16,6 @@ import { PlayerJoinCommandHandler } from '../../application/handlers/PlayerJoinC
 import { SyncStateCommandHandler } from '../../application/handlers/SyncStateCommandHandler';
 import { HostStartGameCommandHandler } from '../../application/handlers/HostStartGameCommandHandler';
 import { PlayerSubmitAnswerCommandHandler } from '../../application/handlers/PlayerSubmitAnswerCommandHandler';
-import { HostNextPhaseCommand } from '../../application/parameterObjects/HostNextPhaseCommand';
 import { HostNextPhaseCommandHandler } from '../../application/handlers/HostNextPhaseCommandHandler';
 
 //Dtos
@@ -784,8 +783,47 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
         }
     }
 
+    @SubscribeMessage(HostUserEvents.HOST_END_SESSION)  
+    async handleHostEndSession(client: SessionSocket) {
+        this.logger.debug(`Recibido HOST_END_SESSION de ${client.id}`);
 
-    
+        try {
+            // 1. Validaciones básicas según API página 11
+            if (client.data.role !== SessionRoles.HOST) {
+                throw new WsException("El cliente no es Host");
+            }
+
+            if (!client.rooms.has(client.data.roomPin as string)) {
+                throw new WsException("FATAL: El HOST no se encuentra conectado a la sala solicitada");
+            }
+
+            // 2. Validar autorización del host
+            await this.verifyHostAuthorization(client.data.roomPin, client.data.userId);
+
+            // 3. Cerrar sesión según API página 11
+            await this.closeSessionByHost(client.data.roomPin);
+
+            this.logger.debug(`Host cerró sesión exitosamente: ${client.data.roomPin}`);
+
+        } catch (error) {
+            this.logger.error(`Error en HOST_END_SESSION para cliente ${client.id}:`, error);
+        
+            let errorMessage = 'Error al cerrar la sesión';
+        
+            if (error instanceof WsException) {
+                errorMessage = error.message;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+        
+            client.emit(ServerErrorEvents.GAME_ERROR, { 
+                statusCode: 400, 
+                message: errorMessage 
+            });
+        }
+    }
+
+
     //Metodos de apoyo
 
     private async closeSession(roomPin: string): Promise<void> {
@@ -825,6 +863,49 @@ export class MultiplayerSessionsGateway  implements OnGatewayConnection, OnGatew
             // await this.sessionRepository.delete(roomPin);
 
             this.logger.log(`Sesión ${roomPin} cerrada exitosamente`);
+
+        } catch (error) {
+            this.logger.error(`Error al cerrar sesión ${roomPin}: ${error.message}`);
+            throw error;
+        }
+    }
+
+     private async closeSessionByHost(roomPin: string): Promise<void> {
+        this.logger.log(`Host cerrando sesión ${roomPin}`);
+
+        try {
+            // 1. Notificar SESSION_CLOSED según API página 17
+            this.wss.to(roomPin).emit(ServerEvents.SESSION_CLOSED, {
+                reason: 'HOST_CLOSED_SESSION',
+                message: 'El anfitrión ha finalizado la sesión.'
+            });
+
+            // 2. Limpiar timers
+            const hostTimer = this.hostDisconnectionTimers.get(roomPin);
+            if (hostTimer) {
+                clearTimeout(hostTimer);
+                this.hostDisconnectionTimers.delete(roomPin);
+            }
+
+            // 3. Limpiar readyTimeouts
+            const sockets = await this.wss.in(roomPin).fetchSockets();
+            sockets.forEach(socket => {
+                const timeout = this.readyTimeouts.get(socket.id);
+                if (timeout) {
+                    clearTimeout(timeout);
+                    this.readyTimeouts.delete(socket.id);
+                }
+            });
+
+            // 4. Limpiar tracing service
+            this.tracingWsService.removeRoom(roomPin);
+
+            // 5. Desconectar a todos después de un delay (mejor UX)
+            setTimeout(() => {
+                this.wss.in(roomPin).disconnectSockets(true);
+            }, 1000); // Dar tiempo para recibir SESSION_CLOSED
+
+            this.logger.log(`Sesión ${roomPin} cerrada por host exitosamente`);
 
         } catch (error) {
             this.logger.error(`Error al cerrar sesión ${roomPin}: ${error.message}`);
