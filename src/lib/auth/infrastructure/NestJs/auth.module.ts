@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from "./auth.controller";
 import { JwtTokenProvider } from "../JwtTokenProvider";
@@ -12,7 +12,7 @@ import { UserModule } from "../../../user/infrastructure/NestJS/user.module";
 
 @Module({
   imports: [
-    UserModule,
+    forwardRef(() => UserModule),
     JwtModule.register({
       secret: "your-secret-key", // TODO: move to config
       signOptions: { expiresIn: "1h" },

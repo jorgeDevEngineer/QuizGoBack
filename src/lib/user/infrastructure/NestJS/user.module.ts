@@ -1,4 +1,4 @@
-import { Get, Module } from "@nestjs/common";
+import { Get, Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TypeOrmUserEntity } from "../TypeOrm/TypeOrmUserEntity";
 import { UserController } from "./user.controller";
@@ -19,9 +19,10 @@ import {
   LOGGER_PORT,
 } from "src/lib/shared/aspects/logger/domain/ports/logger.port";
 import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logger.module";
+import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TypeOrmUserEntity]), LoggerModule],
+  imports: [TypeOrmModule.forFeature([TypeOrmUserEntity]), forwardRef(() => AuthModule), LoggerModule],
   controllers: [UserController],
   providers: [
     {
