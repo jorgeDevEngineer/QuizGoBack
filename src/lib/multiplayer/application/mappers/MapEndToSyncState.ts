@@ -3,7 +3,7 @@ import { PlayerId } from "../../domain/valueObjects/playerVOs";
 import { SyncStateCommand } from "../parameterObjects/SyncStateCommand";
 import { SyncStateResponseDto } from "../responseDtos/SyncStateResponse.dto";
 import { SyncType } from "../responseDtos/enums/SyncType.enum";
-import { IsHost } from "../helpers/isHost";
+import { IsHost } from "../helpers/IsHost";
 import { MapHostEndData } from "../helpers/MapHostEndData";
 import { MapPlayerEndData } from "../helpers/MapPlayerEndData";
 
