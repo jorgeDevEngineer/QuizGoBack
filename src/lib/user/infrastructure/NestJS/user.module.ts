@@ -187,6 +187,7 @@ import { LoggerModule } from "src/lib/shared/aspects/logger/infrastructure/logge
     TypeOrmModule,
     CreateUserCommandHandler,
     GetOneUserByEmailQueryHandler,
+    GetOneUserByUserNameQueryHandler,
   ],
 })
 export class UserModule {}

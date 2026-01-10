@@ -19,7 +19,7 @@ export class Create {
   @IsString()
   email: string;
   @IsString()
-  hashedPassword: string;
+  password: string;
   @IsString()
   userType: "student" | "teacher" | "personal";
   @IsString()

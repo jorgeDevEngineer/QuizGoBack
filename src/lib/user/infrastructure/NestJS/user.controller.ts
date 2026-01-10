@@ -73,7 +73,7 @@ export class UserController {
     const createUser = new CreateUser(
       body.userName,
       body.email,
-      body.hashedPassword,
+      body.password,
       body.userType,
       body.avatarUrl
     );
@@ -212,7 +212,7 @@ export class UserController {
       const createUser = new CreateUser(
         body.userName,
         body.email,
-        body.hashedPassword,
+        body.password,
         body.userType,
         body.avatarUrl
       );
