@@ -416,7 +416,7 @@ export class MultiplayerQuestionResult {
 
     private constructor(
         private readonly questionId: QuestionId,
-        private readonly answers: Map<string, MultiplayerAnswer>
+        private readonly answers: Map<string, MultiplayerAnswer> //PlayerId ---> Respuesta
     ){}
 
     public static create(questionId: QuestionId): MultiplayerQuestionResult {

@@ -19,6 +19,7 @@ import { TypeOrmUserRepository } from "src/lib/user/infrastructure/TypeOrm/TypeO
 import { PlayerJoinCommandHandler } from "../../application/handlers/PlayerJoinCommandHandler";
 import { MultiplayerSessionsGateway } from "./MultiplayerSession.gateway";
 import { MultiplayerSessionsTracingService } from "./MultiplayerSession.tracing.service";
+import { SyncStateCommandHandler } from "../../application/handlers/SyncStateCommandHandler";
 
 @Module({
   imports: [
@@ -47,6 +48,10 @@ import { MultiplayerSessionsTracingService } from "./MultiplayerSession.tracing.
     {
       provide: 'PlayerJoinCommandHandler',
       useClass: PlayerJoinCommandHandler,
+    },
+    {
+      provide: 'SyncStateCommandHandler',
+      useClass: SyncStateCommandHandler,
     },
 
     // Repositorios
