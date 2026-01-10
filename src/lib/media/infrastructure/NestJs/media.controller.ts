@@ -8,12 +8,13 @@ import {
   HttpException,
   HttpStatus,
   Body,
+  Headers,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadMedia, UploadMediaDTO } from "../../application/UploadMedia";
 import { ListThemesUseCase } from "../../application/ListThemesUseCase";
 
-interface UploadedFile {
+interface MulterFile {
   buffer: Buffer;
   originalname: string;
   mimetype: string;
@@ -31,11 +32,23 @@ export class MediaController {
 
   @Post("upload")
   @UseInterceptors(FileInterceptor("file"))
-  async upload(@UploadedFile() file: UploadedFile, @Body() body: any) {
+  async upload(
+    @UploadedFile() file: MulterFile,
+    @Body() body: any,
+    @Headers("Authorization") authHeader: string
+  ) {
     if (!file) {
       throw new HttpException(
         'No file received. Ensure the request is multipart/form-data and the field name is "file".',
         HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const authorId = authHeader?.split(" ")?.[1];
+    if (!authorId) {
+      throw new HttpException(
+        "Missing or invalid Authorization header. Expected: Bearer <JWT>",
+        HttpStatus.UNAUTHORIZED
       );
     }
 
@@ -44,7 +57,7 @@ export class MediaController {
       fileName: file.originalname,
       mimeType: file.mimetype,
       category: body.category,
-      authorId: body.authorId,
+      authorId: authorId,
     };
 
     const result = await this.uploadMedia.execute(dto);

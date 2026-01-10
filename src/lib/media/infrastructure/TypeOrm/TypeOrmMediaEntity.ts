@@ -1,22 +1,19 @@
+
 import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
-import { MediaType } from '../../domain/entity/Media';
 
 @Entity('media')
 export class TypeOrmMediaEntity {
     @PrimaryColumn('uuid')
-    id: string;
+    mediaId: string;
+
+    @Column({ name: 'author_id' })
+    authorId: string;
+
+    @Column()
+    name: string;
 
     @Column()
     url: string;
-
-    @Column()
-    key: string;
-
-    @Column({ type: 'enum', enum: ['single', 'multiple'] })
-    type: MediaType;
-
-    @Column()
-    category: string;
 
     @Column({ name: 'mime_type' })
     mimeType: string;
@@ -24,14 +21,11 @@ export class TypeOrmMediaEntity {
     @Column('int')
     size: number;
 
-    @Column({ name: 'author_id' })
-    authorId: string;
+    @Column()
+    format: string;
 
-    @Column({ name: 'original_name' })
-    originalName: string;
-
-    @Column({ name: 'thumbnail_url', nullable: true })
-    thumbnailUrl: string;
+    @Column()
+    category: string;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
     createdAt: Date;

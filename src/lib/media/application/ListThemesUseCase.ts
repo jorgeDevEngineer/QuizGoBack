@@ -1,6 +1,6 @@
 
 import { Inject } from '@nestjs/common';
-import { IMediaRepository, IMEDIA_REPOSITORY } from '../domain/port/IMediaRepository';
+import { IMediaRepository, MEDIA_REPOSITORY } from '../domain/port/IMediaRepository';
 import { Result } from '../../shared/Type Helpers/result';
 import { Media } from '../domain/entity/Media';
 import { IHandler } from 'src/lib/shared/IHandler';
@@ -18,7 +18,7 @@ export type ThemeResponseDTO = {
 
 export class ListThemesUseCase implements IHandler<void, Result<ThemeResponseDTO>> {
   constructor(
-    @Inject(IMEDIA_REPOSITORY) 
+    @Inject(MEDIA_REPOSITORY) 
     private readonly mediaRepository: IMediaRepository
   ) {}
 

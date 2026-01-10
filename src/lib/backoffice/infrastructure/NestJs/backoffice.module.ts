@@ -9,6 +9,11 @@ import { TypeOrmNotificationEntity } from '../TypeOrm/TypeOrmNotificationEntity'
 import { BlockUserUseCase } from '../../application/BlockUserUseCase';
 import { DeleteUserUseCase } from '../../application/DeleteUserUseCase';
 import { SendNotificationUseCase } from '../../application/SendNotificationUseCase';
+import { UnblockUserUseCase } from '../../application/UnblockUserUseCase';
+import { GiveAdminRoleUseCase } from '../../application/GiveAdminUseCase';
+import { RemoveAdminRoleUseCase } from '../../application/RemoveAdminUseCase';
+import { GetNotificationsUseCase } from '../../application/GetNotificationUseCase';
+import { SMTPSendMailService } from '../SMTP/SMTPSendMailService';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TypeOrmUserEntity, TypeOrmNotificationEntity])],
@@ -16,8 +21,12 @@ import { SendNotificationUseCase } from '../../application/SendNotificationUseCa
   providers: [
     SearchUsersUseCase,
     BlockUserUseCase,
+    UnblockUserUseCase,
     DeleteUserUseCase,
     SendNotificationUseCase,
+    GiveAdminRoleUseCase,
+    RemoveAdminRoleUseCase,
+    GetNotificationsUseCase,
     {
       provide: 'UserRepository',
       useClass: TypeOrmUserRepository,
@@ -25,8 +34,12 @@ import { SendNotificationUseCase } from '../../application/SendNotificationUseCa
     {
       provide: 'NotificationRepository',
       useClass: TypeOrmNotificationRepository,
+    },
+    {
+      provide: 'SendMailService',
+      useClass: SMTPSendMailService,
     }
   ],
-  exports: [SearchUsersUseCase, BlockUserUseCase, DeleteUserUseCase, SendNotificationUseCase],
+  exports: [SearchUsersUseCase, BlockUserUseCase, DeleteUserUseCase, SendNotificationUseCase, UnblockUserUseCase, GiveAdminRoleUseCase, RemoveAdminRoleUseCase, GetNotificationsUseCase],
 })
 export class BackofficeModule {}

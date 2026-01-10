@@ -23,6 +23,7 @@ import { SearchParamsDto, SearchResultDto } from "../../application/SearchUsersU
 import { UserNotFoundException } from "../../../shared/exceptions/UserNotFoundException";
 import { DynamicMongoAdapter } from "../../../shared/infrastructure/database/dynamic-mongo.adapter";
 
+
 // Interfaz para el documento de MongoDB
 interface MongoUserDoc {
   _id?: string;
@@ -42,6 +43,7 @@ interface MongoUserDoc {
   membershipStartedAt: Date | string;
   membershipExpiresAt: Date | string;
   status: 'Active' | 'Blocked';
+  isadmin: boolean;
 }
 
 @Injectable()
@@ -85,7 +87,8 @@ export class TypeOrmUserRepository implements UserRepository {
       ),
       new UserDate(createdAt),
       new UserDate(updatedAt),
-      entity.status
+      entity.status,
+      entity.isadmin
     );
   }
 
@@ -259,6 +262,230 @@ export class TypeOrmUserRepository implements UserRepository {
           status: user.status,
         },
       };
+    }
+  }
+
+  async UnblockUser(id: UserId): Promise<{
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      userType: string;
+      createdAt: Date;
+      status: string;
+    };
+  }> {
+    try {
+      // 1. Intenta usar MongoDB
+      const collection = await this.getMongoCollection();
+      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+
+      if (!user) throw new UserNotFoundException('User not found');
+
+      await collection.updateOne(
+        { $or: [{ id: id.value }, { _id: id.value }] },
+        { $set: { status: 'Active' } }
+      );
+
+      return {
+        user: {
+          id: user.id || user._id,
+          name: user.name,
+          email: user.email,
+          userType: user.userType,
+          createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
+          status: 'Active',
+        },
+      };
+    } catch (error) {
+      // 2. Si MongoDB falla, usa PostgreSQL como fallback
+      // Solo hacemos fallback si el error es de conexión, no si el usuario no existe
+      if (error instanceof UserNotFoundException) {
+        throw error;
+      }
+
+      console.log('MongoDB connection not available, falling back to PostgreSQL for blockUser operation.', error);
+
+      const user = await this.pgRepository.findOne({ where: { id: id.value } });
+      if (!user) throw new UserNotFoundException('User not found');
+      user.status = 'Active';
+      await this.pgRepository.save(user);
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          userType: user.userType,
+          createdAt: user.createdAt,
+          status: user.status,
+        },
+      };
+    }
+  }
+
+  async GiveAdminRole(id: UserId): Promise<{
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      userType: string;
+      createdAt: Date;
+      status: string;
+      isadmin: boolean;
+    };
+  }> {
+    try {
+      // 1. Intenta usar MongoDB
+      const collection = await this.getMongoCollection();
+      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+
+      if (!user) throw new UserNotFoundException('User not found');
+
+      await collection.updateOne(
+        { $or: [{ id: id.value }, { _id: id.value }] },
+        { $set: { isadmin: true } }
+      );
+
+      return {
+        user: {
+          id: user.id || user._id,
+          name: user.name,
+          email: user.email,
+          userType: user.userType,
+          createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
+          status: user.status,
+          isadmin: true,
+        },
+      };
+    } catch (error) {
+      // 2. Si MongoDB falla, usa PostgreSQL como fallback
+      // Solo hacemos fallback si el error es de conexión, no si el usuario no existe
+      if (error instanceof UserNotFoundException) {
+        throw error;
+      }
+
+      console.log('MongoDB connection not available, falling back to PostgreSQL for blockUser operation.', error);
+
+      const user = await this.pgRepository.findOne({ where: { id: id.value } });
+      if (!user) throw new UserNotFoundException('User not found');
+      user.isadmin = true;
+      await this.pgRepository.save(user);
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          userType: user.userType,
+          createdAt: user.createdAt,
+          status: user.status,
+          isadmin: true,
+        },
+      };
+    }
+  }
+  
+  async RemoveAdminRole(id: UserId): Promise<{
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      userType: string;
+      createdAt: Date;
+      status: string;
+      isadmin: boolean;
+    };
+  }> {
+    try {
+      // 1. Intenta usar MongoDB
+      const collection = await this.getMongoCollection();
+      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+
+      if (!user) throw new UserNotFoundException('User not found');
+
+      await collection.updateOne(
+        { $or: [{ id: id.value }, { _id: id.value }] },
+        { $set: { isadmin: false } }
+      );
+
+      return {
+        user: {
+          id: user.id || user._id,
+          name: user.name,
+          email: user.email,
+          userType: user.userType,
+          createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
+          status: user.status,
+          isadmin: false,
+        },
+      };
+    } catch (error) {
+      // 2. Si MongoDB falla, usa PostgreSQL como fallback
+      // Solo hacemos fallback si el error es de conexión, no si el usuario no existe
+      if (error instanceof UserNotFoundException) {
+        throw error;
+      }
+
+      console.log('MongoDB connection not available, falling back to PostgreSQL for blockUser operation.', error);
+
+      const user = await this.pgRepository.findOne({ where: { id: id.value } });
+      if (!user) throw new UserNotFoundException('User not found');
+      user.isadmin = false;
+      await this.pgRepository.save(user);
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          userType: user.userType,
+          createdAt: user.createdAt,
+          status: user.status,
+          isadmin: false,
+        },
+      };
+    }
+  }
+
+  async getOneById(id: UserId): Promise<User | null> {
+    try {
+      // 1. Intenta usar MongoDB
+      const collection = await this.getMongoCollection();
+      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+      if (!user) throw new UserNotFoundException('User not found');
+      return this.mapToDomain(user);
+    } catch (error) {
+      // 2. Si MongoDB falla, usa PostgreSQL como fallback
+      console.log('MongoDB connection not available, falling back to PostgreSQL for getOneById operation.', error);
+      const user = await this.pgRepository.findOne({ where: { id: id.value } });
+      if (!user) throw new UserNotFoundException('User not found');
+      return this.mapToDomain(user);
+    }
+  }
+
+  async getEmailNoadmin(): Promise<string[]> {
+    try {
+      // 1. Intenta usar MongoDB
+      const collection = await this.getMongoCollection();
+      const users = await collection.find({ isadmin: false }).toArray();
+      return users.map((user) => user.email);
+    } catch (error) {
+      // 2. Si MongoDB falla, usa PostgreSQL como fallback
+      console.log('MongoDB connection not available, falling back to PostgreSQL for getEmailNoadmin operation.', error);
+      const users = await this.pgRepository.find({ where: { isadmin: false } });
+      return users.map((user) => user.email);
+    }
+  }
+
+  async getEmailAdmin(): Promise<string[]> {
+    try {
+      // 1. Intenta usar MongoDB
+      const collection = await this.getMongoCollection();
+      const users = await collection.find({ isadmin: true }).toArray();
+      return users.map((user) => user.email);
+    } catch (error) {
+      // 2. Si MongoDB falla, usa PostgreSQL como fallback
+      console.log('MongoDB connection not available, falling back to PostgreSQL for getEmailAdmin operation.', error);
+      const users = await this.pgRepository.find({ where: { isadmin: true } });
+      return users.map((user) => user.email);
     }
   }
 }

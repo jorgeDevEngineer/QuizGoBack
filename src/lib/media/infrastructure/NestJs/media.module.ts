@@ -12,10 +12,11 @@ import { LoggingUseCaseDecorator } from '../../../shared/aspects/logger/applicat
 import { ErrorHandlingDecorator } from '../../../shared/aspects/error-handling/application/decorators/error-handling.decorator';
 import { SupabaseStorageService } from '../Supabase/SupabaseStorageService';
 import { IStorageService, STORAGE_SERVICE } from '../../domain/port/IStorageService';
-import { IMediaRepository, IMEDIA_REPOSITORY } from '../../domain/port/IMediaRepository';
+import { IMediaRepository, MEDIA_REPOSITORY } from '../../domain/port/IMediaRepository';
+import { DatabaseModule } from '../../../shared/infrastructure/database/database.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity]), LoggerModule],
+    imports: [TypeOrmModule.forFeature([TypeOrmMediaEntity]), LoggerModule, DatabaseModule],
     controllers: [MediaController],
     providers: [
         // 1. Storage Service
@@ -25,7 +26,7 @@ import { IMediaRepository, IMEDIA_REPOSITORY } from '../../domain/port/IMediaRep
         },
         // 2. Media Repository
         {
-            provide: IMEDIA_REPOSITORY,
+            provide: MEDIA_REPOSITORY,
             useClass: TypeOrmMediaRepository,
         },
         // 3. UploadMedia Use Case
@@ -40,7 +41,7 @@ import { IMediaRepository, IMEDIA_REPOSITORY } from '../../domain/port/IMediaRep
                 const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'UploadMedia');
                 return new LoggingUseCaseDecorator(withErrorHandling, logger, 'UploadMedia');
             },
-            inject: [LOGGER_PORT, STORAGE_SERVICE, IMEDIA_REPOSITORY],
+            inject: [LOGGER_PORT, STORAGE_SERVICE, MEDIA_REPOSITORY],
         },
         // 4. ListThemesUseCase
         {
@@ -50,7 +51,7 @@ import { IMediaRepository, IMEDIA_REPOSITORY } from '../../domain/port/IMediaRep
                 const withErrorHandling = new ErrorHandlingDecorator(useCase, logger, 'ListThemesUseCase');
                 return new LoggingUseCaseDecorator(withErrorHandling, logger, 'ListThemesUseCase');
             },
-            inject: [LOGGER_PORT, IMEDIA_REPOSITORY],
+            inject: [LOGGER_PORT, MEDIA_REPOSITORY],
         },
     ],
 })
