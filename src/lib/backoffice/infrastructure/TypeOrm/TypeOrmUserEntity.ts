@@ -50,6 +50,6 @@ export class TypeOrmUserEntity {
   @Column()
   status: 'Active' | 'Blocked';
 
-  @Column()
-  isadmin: boolean;
+  @Column({ name: 'isadmin', default: false })
+  isAdmin: boolean;
 }

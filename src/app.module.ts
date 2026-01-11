@@ -1,4 +1,4 @@
-import { Module, OnApplicationBootstrap } from "@nestjs/common";
+import { Module, OnApplicationBootstrap, Logger } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import * as Joi from "joi";
@@ -74,10 +74,27 @@ export class AppModule implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
+    const logger = new Logger(AppModule.name);
     const mongoUrl = this.configService.get<string>("DATABASE_URL_MONGO");
-    await this.mongoAdapter.reconnect("kahoot", mongoUrl);
-    await this.mongoAdapter.reconnect("media", mongoUrl);
-    await this.mongoAdapter.reconnect("user", mongoUrl);
-    await this.mongoAdapter.reconnect("groups", mongoUrl);
+    try {
+      await this.mongoAdapter.reconnect("kahoot", mongoUrl);
+    } catch (error) {
+      logger.error(`Failed to connect kahoot mongo: ${error.message}`);
+    }
+    try {
+      await this.mongoAdapter.reconnect("media", mongoUrl);
+    } catch (error) {
+      logger.error(`Failed to connect media mongo: ${error.message}`);
+    }
+    try {
+      await this.mongoAdapter.reconnect("user", mongoUrl);
+    } catch (error) {
+      logger.error(`Failed to connect user mongo: ${error.message}`);
+    }
+    try {
+      await this.mongoAdapter.reconnect("groups", mongoUrl);
+    } catch (error) {
+      logger.error(`Failed to connect groups mongo: ${error.message}`);
+    }
   }
 }

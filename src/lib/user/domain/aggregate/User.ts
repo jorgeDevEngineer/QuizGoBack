@@ -27,6 +27,7 @@ export class User {
   readonly createdAt: UserDate;
   updatedAt: UserDate;
   status: UserStatus;
+  readonly isAdmin: boolean;
   constructor(
     userName: UserName,
     email: UserEmail,
@@ -41,7 +42,8 @@ export class User {
     membership?: Membership,
     createdAt?: UserDate,
     updatedAt?: UserDate,
-    status?: UserStatus
+    status?: UserStatus,
+    isAdmin?: boolean
   ) {
     this.userName = userName;
     this.email = email;
@@ -59,6 +61,7 @@ export class User {
     this.createdAt = createdAt ? createdAt : new UserDate(new Date());
     this.updatedAt = updatedAt ? updatedAt : new UserDate(this.createdAt.value);
     this.status = status ? status : new UserStatus("Active");
+    this.isAdmin = isAdmin ? isAdmin : false;
   }
 
   toPlainObject() {
@@ -76,6 +79,7 @@ export class User {
       createdAt: this.createdAt.value,
       updatedAt: this.updatedAt.value,
       status: this.status.value,
+      isAdmin: this.isAdmin,
     };
   }
 
