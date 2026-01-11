@@ -69,7 +69,8 @@ export class EditUserCommandHandler
       existing.createdAt,
       new UserDate(new Date()),
       new UserStatus(command.status),
-      existing.isAdmin
+      existing.isAdmin,
+      (existing as any).roles
     );
     await this.userRepository.edit(user);
     return Result.ok(undefined);

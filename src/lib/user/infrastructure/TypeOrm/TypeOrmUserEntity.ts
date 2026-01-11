@@ -26,6 +26,9 @@ export class TypeOrmUserEntity {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ type: "simple-array", default: "user" })
+  roles: string[];
+
   @Column()
   theme: string;
 

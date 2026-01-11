@@ -21,6 +21,7 @@ export class User {
   readonly avatarUrl: UserAvatarUrl;
   readonly name: UserPlainName;
   readonly description: string;
+  readonly roles: ("user" | "admin")[];
   readonly theme: UserTheme; // Default: 'light'
   readonly language: UserLanguage; // Default: 'es'
   readonly gameStreak: UserGameStreak; // Default: 0
@@ -45,7 +46,8 @@ export class User {
     createdAt?: UserDate,
     updatedAt?: UserDate,
     status?: UserStatus,
-    isAdmin?: boolean
+    isAdmin?: boolean,
+    roles?: ("user" | "admin")[]
   ) {
     this.userName = userName;
     this.email = email;
@@ -65,6 +67,7 @@ export class User {
     this.updatedAt = updatedAt ? updatedAt : new UserDate(this.createdAt.value);
     this.status = status ? status : new UserStatus("Active");
     this.isAdmin = isAdmin ? isAdmin : false;
+    this.roles = roles && roles.length ? roles : ["user"];
   }
 
   toPlainObject() {

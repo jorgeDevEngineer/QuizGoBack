@@ -31,6 +31,7 @@ interface UserMongoDoc {
   avatarUrl: string;
   name: string;
   description?: string;
+  roles?: ("user" | "admin")[];
   theme: string;
   language: string;
   gameStreak: number;
@@ -77,7 +78,10 @@ export class TypeOrmUserRepository implements UserRepository {
       new UserDate(entity.createdAt),
       new UserDate(entity.updatedAt),
       new UserStatus(entity.status),
-      entity.isAdmin
+      entity.isAdmin,
+      (entity as any).roles && (entity as any).roles.length
+        ? (entity as any).roles
+        : ["user"]
     );
   }
 
@@ -102,7 +106,8 @@ export class TypeOrmUserRepository implements UserRepository {
       new UserDate(doc.createdAt),
       new UserDate(doc.updatedAt),
       new UserStatus(doc.status),
-      doc.isAdmin || false
+      doc.isAdmin || false,
+      doc.roles && doc.roles.length ? doc.roles : ["user"]
     );
   }
 
@@ -116,6 +121,7 @@ export class TypeOrmUserRepository implements UserRepository {
       avatarUrl: user.avatarUrl.value,
       name: user.name.value,
       description: user.description,
+      roles: user.roles,
       theme: user.theme.value,
       language: user.language.value,
       gameStreak: user.gameStreak.value,
@@ -213,6 +219,7 @@ export class TypeOrmUserRepository implements UserRepository {
         avatarUrl: user.avatarUrl.value,
         name: user.name.value,
         description: user.description,
+        roles: user.roles,
         theme: user.theme.value,
         language: user.language.value,
         gameStreak: user.gameStreak.value,
@@ -245,6 +252,7 @@ export class TypeOrmUserRepository implements UserRepository {
         avatarUrl: user.avatarUrl.value,
         name: user.name.value,
         description: user.description,
+        roles: user.roles,
         theme: user.theme.value,
         language: user.language.value,
         gameStreak: user.gameStreak.value,
