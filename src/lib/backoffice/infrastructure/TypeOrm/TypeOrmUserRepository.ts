@@ -19,10 +19,12 @@ import { UserDate } from "../../domain/valueObject/UserDate";
 import { Membership } from "../../domain/entity/Membership";
 import { MembershipType } from "../../domain/valueObject/MembershipType";
 import { MembershipDate } from "../../domain/valueObject/MembershipDate";
-import { SearchParamsDto, SearchResultDto } from "../../application/SearchUsersUseCase";
+import {
+  SearchParamsDto,
+  SearchResultDto,
+} from "../../application/SearchUsersUseCase";
 import { UserNotFoundException } from "../../../shared/exceptions/UserNotFoundException";
 import { DynamicMongoAdapter } from "../../../shared/infrastructure/database/dynamic-mongo.adapter";
-
 
 // Interfaz para el documento de MongoDB
 interface MongoUserDoc {
@@ -42,7 +44,7 @@ interface MongoUserDoc {
   membershipType: "free" | "premium";
   membershipStartedAt: Date | string;
   membershipExpiresAt: Date | string;
-  status: 'Active' | 'Blocked';
+  status: "Active" | "Blocked";
   isAdmin?: boolean;
 }
 
@@ -51,23 +53,35 @@ export class TypeOrmUserRepository implements UserRepository {
   constructor(
     @InjectRepository(TypeOrmUserEntity)
     private readonly pgRepository: Repository<TypeOrmUserEntity>,
-    private readonly mongoAdapter: DynamicMongoAdapter,
+    private readonly mongoAdapter: DynamicMongoAdapter
   ) {}
 
   /**
    * Obtiene la colección de usuarios de MongoDB para el módulo 'backoffice'
    */
   private async getMongoCollection(): Promise<Collection<MongoUserDoc>> {
-    const db: Db = await this.mongoAdapter.getConnection('backoffice');
-    return db.collection<MongoUserDoc>('users');
+    const db: Db = await this.mongoAdapter.getConnection("backoffice");
+    return db.collection<MongoUserDoc>("users");
   }
 
   private mapToDomain(entity: TypeOrmUserEntity | MongoUserDoc): User {
     const userId = entity.id || (entity as MongoUserDoc)._id;
-    const createdAt = typeof entity.createdAt === 'string' ? new Date(entity.createdAt) : entity.createdAt;
-    const updatedAt = typeof entity.updatedAt === 'string' ? new Date(entity.updatedAt) : entity.updatedAt;
-    const membershipStartedAt = typeof entity.membershipStartedAt === 'string' ? new Date(entity.membershipStartedAt) : entity.membershipStartedAt;
-    const membershipExpiresAt = typeof entity.membershipExpiresAt === 'string' ? new Date(entity.membershipExpiresAt) : entity.membershipExpiresAt;
+    const createdAt =
+      typeof entity.createdAt === "string"
+        ? new Date(entity.createdAt)
+        : entity.createdAt;
+    const updatedAt =
+      typeof entity.updatedAt === "string"
+        ? new Date(entity.updatedAt)
+        : entity.updatedAt;
+    const membershipStartedAt =
+      typeof entity.membershipStartedAt === "string"
+        ? new Date(entity.membershipStartedAt)
+        : entity.membershipStartedAt;
+    const membershipExpiresAt =
+      typeof entity.membershipExpiresAt === "string"
+        ? new Date(entity.membershipExpiresAt)
+        : entity.membershipExpiresAt;
 
     const isAdminValue = (entity as any).isAdmin ?? false;
 
@@ -103,15 +117,15 @@ export class TypeOrmUserRepository implements UserRepository {
       const filter: Record<string, unknown> = {};
 
       if (params.q) {
-        filter.name = { $regex: params.q, $options: 'i' };
+        filter.name = { $regex: params.q, $options: "i" };
       }
 
       // Contar total
       const totalCount = await collection.countDocuments(filter);
 
       // Ordenamiento
-      const sortField = params.orderBy || 'createdAt';
-      const sortDirection = params.order?.toUpperCase() === 'ASC' ? 1 : -1;
+      const sortField = params.orderBy || "createdAt";
+      const sortDirection = params.order?.toUpperCase() === "ASC" ? 1 : -1;
       const sort: Record<string, 1 | -1> = { [sortField]: sortDirection };
 
       // Paginación
@@ -131,7 +145,10 @@ export class TypeOrmUserRepository implements UserRepository {
         name: user.name,
         email: user.email,
         userType: user.userType,
-        createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
+        createdAt:
+          typeof user.createdAt === "string"
+            ? new Date(user.createdAt)
+            : user.createdAt,
         status: user.status,
       }));
 
@@ -148,11 +165,14 @@ export class TypeOrmUserRepository implements UserRepository {
       };
     } catch (error) {
       // 2. Si MongoDB falla, usa PostgreSQL como fallback
-      console.log('MongoDB connection not available, falling back to PostgreSQL for searchUsers operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for searchUsers operation.",
+        error
+      );
 
-      const qb = this.pgRepository.createQueryBuilder('user');
+      const qb = this.pgRepository.createQueryBuilder("user");
       if (params.q) {
-        qb.andWhere('user.name LIKE :q', { q: `%${params.q}%` });
+        qb.andWhere("user.name LIKE :q", { q: `%${params.q}%` });
       }
       if (params.limit) {
         qb.take(params.limit);
@@ -166,10 +186,11 @@ export class TypeOrmUserRepository implements UserRepository {
       }
 
       if (params.orderBy) {
-        const orderDirection = params.order?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+        const orderDirection =
+          params.order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
         qb.orderBy(`user.${params.orderBy}`, orderDirection);
       } else {
-        qb.orderBy('user.createdAt', 'DESC');
+        qb.orderBy("user.createdAt", "DESC");
       }
 
       const totalCount = await qb.getCount();
@@ -201,10 +222,15 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      await collection.deleteOne({ $or: [{ id: id.value }, { _id: id.value }] });
+      await collection.deleteOne({
+        $or: [{ id: id.value }, { _id: id.value }],
+      });
     } catch (error) {
       // 2. Si MongoDB falla, usa PostgreSQL como fallback
-      console.log('MongoDB connection not available, falling back to PostgreSQL for deleteUser operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for deleteUser operation.",
+        error
+      );
       await this.pgRepository.delete(id.value);
     }
   }
@@ -222,13 +248,15 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+      const user = await collection.findOne({
+        $or: [{ id: id.value }, { _id: id.value }],
+      });
 
-      if (!user) throw new UserNotFoundException('User not found');
+      if (!user) throw new UserNotFoundException("User not found");
 
       await collection.updateOne(
         { $or: [{ id: id.value }, { _id: id.value }] },
-        { $set: { status: 'Blocked' } }
+        { $set: { status: "Blocked" } }
       );
 
       return {
@@ -237,8 +265,11 @@ export class TypeOrmUserRepository implements UserRepository {
           name: user.name,
           email: user.email,
           userType: user.userType,
-          createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
-          status: 'Blocked',
+          createdAt:
+            typeof user.createdAt === "string"
+              ? new Date(user.createdAt)
+              : user.createdAt,
+          status: "Blocked",
         },
       };
     } catch (error) {
@@ -248,11 +279,14 @@ export class TypeOrmUserRepository implements UserRepository {
         throw error;
       }
 
-      console.log('MongoDB connection not available, falling back to PostgreSQL for blockUser operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for blockUser operation.",
+        error
+      );
 
       const user = await this.pgRepository.findOne({ where: { id: id.value } });
-      if (!user) throw new UserNotFoundException('User not found');
-      user.status = 'Blocked';
+      if (!user) throw new UserNotFoundException("User not found");
+      user.status = "Blocked";
       await this.pgRepository.save(user);
       return {
         user: {
@@ -280,13 +314,15 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+      const user = await collection.findOne({
+        $or: [{ id: id.value }, { _id: id.value }],
+      });
 
-      if (!user) throw new UserNotFoundException('User not found');
+      if (!user) throw new UserNotFoundException("User not found");
 
       await collection.updateOne(
         { $or: [{ id: id.value }, { _id: id.value }] },
-        { $set: { status: 'Active' } }
+        { $set: { status: "Active" } }
       );
 
       return {
@@ -295,8 +331,11 @@ export class TypeOrmUserRepository implements UserRepository {
           name: user.name,
           email: user.email,
           userType: user.userType,
-          createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
-          status: 'Active',
+          createdAt:
+            typeof user.createdAt === "string"
+              ? new Date(user.createdAt)
+              : user.createdAt,
+          status: "Active",
         },
       };
     } catch (error) {
@@ -306,11 +345,14 @@ export class TypeOrmUserRepository implements UserRepository {
         throw error;
       }
 
-      console.log('MongoDB connection not available, falling back to PostgreSQL for blockUser operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for blockUser operation.",
+        error
+      );
 
       const user = await this.pgRepository.findOne({ where: { id: id.value } });
-      if (!user) throw new UserNotFoundException('User not found');
-      user.status = 'Active';
+      if (!user) throw new UserNotFoundException("User not found");
+      user.status = "Active";
       await this.pgRepository.save(user);
       return {
         user: {
@@ -339,9 +381,11 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+      const user = await collection.findOne({
+        $or: [{ id: id.value }, { _id: id.value }],
+      });
 
-      if (!user) throw new UserNotFoundException('User not found');
+      if (!user) throw new UserNotFoundException("User not found");
 
       await collection.updateOne(
         { $or: [{ id: id.value }, { _id: id.value }] },
@@ -354,7 +398,10 @@ export class TypeOrmUserRepository implements UserRepository {
           name: user.name,
           email: user.email,
           userType: user.userType,
-          createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
+          createdAt:
+            typeof user.createdAt === "string"
+              ? new Date(user.createdAt)
+              : user.createdAt,
           status: user.status,
           isAdmin: true,
         },
@@ -366,10 +413,13 @@ export class TypeOrmUserRepository implements UserRepository {
         throw error;
       }
 
-      console.log('MongoDB connection not available, falling back to PostgreSQL for blockUser operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for blockUser operation.",
+        error
+      );
 
       const user = await this.pgRepository.findOne({ where: { id: id.value } });
-      if (!user) throw new UserNotFoundException('User not found');
+      if (!user) throw new UserNotFoundException("User not found");
       (user as any).isAdmin = true;
       await this.pgRepository.save(user);
       return {
@@ -385,7 +435,7 @@ export class TypeOrmUserRepository implements UserRepository {
       };
     }
   }
-  
+
   async RemoveAdminRole(id: UserId): Promise<{
     user: {
       id: string;
@@ -400,9 +450,11 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
+      const user = await collection.findOne({
+        $or: [{ id: id.value }, { _id: id.value }],
+      });
 
-      if (!user) throw new UserNotFoundException('User not found');
+      if (!user) throw new UserNotFoundException("User not found");
 
       await collection.updateOne(
         { $or: [{ id: id.value }, { _id: id.value }] },
@@ -415,7 +467,10 @@ export class TypeOrmUserRepository implements UserRepository {
           name: user.name,
           email: user.email,
           userType: user.userType,
-          createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
+          createdAt:
+            typeof user.createdAt === "string"
+              ? new Date(user.createdAt)
+              : user.createdAt,
           status: user.status,
           isAdmin: false,
         },
@@ -427,10 +482,13 @@ export class TypeOrmUserRepository implements UserRepository {
         throw error;
       }
 
-      console.log('MongoDB connection not available, falling back to PostgreSQL for blockUser operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for blockUser operation.",
+        error
+      );
 
       const user = await this.pgRepository.findOne({ where: { id: id.value } });
-      if (!user) throw new UserNotFoundException('User not found');
+      if (!user) throw new UserNotFoundException("User not found");
       (user as any).isAdmin = false;
       await this.pgRepository.save(user);
       return {
@@ -451,14 +509,19 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      const user = await collection.findOne({ $or: [{ id: id.value }, { _id: id.value }] });
-      if (!user) throw new UserNotFoundException('User not found');
+      const user = await collection.findOne({
+        $or: [{ id: id.value }, { _id: id.value }],
+      });
+      if (!user) throw new UserNotFoundException("User not found");
       return this.mapToDomain(user);
     } catch (error) {
       // 2. Si MongoDB falla, usa PostgreSQL como fallback
-      console.log('MongoDB connection not available, falling back to PostgreSQL for getOneById operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for getOneById operation.",
+        error
+      );
       const user = await this.pgRepository.findOne({ where: { id: id.value } });
-      if (!user) throw new UserNotFoundException('User not found');
+      if (!user) throw new UserNotFoundException("User not found");
       return this.mapToDomain(user);
     }
   }
@@ -471,7 +534,10 @@ export class TypeOrmUserRepository implements UserRepository {
       return users.map((user) => user.email);
     } catch (error) {
       // 2. Si MongoDB falla, usa PostgreSQL como fallback
-      console.log('MongoDB connection not available, falling back to PostgreSQL for getEmailNoadmin operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for getEmailNoadmin operation.",
+        error
+      );
       const users = await this.pgRepository.find({ where: { isAdmin: false } });
       return users.map((user) => user.email);
     }
@@ -485,7 +551,10 @@ export class TypeOrmUserRepository implements UserRepository {
       return users.map((user) => user.email);
     } catch (error) {
       // 2. Si MongoDB falla, usa PostgreSQL como fallback
-      console.log('MongoDB connection not available, falling back to PostgreSQL for getEmailAdmin operation.', error);
+      console.log(
+        "MongoDB connection not available, falling back to PostgreSQL for getEmailAdmin operation.",
+        error
+      );
       const users = await this.pgRepository.find({ where: { isAdmin: true } });
       return users.map((user) => user.email);
     }

@@ -25,7 +25,7 @@ export class User {
   membership: Membership;
   readonly createdAt: UserDate;
   updatedAt: UserDate;
-  status: string// Default: 'Active';
+  status: string; // Default: 'Active';
   isAdmin: boolean; // Default: false
   constructor(
     userName: UserName,
@@ -59,7 +59,7 @@ export class User {
       : Membership.createFreeMembership();
     this.createdAt = createdAt ? createdAt : new UserDate(new Date());
     this.updatedAt = updatedAt ? updatedAt : new UserDate(this.createdAt.value);
-    this.status = Status ? Status : 'Active';
+    this.status = Status ? Status : "Active";
     this.isAdmin = isAdmin ? isAdmin : false;
   }
 
@@ -95,5 +95,4 @@ export class User {
     this.membership = Membership.createFreeMembership();
     this.updatedAt = new UserDate(new Date());
   }
-
 }

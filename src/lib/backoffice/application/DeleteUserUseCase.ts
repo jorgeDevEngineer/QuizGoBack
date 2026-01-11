@@ -6,19 +6,18 @@ import { UnauthorizedException } from "@nestjs/common";
 
 @Injectable()
 export class DeleteUserUseCase {
-
   constructor(
-    @Inject('UserRepository')
-    private readonly userRepository: UserRepository,
+    @Inject("UserRepository")
+    private readonly userRepository: UserRepository
   ) {}
 
   async run(userheader: string, id: string): Promise<void> {
     const user = await this.userRepository.getOneById(new UserId(userheader));
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException("User not found");
     }
     if (!user.isAdmin) {
-      throw new UnauthorizedException('Unauthorized');
+      throw new UnauthorizedException("Unauthorized");
     }
     const userId = new UserId(id);
     await this.userRepository.deleteUser(userId);
