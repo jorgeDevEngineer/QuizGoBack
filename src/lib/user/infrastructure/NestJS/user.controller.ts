@@ -62,27 +62,6 @@ export class UserController {
     private readonly assetUrlResolver: IAssetUrlResolver
   ) {}
 
-  private mapUserToResponse(user: User) {
-    return {
-      id: user.id.value,
-      email: user.email.value,
-      username: user.userName.value,
-      type: user.userType.value,
-      state: user.status.value,
-      preferences: {
-        theme: user.theme.value,
-      },
-      userProfileDetails: {
-        name: user.name.value,
-        description: user.description.value,
-        avatarAssetUrl: this.assetUrlResolver.resolveAvatarUrl(
-          user.avatarAssetId.value
-        ),
-      },
-      isPremium: user.membership.isPremium(),
-    };
-  }
-
   private async getCurrentUserId(authHeader: string): Promise<string> {
     const token = authHeader?.replace(/^Bearer\s+/i, "");
     if (!token) {
@@ -122,7 +101,7 @@ export class UserController {
       new GetOneUserByUserName(body.username)
     );
     this.handleResult(createdUser);
-    return { user: this.mapUserToResponse(createdUser.getValue()) };
+    return { user: createdUser.getValue().toPlainObject() };
   }
 
   @Get("profile")
@@ -130,32 +109,28 @@ export class UserController {
     const userId = await this.getCurrentUserId(auth);
     const query = new GetOneUserById(userId);
     const result = await this.getOneUserById.execute(query);
-    return { user: this.mapUserToResponse(this.handleResult(result)) };
+    return { user: this.handleResult(result).toPlainObject() };
   }
 
   @Get("profile/id/:id")
   async getProfileById(@Param() params: FindByIdParams) {
     const query = new GetOneUserById(params.id);
     const result = await this.getOneUserById.execute(query);
-    return { user: this.mapUserToResponse(this.handleResult(result)) };
+    return { user: this.handleResult(result).toPlainObjectResumed() };
   }
 
   @Get("profile/username/:userName")
   async getProfileByUserName(@Param() params: FindByUserNameParams) {
     const query = new GetOneUserByUserName(params.userName);
     const result = await this.getOneUserByUserName.execute(query);
-    return { user: this.handleResult(result).toPlainObject() };
+    return { user: this.handleResult(result).toPlainObjectResumed() };
   }
 
   @Get()
   async getAllProfiles() {
     const query = new GetAllUsers();
     const result = await this.getAllUsers.execute(query);
-    return this.handleResult(result).map((user) => {
-      const mapped = this.mapUserToResponse(user);
-      delete (mapped as any).preferences;
-      return mapped;
-    });
+    return this.handleResult(result).map((user) => user.toPlainObjectResumed());
   }
 
   @Patch("profile")
@@ -183,7 +158,7 @@ export class UserController {
     const editResult = await this.editUser.execute(editUserCommand);
     this.handleResult(editResult);
     const result = await this.getOneUserById.execute(query);
-    return { user: this.mapUserToResponse(this.handleResult(result)) };
+    return { user: this.handleResult(result).toPlainObject() };
   }
 
   @Patch("profile/:id")
@@ -213,7 +188,7 @@ export class UserController {
     const editResult = await this.editUser.execute(editUserCommand);
     this.handleResult(editResult);
     const result = await this.getOneUserById.execute(query);
-    return { user: this.mapUserToResponse(this.handleResult(result)) };
+    return { user: this.handleResult(result).toPlainObjectResumed() };
   }
 
   @Delete("profile")
@@ -315,23 +290,21 @@ export class UserController {
   async getOneById(@Param() params: FindByIdParams) {
     const query = new GetOneUserById(params.id);
     const result = await this.getOneUserById.execute(query);
-    return this.mapUserToResponse(this.handleResult(result));
+    return this.handleResult(result).toPlainObject();
   }
 
   @Get("username/:userName")
   async getOneUserByName(@Param() params: FindByUserNameParams) {
     const query = new GetOneUserByUserName(params.userName);
     const result = await this.getOneUserByUserName.execute(query);
-    return this.mapUserToResponse(this.handleResult(result));
+    return this.handleResult(result).toPlainObject();
   }
 
   @Get()
   async getAll() {
     const query = new GetAllUsers();
     const result = await this.getAllUsers.execute(query);
-    return this.handleResult(result).map((user) =>
-      this.mapUserToResponse(user)
-    );
+    return this.handleResult(result).map((user) => user.toPlainObject());
   }
 
   @Post()
