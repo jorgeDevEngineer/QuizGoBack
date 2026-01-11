@@ -32,6 +32,9 @@ export class TypeOrmUserEntity {
   @Column()
   gameStreak: number;
 
+  @Column({ name: 'isadmin', default: false })
+  isAdmin: boolean;
+
   @Column()
   createdAt: Date;
 

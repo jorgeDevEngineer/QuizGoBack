@@ -44,7 +44,7 @@ export class SendNotificationUseCase {
         if (!user) {
             throw new BadRequestException('User not found');
         }
-        if (!user.isadmin) {
+        if (!user.isAdmin) {
             throw new UnauthorizedException('Unauthorized');
         }
         const result = await this.notificationRepository.sendNotification(data);

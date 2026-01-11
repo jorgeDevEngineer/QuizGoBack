@@ -42,7 +42,7 @@ export class SearchUsersUseCase {
         if (!user) {
             throw new BadRequestException('User not found');
         }
-        if (!user.isadmin) {
+        if (!user.isAdmin) {
             throw new UnauthorizedException('Unauthorized');
         }
         const result = await this.userRepository.searchUsers(params);

@@ -39,6 +39,7 @@ interface UserMongoDoc {
   membershipStartedAt?: Date;
   membershipExpiresAt?: Date;
   status: "Active" | "Blocked";
+  isAdmin?: boolean;
 }
 
 @Injectable()
@@ -73,7 +74,8 @@ export class TypeOrmUserRepository implements UserRepository {
       ),
       new UserDate(entity.createdAt),
       new UserDate(entity.updatedAt),
-      new UserStatus(entity.status)
+      new UserStatus(entity.status),
+      entity.isAdmin
     );
   }
 
@@ -96,7 +98,8 @@ export class TypeOrmUserRepository implements UserRepository {
       ),
       new UserDate(doc.createdAt),
       new UserDate(doc.updatedAt),
-      new UserStatus(doc.status)
+      new UserStatus(doc.status),
+      doc.isAdmin || false
     );
   }
 
@@ -115,6 +118,7 @@ export class TypeOrmUserRepository implements UserRepository {
       membershipType: user.membership.type.value,
       membershipStartedAt: user.membership.startedAt.value,
       membershipExpiresAt: user.membership.expiresAt.value,
+      isAdmin: user.isAdmin,
       createdAt: user.createdAt.value,
       updatedAt: user.updatedAt.value,
       status: user.status.value,
@@ -207,6 +211,7 @@ export class TypeOrmUserRepository implements UserRepository {
         theme: user.theme.value,
         language: user.language.value,
         gameStreak: user.gameStreak.value,
+        isAdmin: user.isAdmin,
         membershipType: user.membership.type.value,
         membershipStartedAt: user.membership.startedAt.value,
         membershipExpiresAt: user.membership.expiresAt.value,
@@ -237,6 +242,7 @@ export class TypeOrmUserRepository implements UserRepository {
         theme: user.theme.value,
         language: user.language.value,
         gameStreak: user.gameStreak.value,
+        isAdmin: user.isAdmin,
         membershipType: user.membership.type.value,
         membershipStartedAt: user.membership.startedAt.value,
         membershipExpiresAt: user.membership.expiresAt.value,

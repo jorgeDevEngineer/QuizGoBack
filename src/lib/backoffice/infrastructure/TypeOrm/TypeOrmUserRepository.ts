@@ -43,7 +43,7 @@ interface MongoUserDoc {
   membershipStartedAt: Date | string;
   membershipExpiresAt: Date | string;
   status: 'Active' | 'Blocked';
-  isadmin: boolean;
+  isAdmin?: boolean;
 }
 
 @Injectable()
@@ -69,6 +69,8 @@ export class TypeOrmUserRepository implements UserRepository {
     const membershipStartedAt = typeof entity.membershipStartedAt === 'string' ? new Date(entity.membershipStartedAt) : entity.membershipStartedAt;
     const membershipExpiresAt = typeof entity.membershipExpiresAt === 'string' ? new Date(entity.membershipExpiresAt) : entity.membershipExpiresAt;
 
+    const isAdminValue = (entity as any).isAdmin ?? false;
+
     return new User(
       new UserName(entity.userName),
       new UserEmail(entity.email),
@@ -88,7 +90,7 @@ export class TypeOrmUserRepository implements UserRepository {
       new UserDate(createdAt),
       new UserDate(updatedAt),
       entity.status,
-      entity.isadmin
+      isAdminValue
     );
   }
 
@@ -331,7 +333,7 @@ export class TypeOrmUserRepository implements UserRepository {
       userType: string;
       createdAt: Date;
       status: string;
-      isadmin: boolean;
+      isAdmin: boolean;
     };
   }> {
     try {
@@ -343,7 +345,7 @@ export class TypeOrmUserRepository implements UserRepository {
 
       await collection.updateOne(
         { $or: [{ id: id.value }, { _id: id.value }] },
-        { $set: { isadmin: true } }
+        { $set: { isAdmin: true } }
       );
 
       return {
@@ -354,7 +356,7 @@ export class TypeOrmUserRepository implements UserRepository {
           userType: user.userType,
           createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
           status: user.status,
-          isadmin: true,
+          isAdmin: true,
         },
       };
     } catch (error) {
@@ -368,7 +370,7 @@ export class TypeOrmUserRepository implements UserRepository {
 
       const user = await this.pgRepository.findOne({ where: { id: id.value } });
       if (!user) throw new UserNotFoundException('User not found');
-      user.isadmin = true;
+      (user as any).isAdmin = true;
       await this.pgRepository.save(user);
       return {
         user: {
@@ -378,7 +380,7 @@ export class TypeOrmUserRepository implements UserRepository {
           userType: user.userType,
           createdAt: user.createdAt,
           status: user.status,
-          isadmin: true,
+          isAdmin: true,
         },
       };
     }
@@ -392,7 +394,7 @@ export class TypeOrmUserRepository implements UserRepository {
       userType: string;
       createdAt: Date;
       status: string;
-      isadmin: boolean;
+      isAdmin: boolean;
     };
   }> {
     try {
@@ -404,7 +406,7 @@ export class TypeOrmUserRepository implements UserRepository {
 
       await collection.updateOne(
         { $or: [{ id: id.value }, { _id: id.value }] },
-        { $set: { isadmin: false } }
+        { $set: { isAdmin: false } }
       );
 
       return {
@@ -415,7 +417,7 @@ export class TypeOrmUserRepository implements UserRepository {
           userType: user.userType,
           createdAt: typeof user.createdAt === 'string' ? new Date(user.createdAt) : user.createdAt,
           status: user.status,
-          isadmin: false,
+          isAdmin: false,
         },
       };
     } catch (error) {
@@ -429,7 +431,7 @@ export class TypeOrmUserRepository implements UserRepository {
 
       const user = await this.pgRepository.findOne({ where: { id: id.value } });
       if (!user) throw new UserNotFoundException('User not found');
-      user.isadmin = false;
+      (user as any).isAdmin = false;
       await this.pgRepository.save(user);
       return {
         user: {
@@ -439,7 +441,7 @@ export class TypeOrmUserRepository implements UserRepository {
           userType: user.userType,
           createdAt: user.createdAt,
           status: user.status,
-          isadmin: false,
+          isAdmin: false,
         },
       };
     }
@@ -465,12 +467,12 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      const users = await collection.find({ isadmin: false }).toArray();
+      const users = await collection.find({ isAdmin: false }).toArray();
       return users.map((user) => user.email);
     } catch (error) {
       // 2. Si MongoDB falla, usa PostgreSQL como fallback
       console.log('MongoDB connection not available, falling back to PostgreSQL for getEmailNoadmin operation.', error);
-      const users = await this.pgRepository.find({ where: { isadmin: false } });
+      const users = await this.pgRepository.find({ where: { isAdmin: false } });
       return users.map((user) => user.email);
     }
   }
@@ -479,12 +481,12 @@ export class TypeOrmUserRepository implements UserRepository {
     try {
       // 1. Intenta usar MongoDB
       const collection = await this.getMongoCollection();
-      const users = await collection.find({ isadmin: true }).toArray();
+      const users = await collection.find({ isAdmin: true }).toArray();
       return users.map((user) => user.email);
     } catch (error) {
       // 2. Si MongoDB falla, usa PostgreSQL como fallback
       console.log('MongoDB connection not available, falling back to PostgreSQL for getEmailAdmin operation.', error);
-      const users = await this.pgRepository.find({ where: { isadmin: true } });
+      const users = await this.pgRepository.find({ where: { isAdmin: true } });
       return users.map((user) => user.email);
     }
   }

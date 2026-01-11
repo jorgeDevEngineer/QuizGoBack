@@ -59,7 +59,7 @@ export interface UserRepository {
       userType: string;
       createdAt: Date;
       status: string;
-      isadmin: boolean;
+      isAdmin: boolean;
     };
   }>;
 
@@ -71,7 +71,7 @@ export interface UserRepository {
       userType: string;
       createdAt: Date;
       status: string;
-      isadmin: boolean;
+      isAdmin: boolean;
     };
   }>;
 

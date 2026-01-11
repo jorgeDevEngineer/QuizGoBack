@@ -11,7 +11,7 @@ export interface GivenAdminRoleDto {
         userType: string;
         createdAt: Date;
         status: string;
-        isadmin: boolean;
+        isAdmin: boolean;
     };
 }
 
@@ -27,7 +27,7 @@ export class GiveAdminRoleUseCase {
         if (!user) {
             throw new BadRequestException('User not found');
         }
-        if (!user.isadmin) {
+        if (!user.isAdmin) {
             throw new UnauthorizedException('Unauthorized');
         }
         const userId = new UserId(id);
