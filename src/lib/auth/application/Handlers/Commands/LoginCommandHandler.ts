@@ -39,8 +39,9 @@ export class LoginCommandHandler
       return Result.fail(new Error("Invalid credentials"));
     }
     const token = await this.tokenProvider.generateToken({
-      sub: user.id.value,
+      id: user.id.value,
       email: user.email.value,
+      roles: user.roles.value,
     });
     return Result.ok(token);
   }
