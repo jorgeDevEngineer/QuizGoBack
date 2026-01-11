@@ -17,8 +17,8 @@ import { LoginCommand } from "../../application/parameterObjects/LoginCommand";
 import { RegisterCommand } from "../../application/parameterObjects/RegisterCommand";
 import { LogoutCommand } from "../../application/parameterObjects/LogoutCommand";
 import { CheckTokenStatusQuery } from "../../application/parameterObjects/CheckTokenStatusQuery";
-import { GetOneUserByEmail } from "src/lib/user/application/Parameter Objects/GetOneUserByEmail";
-import { GetOneUserByEmailQueryHandler } from "src/lib/user/application/Handlers/Querys/GetOneUserByEmailQueryHandler";
+import { GetOneUserByUserName } from "src/lib/user/application/Parameter Objects/GetOneUserByUserName";
+import { GetOneUserByUserNameQueryHandler } from "src/lib/user/application/Handlers/Querys/GetOneUserByUserNameQueryHandler";
 import { In } from "typeorm";
 import { GetOneUserByIdQueryHandler } from "src/lib/user/application/Handlers/Querys/GetOneUserByIdQueryHandler";
 import { GetOneUserById } from "src/lib/user/application/Parameter Objects/GetOneUserById";
@@ -34,8 +34,8 @@ export class AuthController {
     private readonly logoutHandler: LogoutCommandHandler,
     @Inject(CheckTokenStatusQueryHandler)
     private readonly checkTokenHandler: CheckTokenStatusQueryHandler,
-    @Inject(GetOneUserByEmailQueryHandler)
-    private readonly getUserByEmailHandler: GetOneUserByEmailQueryHandler,
+    @Inject(GetOneUserByUserNameQueryHandler)
+    private readonly getUserByUserNameHandler: GetOneUserByUserNameQueryHandler,
     @Inject(GetOneUserByIdQueryHandler)
     private readonly getUserByIdHandler: GetOneUserByIdQueryHandler,
     @Inject("ITokenProvider") private readonly tokenProvider: ITokenProvider,
@@ -63,15 +63,15 @@ export class AuthController {
   }
 
   @Post("login")
-  async login(@Body() body: { email: string; password: string }) {
+  async login(@Body() body: { username: string; password: string }) {
     const result = await this.loginHandler.execute(
-      new LoginCommand(body.email, body.password)
+      new LoginCommand(body.username, body.password)
     );
     if (result.isFailure) {
       throw new HttpException(result.error.message, HttpStatus.UNAUTHORIZED);
     }
-    const user = await this.getUserByEmailHandler.execute(
-      new GetOneUserByEmail(body.email)
+    const user = await this.getUserByUserNameHandler.execute(
+      new GetOneUserByUserName(body.username)
     );
     return {
       token: result.getValue(),

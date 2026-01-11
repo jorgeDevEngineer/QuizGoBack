@@ -1,6 +1,6 @@
 export class LoginCommand {
   constructor(
-    public readonly email: string,
+    public readonly userName: string,
     public readonly password: string
   ) {}
 }
