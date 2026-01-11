@@ -61,7 +61,7 @@ export class User {
     this.id = id ? id : UserId.generateId();
     this.name = name ? name : new UserPlainName("");
     this.description = description ? description : new UserDescription("");
-    this.theme = theme ? theme : new UserTheme("light");
+    this.theme = theme ? theme : new UserTheme("LIGHT");
     this.language = language ? language : new UserLanguage("es");
     this.gameStreak = gameStreak ? gameStreak : new UserGameStreak(0);
     this.membership = membership
@@ -69,7 +69,7 @@ export class User {
       : Membership.createFreeMembership();
     this.createdAt = createdAt ? createdAt : new UserDate(new Date());
     this.updatedAt = updatedAt ? updatedAt : new UserDate(this.createdAt.value);
-    this.status = status ? status : new UserStatus("Active");
+    this.status = status ? status : new UserStatus("active");
     this.isAdmin = isAdmin ? isAdmin : new UserIsAdmin(false);
     this.roles = roles ? roles : new UserRoles(["user"]);
   }

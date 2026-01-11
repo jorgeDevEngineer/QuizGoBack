@@ -15,7 +15,7 @@ export class TypeOrmUserEntity {
   hashedPassword: string;
 
   @Column()
-  userType: "student" | "teacher" | "personal";
+  userType: "STUDENT" | "TEACHER";
 
   @Column()
   avatarAssetId: string;
@@ -30,7 +30,7 @@ export class TypeOrmUserEntity {
   roles: string[];
 
   @Column()
-  theme: string;
+  theme: "LIGHT" | "DARK";
 
   @Column()
   language: string;
@@ -57,5 +57,5 @@ export class TypeOrmUserEntity {
   membershipExpiresAt: Date;
 
   @Column()
-  status: "Active" | "Blocked";
+  status: "active" | "blocked";
 }
