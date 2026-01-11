@@ -83,19 +83,21 @@ export class AuthController {
       );
     }
     const decodedToken = await this.tokenProvider.validateToken(token);
-    if (!decodedToken) {
-      return { valid: false, user: null };
-    } else {
-      const user = await this.getUserByIdHandler.execute(
-        new GetOneUserById(decodedToken.sub)
-      );
-      if (user.isFailure) {
-        throw new HttpException("User not found", HttpStatus.NOT_FOUND);
-      }
-      return {
-        valid: result.getValue() === true,
-        user: user.getValue().toPlainObject(),
-      };
+    if (!decodedToken || !decodedToken.id) {
+      throw new HttpException("Invalid token", HttpStatus.UNAUTHORIZED);
     }
+    const userResult = await this.getUserByIdHandler.execute(
+      new GetOneUserById(decodedToken.id)
+    );
+    if (userResult.isFailure) {
+      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+    }
+    const user = userResult.getValue();
+    const newToken = await this.tokenProvider.generateToken({
+      sub: user.id.value,
+      email: user.email.value,
+      roles: user.roles.value,
+    });
+    return { token: newToken, user: user.toPlainObject() };
   }
 }

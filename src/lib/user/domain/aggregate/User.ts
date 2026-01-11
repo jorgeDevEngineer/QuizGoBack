@@ -9,6 +9,9 @@ import { UserGameStreak } from "../valueObject/UserGameStreak";
 import { UserDate } from "../valueObject/UserDate";
 import { UserId } from "../valueObject/UserId";
 import { UserPlainName } from "../valueObject/UserPlainName";
+import { UserDescription } from "../valueObject/UserDescription";
+import { UserRoles } from "../valueObject/UserRoles";
+import { UserIsAdmin } from "../valueObject/UserIsAdmin";
 import { Membership } from "../entity/Membership.js";
 import { UserStatus } from "../valueObject/UserStatus";
 
@@ -20,8 +23,8 @@ export class User {
   readonly userType: UserType;
   readonly avatarUrl: UserAvatarUrl;
   readonly name: UserPlainName;
-  readonly description: string;
-  readonly roles: ("user" | "admin")[];
+  readonly description: UserDescription;
+  readonly roles: UserRoles;
   readonly theme: UserTheme; // Default: 'light'
   readonly language: UserLanguage; // Default: 'es'
   readonly gameStreak: UserGameStreak; // Default: 0
@@ -29,7 +32,7 @@ export class User {
   readonly createdAt: UserDate;
   updatedAt: UserDate;
   status: UserStatus;
-  readonly isAdmin: boolean;
+  readonly isAdmin: UserIsAdmin;
   constructor(
     userName: UserName,
     email: UserEmail,
@@ -38,7 +41,7 @@ export class User {
     avatarUrl: UserAvatarUrl,
     id?: UserId,
     name?: UserPlainName,
-    description?: string,
+    description?: UserDescription,
     theme?: UserTheme,
     language?: UserLanguage,
     gameStreak?: UserGameStreak,
@@ -46,8 +49,8 @@ export class User {
     createdAt?: UserDate,
     updatedAt?: UserDate,
     status?: UserStatus,
-    isAdmin?: boolean,
-    roles?: ("user" | "admin")[]
+    isAdmin?: UserIsAdmin,
+    roles?: UserRoles
   ) {
     this.userName = userName;
     this.email = email;
@@ -56,7 +59,7 @@ export class User {
     this.avatarUrl = avatarUrl ? avatarUrl : new UserAvatarUrl("");
     this.id = id ? id : UserId.generateId();
     this.name = name ? name : new UserPlainName("");
-    this.description = description ?? "";
+    this.description = description ? description : new UserDescription("");
     this.theme = theme ? theme : new UserTheme("light");
     this.language = language ? language : new UserLanguage("es");
     this.gameStreak = gameStreak ? gameStreak : new UserGameStreak(0);
@@ -66,8 +69,8 @@ export class User {
     this.createdAt = createdAt ? createdAt : new UserDate(new Date());
     this.updatedAt = updatedAt ? updatedAt : new UserDate(this.createdAt.value);
     this.status = status ? status : new UserStatus("Active");
-    this.isAdmin = isAdmin ? isAdmin : false;
-    this.roles = roles && roles.length ? roles : ["user"];
+    this.isAdmin = isAdmin ? isAdmin : new UserIsAdmin(false);
+    this.roles = roles ? roles : new UserRoles(["user"]);
   }
 
   toPlainObject() {
@@ -82,7 +85,7 @@ export class User {
       },
       userProfileDetails: {
         name: this.name.value,
-        description: this.description,
+        description: this.description.value,
         avatarAssetUrl: this.avatarUrl.value,
       },
       isPremium: this.membership.isPremium(),

@@ -8,6 +8,9 @@ import { UserHashedPassword } from "../../../domain/valueObject/UserHashedPasswo
 import { UserType } from "../../../domain/valueObject/UserType";
 import { UserAvatarUrl } from "../../../domain/valueObject/UserAvatarUrl";
 import { UserPlainName } from "../../../domain/valueObject/UserPlainName";
+import { UserDescription } from "../../../domain/valueObject/UserDescription";
+import { UserIsAdmin } from "../../../domain/valueObject/UserIsAdmin";
+import { UserRoles } from "../../../domain/valueObject/UserRoles";
 import { UserTheme } from "../../../domain/valueObject/UserTheme";
 import { UserLanguage } from "../../../domain/valueObject/UserLanguaje";
 import { UserGameStreak } from "../../../domain/valueObject/UserGameStreak";
@@ -61,7 +64,7 @@ export class EditUserCommandHandler
       new UserAvatarUrl(command.avatarUrl),
       new UserId(command.targetUserId),
       new UserPlainName(command.name),
-      command.description,
+      new UserDescription(command.description ?? ""),
       new UserTheme(command.theme),
       new UserLanguage(command.language),
       new UserGameStreak(command.gameStreak),
@@ -70,7 +73,7 @@ export class EditUserCommandHandler
       new UserDate(new Date()),
       new UserStatus(command.status),
       existing.isAdmin,
-      (existing as any).roles
+      existing.roles
     );
     await this.userRepository.edit(user);
     return Result.ok(undefined);

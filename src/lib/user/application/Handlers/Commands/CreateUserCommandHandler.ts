@@ -7,6 +7,7 @@ import { UserHashedPassword } from "../../../domain/valueObject/UserHashedPasswo
 import { UserType } from "../../../domain/valueObject/UserType";
 import { UserAvatarUrl } from "../../../domain/valueObject/UserAvatarUrl";
 import { UserPlainName } from "../../../domain/valueObject/UserPlainName";
+import { UserDescription } from "../../../domain/valueObject/UserDescription";
 import { UserTheme } from "../../../domain/valueObject/UserTheme";
 import { UserLanguage } from "../../../domain/valueObject/UserLanguaje";
 import { UserGameStreak } from "../../../domain/valueObject/UserGameStreak";
@@ -36,7 +37,7 @@ export class CreateUserCommandHandler
       undefined,
       undefined,
       new UserPlainName(command.name),
-      command.description
+      new UserDescription(command.description ?? "")
     );
     const userWithSameId = await this.userRepository.getOneById(newUser.id);
     if (userWithSameId) {

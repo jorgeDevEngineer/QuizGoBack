@@ -10,6 +10,9 @@ import { UserHashedPassword } from "../../domain/valueObject/UserHashedPassword"
 import { UserType } from "../../domain/valueObject/UserType";
 import { UserAvatarUrl } from "../../domain/valueObject/UserAvatarUrl";
 import { UserPlainName } from "../../domain/valueObject/UserPlainName";
+import { UserDescription } from "../../domain/valueObject/UserDescription";
+import { UserRoles } from "../../domain/valueObject/UserRoles";
+import { UserIsAdmin } from "../../domain/valueObject/UserIsAdmin";
 import { UserTheme } from "../../domain/valueObject/UserTheme";
 import { UserLanguage } from "../../domain/valueObject/UserLanguaje";
 import { UserGameStreak } from "../../domain/valueObject/UserGameStreak";
@@ -66,7 +69,7 @@ export class TypeOrmUserRepository implements UserRepository {
       new UserAvatarUrl(entity.avatarUrl),
       new UserId(entity.id),
       new UserPlainName(entity.name),
-      entity.description,
+      new UserDescription(entity.description ?? ""),
       new UserTheme(entity.theme),
       new UserLanguage(entity.language),
       new UserGameStreak(entity.gameStreak),
@@ -78,10 +81,12 @@ export class TypeOrmUserRepository implements UserRepository {
       new UserDate(entity.createdAt),
       new UserDate(entity.updatedAt),
       new UserStatus(entity.status),
-      entity.isAdmin,
-      (entity as any).roles && (entity as any).roles.length
-        ? (entity as any).roles
-        : ["user"]
+      new UserIsAdmin(entity.isAdmin),
+      new UserRoles(
+        (entity as any).roles && (entity as any).roles.length
+          ? (entity as any).roles
+          : ["user"]
+      )
     );
   }
 
@@ -94,7 +99,7 @@ export class TypeOrmUserRepository implements UserRepository {
       new UserAvatarUrl(doc.avatarUrl),
       new UserId(doc._id),
       new UserPlainName(doc.name),
-      doc.description,
+      new UserDescription(doc.description ?? ""),
       new UserTheme(doc.theme),
       new UserLanguage(doc.language),
       new UserGameStreak(doc.gameStreak),
@@ -106,8 +111,8 @@ export class TypeOrmUserRepository implements UserRepository {
       new UserDate(doc.createdAt),
       new UserDate(doc.updatedAt),
       new UserStatus(doc.status),
-      doc.isAdmin || false,
-      doc.roles && doc.roles.length ? doc.roles : ["user"]
+      new UserIsAdmin(doc.isAdmin || false),
+      new UserRoles(doc.roles && doc.roles.length ? doc.roles : ["user"])
     );
   }
 
@@ -120,15 +125,15 @@ export class TypeOrmUserRepository implements UserRepository {
       userType: user.userType.value,
       avatarUrl: user.avatarUrl.value,
       name: user.name.value,
-      description: user.description,
-      roles: user.roles,
+      description: user.description.value,
+      roles: user.roles.value,
       theme: user.theme.value,
       language: user.language.value,
       gameStreak: user.gameStreak.value,
       membershipType: user.membership.type.value,
       membershipStartedAt: user.membership.startedAt.value,
       membershipExpiresAt: user.membership.expiresAt.value,
-      isAdmin: user.isAdmin,
+      isAdmin: user.isAdmin.value,
       createdAt: user.createdAt.value,
       updatedAt: user.updatedAt.value,
       status: user.status.value,
@@ -218,12 +223,12 @@ export class TypeOrmUserRepository implements UserRepository {
         userType: user.userType.value,
         avatarUrl: user.avatarUrl.value,
         name: user.name.value,
-        description: user.description,
-        roles: user.roles,
+        description: user.description.value,
+        roles: user.roles.value,
         theme: user.theme.value,
         language: user.language.value,
         gameStreak: user.gameStreak.value,
-        isAdmin: user.isAdmin,
+        isAdmin: user.isAdmin.value,
         membershipType: user.membership.type.value,
         membershipStartedAt: user.membership.startedAt.value,
         membershipExpiresAt: user.membership.expiresAt.value,
@@ -251,12 +256,12 @@ export class TypeOrmUserRepository implements UserRepository {
         userType: user.userType.value,
         avatarUrl: user.avatarUrl.value,
         name: user.name.value,
-        description: user.description,
-        roles: user.roles,
+        description: user.description.value,
+        roles: user.roles.value,
         theme: user.theme.value,
         language: user.language.value,
         gameStreak: user.gameStreak.value,
-        isAdmin: user.isAdmin,
+        isAdmin: user.isAdmin.value,
         membershipType: user.membership.type.value,
         membershipStartedAt: user.membership.startedAt.value,
         membershipExpiresAt: user.membership.expiresAt.value,
