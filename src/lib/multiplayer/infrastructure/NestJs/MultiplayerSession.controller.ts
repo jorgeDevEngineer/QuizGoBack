@@ -16,6 +16,7 @@ import { CreateSessionCommand } from "../../application/parameterObjects/CreateS
 import { GetPinWithQrTokenResponseDto } from "../../application/responseDtos/GetPinWithQrTokenResponse.dto";
 import { GetPinWithQrTokenQuery } from "../../application/parameterObjects/GetPinWithQrTokenQuery";
 import { IHandler } from "src/lib/shared/IHandler";
+import { ITokenProvider } from "src/lib/auth/application/providers/ITokenProvider";
 
 @Controller('multiplayer-sessions')
 export class MultiplayerSessionControler {
@@ -25,34 +26,20 @@ export class MultiplayerSessionControler {
         private readonly CreateSessionHandler: IHandler<CreateSessionCommand, CreateSessionResponseDto>,
 
         @Inject('GetPinWithQrTokenQueryHandler')
-        private readonly GetPinWithQrTokenHandler: IHandler<GetPinWithQrTokenQuery, GetPinWithQrTokenResponseDto>
-    ) {}
+        private readonly GetPinWithQrTokenHandler: IHandler<GetPinWithQrTokenQuery, GetPinWithQrTokenResponseDto>,
 
-    //Mientras no esté hecho el modulo de autentición
-    private extractUserIdFromToken(authHeader: string): string {
-        // Implementación simple - en producción usaremos JWT service
-        //if (!authHeader || !authHeader.startsWith('Bearer ')) {
-           // throw new HttpException('Token invalido', HttpStatus.UNAUTHORIZED);
-        //}
-    
-        //const token = authHeader.substring(7);
-        // Aquí iría la lógica para decodificar el JWT y obtener el userId
-        // Por ahora retornamos un mock
-        return authHeader;
-    }
+        @Inject("ITokenProvider") 
+        private readonly tokenProvider: ITokenProvider
+    ) {}
 
     @Post()
     async createSession(
         @Body() body: CreateSessionRequestDto,
         @Headers('authorization') authHeader?: string
     ):Promise<CreateSessionResponseDto>{
-    
-        if (!authHeader) {
-            throw new UnauthorizedException('No se encuentra el header de autorización');
-        }
-    
+ 
         try {
-            const hostId = this.extractUserIdFromToken(authHeader);
+            const hostId = await this.getCurrentUserId(authHeader);
             return await this.CreateSessionHandler.execute({
                 kahootId: body.kahootId,
                 hostId: hostId
@@ -74,5 +61,17 @@ export class MultiplayerSessionControler {
             throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }
     }
+
+    private async getCurrentUserId(authHeader: string): Promise<string> {
+        const token = authHeader?.replace(/^Bearer\s+/i, "");
+        if (!token) {
+          throw new Error("Token required");
+        }
+        const payload = await this.tokenProvider.validateToken(token);
+        if (!payload || !payload.sub) {
+          throw new Error("Invalid token");
+        }
+        return payload.sub;
+      }
     
 }

@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TypeOrmMultiplayerSessionEntity } from "../repositories/TypeOrm/TypeOrmMultiplayerSessionEntity";
 import { KahootModule } from "src/lib/kahoot/infrastructure/NestJs/kahoot.module";
@@ -26,10 +26,12 @@ import { HostNextPhaseCommandHandler } from "../../application/handlers/HostNext
 import { MultiplayerEvaluationService } from "../../domain/services/MultiplayerEvaluationService";
 import { UpdateSessionProgressAndLeaderboardService } from "../../domain/services/UpdateSessionProgressAndLeaderboardService";
 import { SessionArchiverService } from "../../domain/services/SessionArchiverService";
+import { AuthModule } from "src/lib/auth/infrastructure/NestJs/auth.module";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TypeOrmMultiplayerSessionEntity, TypeOrmQuizEntity, TypeOrmUserEntity]), 
+    TypeOrmModule.forFeature([TypeOrmMultiplayerSessionEntity, TypeOrmQuizEntity, TypeOrmUserEntity]),
+    forwardRef(() => AuthModule), 
     KahootModule,
     UserModule,
     SinglePlayerGameModule,
