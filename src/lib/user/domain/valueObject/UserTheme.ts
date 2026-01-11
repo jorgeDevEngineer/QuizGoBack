@@ -1,17 +1,18 @@
 import { DomainException } from "src/lib/shared/exceptions/domain.exception";
 
 export class UserTheme {
-  readonly value: string;
-  private static readonly allowedThemes = ["light", "dark", "system"];
+  readonly value: "LIGHT" | "DARK";
+  private static readonly allowedThemes = ["LIGHT", "DARK"] as const;
 
   constructor(value: string) {
-    if (!this.isValid(value)) {
+    const normalized = value.toUpperCase();
+    if (!this.isValid(normalized)) {
       throw new DomainException("Invalid theme value");
     }
-    this.value = value;
+    this.value = normalized as "LIGHT" | "DARK";
   }
 
   private isValid(value: string): boolean {
-    return UserTheme.allowedThemes.includes(value);
+    return (UserTheme.allowedThemes as readonly string[]).includes(value);
   }
 }

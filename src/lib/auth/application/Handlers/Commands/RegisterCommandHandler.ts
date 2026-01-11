@@ -23,8 +23,8 @@ export class RegisterCommandHandler
       command.userName,
       command.email,
       hashedPassword,
-      "personal", // default userType
-      "https://images.wikidexcdn.net/mwuploads/esssbwiki/thumb/a/ae/latest/20100528185326/Kirby_SSBB.jpg/200px-Kirby_SSBB.jpg" // avatarUrl
+      "STUDENT",
+      command.name ?? ""
     );
     return await this.createUserHandler.execute(createUserCommand);
   }

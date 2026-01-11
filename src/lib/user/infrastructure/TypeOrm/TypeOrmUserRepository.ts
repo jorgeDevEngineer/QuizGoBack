@@ -30,12 +30,12 @@ interface UserMongoDoc {
   userName: string;
   email: string;
   hashedPassword: string;
-  userType: "student" | "teacher" | "personal";
+  userType: "STUDENT" | "TEACHER";
   avatarAssetId: string;
   name: string;
   description?: string;
   roles?: ("user" | "admin")[];
-  theme: string;
+  theme: "LIGHT" | "DARK";
   language: string;
   gameStreak: number;
   createdAt: Date;
@@ -43,7 +43,7 @@ interface UserMongoDoc {
   membershipType?: "free" | "premium";
   membershipStartedAt?: Date;
   membershipExpiresAt?: Date;
-  status: "Active" | "Blocked";
+  status: "active" | "blocked";
   isAdmin?: boolean;
 }
 

@@ -20,7 +20,7 @@ export class Create {
   @IsString()
   name: string;
   @IsString()
-  type: "student" | "teacher" | "personal";
+  type: "STUDENT" | "TEACHER";
 }
 
 export class Edit {

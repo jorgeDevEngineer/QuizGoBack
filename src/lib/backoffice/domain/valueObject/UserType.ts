@@ -1,15 +1,16 @@
 export class UserType {
-  readonly value: "student" | "teacher" | "personal";
+  readonly value: "STUDENT" | "TEACHER";
 
-  constructor(value: "student" | "teacher" | "personal") {
-    if (!this.isValid(value)) {
+  constructor(value: string) {
+    const normalized = value.toUpperCase();
+    if (!this.isValid(normalized)) {
       throw new Error("Invalid user type");
     }
-    this.value = value;
+    this.value = normalized as "STUDENT" | "TEACHER";
   }
 
-  private isValid(value: "student" | "teacher" | "personal"): boolean {
-    const validTypes = ["student", "teacher", "personal"];
+  private isValid(value: string): boolean {
+    const validTypes = ["STUDENT", "TEACHER"];
     return validTypes.includes(value);
   }
 }
